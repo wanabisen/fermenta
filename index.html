@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Fermentación</title>
+    
+    <!-- 1. Cargar Tailwind CSS (Esta es la corrección clave) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <style>
+        /* Un pequeño ajuste para que el fondo se vea bien */
+        body { background-color: #f9fafb; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <!-- 2. Cargar React y ReactDOM -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+
+    <!-- 3. Cargar Babel para poder usar JSX en el navegador -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <!-- 4. El código completo de tu aplicación React -->
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        // --- COMPONENTES DE UI ---
+        const InputSlider = ({ label, icon, value, onChange, min, max, step, unit, disabled = false }) => (
+            <div className="space-y-2">
+                <label className={`flex items-center text-sm font-medium ${disabled ? 'text-gray-400' : 'text-gray-700'}`}>
+                    <span className="text-xl w-6 text-center">{icon}</span>
+                    <span className="ml-2">{label}</span>
+                </label>
+                <div className="flex items-center space-x-4">
+                    <input
+                        type="range"
+                        min={min}
+                        max={max}
+                        step={step}
+                        value={value}
+                        onChange={e => onChange(parseFloat(e.target.value))}
+                        className={`w-full h-2 bg-gray-200 rounded-lg appearance-none ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+                        disabled={disabled}
+                    />
+                    <input
+                        type="number"
+                        value={value}
+                        onChange={e => onChange(parseFloat(e.target.value) || 0)}
+                        className="w-24 p-2 text-center border border-gray-300 rounded-md"
+                        disabled={disabled}
+                    />
+                    <span className={`text-sm ${disabled ? 'text-gray-400' : 'text-gray-500'}`}>{unit}</span>
+                </div>
+            </div>
+        );
+
+        const PrefermentSelector = ({ selected, onSelect, descriptions, disabled = false }) => {
+            const options = {
+                'none': 'Ninguno',
+                'biga': 'Biga',
+                'poolish': 'Poolish',
+                'esponja': 'Esponja',
+                'masa_madre': 'Masa Madre'
+            };
+            return (
+                <div>
+                    <label className={`flex items-center text-sm font-medium mb-2 ${disabled ? 'text-gray-400' : 'text-gray-700'}`}>
+                        <span className="text-xl mr-2">🌿</span>
+                        Tipo de Prefermento
+                    </label>
+                    <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
+                        {Object.entries(options).map(([key, name]) => (
+                            <button
+                                key={key}
+                                onClick={() => onSelect(key)}
+                                className={`px-2 py-2 text-sm rounded-md font-semibold transition-colors ${selected === key ? 'bg-yellow-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'} ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                disabled={disabled}
+                            >
+                                {name}
+                            </button>
+                        ))}
+                    </div>
+                    {selected !== 'none' && descriptions[selected] && !disabled && (
+                        <div className="mt-3 p-2 bg-gray-100 rounded-md">
+                            <p className="text-xs text-gray-700">{descriptions[selected]}</p>
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        const BakingPlan = ({ plan }) => (
+            <div className="bg-white p-4 rounded-md shadow-sm space-y-3">
+                <h3 className="font-semibold text-center">Plan de Horneado</h3>
+                {plan.steps.map((step, index) => (
+                    <div key={index} className="flex justify-between items-center border-t pt-3">
+                        <div className="flex items-center text-gray-700">
+                            <span className="text-lg mr-2">{step.steam ? '💨' : '🔥'}</span>
+                            <div>
+                                <p className="font-semibold">{step.temp}°C</p>
+                                {step.steam && <p className="text-xs text-gray-500">con vapor</p>}
+                            </div>
+                        </div>
+                        <span className="font-bold text-xl">{step.time}</span>
+                    </div>
+                ))}
+                {plan.notes && <p className="text-xs text-gray-600 pt-2 border-t text-center">{plan.notes}</p>}
+            </div>
+        );
+
+        const PrefermentResults = ({ results, formatTime, prefermentConfig, prefermentTime, prefermentTemp }) => (
+            <div className="space-y-6">
+                <div>
+                    <h3 className="text-xl font-semibold text-gray-700 flex items-center"><span className="text-xl mr-2">🌿</span>Para el {prefermentConfig.name}</h3>
+                    <div className="mt-2 bg-yellow-50 border border-yellow-200 p-4 rounded-lg space-y-3">
+                        <div className="grid grid-cols-3 gap-2 text-center">
+                            <div className="bg-white p-2 rounded-md"><p className="text-sm text-gray-500">Harina</p><p className="text-lg font-bold">{results.prefermentFlour.toFixed(0)}g</p></div>
+                            <div className="bg-white p-2 rounded-md"><p className="text-sm text-gray-500">Agua ({prefermentConfig.hydration}%)</p><p className="text-lg font-bold">{results.prefermentWater.toFixed(0)}g</p></div>
+                            <div className="bg-white p-2 rounded-md"><p className="text-sm text-gray-500">Levadura</p><p className="text-lg font-bold">{results.prefermentYeastGrams.toFixed(2)}g</p></div>
+                        </div>
+                        <div className="bg-white p-3 rounded-md shadow-sm space-y-2 mt-3">
+                             <h4 className="font-semibold text-center text-sm text-gray-600">Plan de Levado (Prefermento)</h4>
+                             <div className="flex justify-between items-center border-t pt-2"><span className="flex items-center text-gray-700 text-sm"><span className="text-lg mr-2">🌡️</span>A {prefermentTemp}°C</span><span className="font-bold text-lg">{formatTime(prefermentTime)}</span></div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <h3 className="text-xl font-semibold text-gray-700">Para la Masa Final</h3>
+                    <div className="mt-2 bg-gray-100 p-4 rounded-lg space-y-4">
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-center">
+                             <div className="bg-white p-2 rounded-md"><p className="text-sm text-gray-500">Harina</p><p className="text-lg font-bold">{results.finalDoughFlour.toFixed(0)}g</p></div>
+                             <div className="bg-white p-2 rounded-md"><p className="text-sm text-gray-500">Agua</p><p className="text-lg font-bold">{results.finalDoughWater.toFixed(0)}g</p></div>
+                             <div className="bg-white p-2 rounded-md"><p className="text-sm text-gray-500">Sal ({results.saltPercent}%)</p><p className="text-lg font-bold">{results.saltGrams.toFixed(1)}g</p></div>
+                        </div>
+                         <div className="bg-white p-4 rounded-md shadow-sm text-center"><p className="text-sm text-gray-500 flex items-center justify-center"><span className="text-lg mr-1">⚖️</span>Levadura Seca Adicional</p><p className="text-3xl font-bold text-green-600">{results.yeastGrams.toFixed(2)}g</p><p className="text-sm text-gray-500">({results.yeastPercent.toFixed(2)}% sobre harina final)</p></div>
+                        <div className="bg-white p-4 rounded-md shadow-sm space-y-3">
+                            <h3 className="font-semibold text-center">Plan de Levado (Masa Final)</h3>
+                            <div className="flex justify-between items-center border-t pt-3"><span className="flex items-center text-gray-700"><span className="text-lg mr-2">🌡️</span>{results.coldTime > 0 ? 'Arranque Ambiente' : 'Levado Principal'}</span><span className="font-bold text-xl">{formatTime(results.ambientTime)}</span></div>
+                            {results.coldTime > 0 && <div className="flex justify-between items-center border-t pt-3"><span className="flex items-center text-gray-700"><span className="text-lg mr-2">❄️</span>En Frío (Nevera)</span><span className="font-bold text-xl">{formatTime(results.coldTime)}</span></div>}
+                            {results.temperingTime > 0 && <div className="flex justify-between items-center border-t pt-3"><span className="flex items-center text-gray-700"><span className="text-lg mr-2">☀️</span>Atemperar</span><span className="font-bold text-xl">{formatTime(results.temperingTime)}</span></div>}
+                            <div className="flex justify-between items-center border-t pt-3"><span className="flex items-center text-gray-700"><span className="text-lg mr-2">🍞</span>Levado Final (Est.)</span><span className="font-bold text-xl">{formatTime(results.finalProofTime)}</span></div>
+                        </div>
+                        {results.bakingPlan && <BakingPlan plan={results.bakingPlan} />}
+                    </div>
+                </div>
+            </div>
+        );
+
+        const StandardResults = ({ results, formatTime, useColdProof }) => (
+             <div className="space-y-4">
+                <div className="grid grid-cols-3 gap-2 pt-2 text-center">
+                    <div className="bg-white p-3 rounded-md shadow-sm"><p className="text-sm text-gray-500">Harina</p><p className="text-xl font-bold text-yellow-800">{results.totalFlour.toFixed(0)}g</p></div>
+                    <div className="bg-white p-3 rounded-md shadow-sm"><p className="text-sm text-gray-500">Agua</p><p className="text-xl font-bold text-blue-600">{results.waterGrams.toFixed(1)}g</p></div>
+                    <div className="bg-white p-3 rounded-md shadow-sm"><p className="text-sm text-gray-500">Sal ({results.saltPercent}%)</p><p className="text-lg font-bold text-gray-600">{results.saltGrams.toFixed(1)}g</p></div>
+                </div>
+                <div className="bg-white p-4 rounded-md shadow-sm text-center"><p className="text-sm text-gray-500 flex items-center justify-center"><span className="text-lg mr-1">⚖️</span>Levadura Seca Instantánea</p><p className="text-3xl font-bold text-green-600">{results.yeastGrams.toFixed(2)}g</p><p className="text-sm text-gray-500">({results.yeastPercent.toFixed(2)}%)</p></div>
+                <div className="bg-white p-6 rounded-md shadow-sm space-y-3">
+                    <h3 className="font-semibold text-lg text-center">Plan de Levado</h3>
+                    <div className="flex justify-between items-center border-t pt-3"><span className="flex items-center text-gray-700"><span className="text-lg mr-2">🌡️</span>{useColdProof ? 'Arranque Ambiente' : 'Levado Principal'}</span><span className="font-bold text-xl">{formatTime(results.ambientTime)}</span></div>
+                    {useColdProof && results.coldTime > 0 && <div className="flex justify-between items-center border-t pt-3"><span className="flex items-center text-gray-700"><span className="text-lg mr-2">❄️</span>En Frío (Nevera)</span><span className="font-bold text-xl">{formatTime(results.coldTime)}</span></div>}
+                    {useColdProof && results.temperingTime > 0 && <div className="flex justify-between items-center border-t pt-3"><span className="flex items-center text-gray-700"><span className="text-lg mr-2">☀️</span>Atemperar</span><span className="font-bold text-xl">{formatTime(results.temperingTime)}</span></div>}
+                     <div className="flex justify-between items-center border-t pt-3"><span className="flex items-center text-gray-700"><span className="text-lg mr-2">🍞</span>Levado Final (Est.)</span><span className="font-bold text-xl">{formatTime(results.finalProofTime)}</span></div>
+                </div>
+                {results.bakingPlan && <BakingPlan plan={results.bakingPlan} />}
+            </div>
+        );
+
+        const App = () => {
+            const [doughType, setDoughType] = useState('pan');
+            const [flour, setFlour] = useState(500);
+            const [pizzaBalls, setPizzaBalls] = useState(4);
+            const [hydration, setHydration] = useState(68);
+            const [saltPercent, setSaltPercent] = useState(2);
+            const [totalTime, setTotalTime] = useState(4);
+            const [temperature, setTemperature] = useState(22);
+            const [useColdProof, setUseColdProof] = useState(false);
+            const [coldProofTime, setColdProofTime] = useState(12);
+            const [prefermentType, setPrefermentType] = useState('none');
+            const [prefermentFlourPercent, setPrefermentFlourPercent] = useState(30);
+            const [prefermentTime, setPrefermentTime] = useState(16);
+            const [prefermentTemp, setPrefermentTemp] = useState(20);
+            const [results, setResults] = useState({});
+
+            const PREFERMENT_CONFIG = {
+                'biga': { name: 'Biga', hydration: 45 },
+                'poolish': { name: 'Poolish', hydration: 100 },
+                'esponja': { name: 'Esponja', hydration: 63 },
+                'masa_madre': { name: 'Masa Madre', hydration: 100, noYeast: true }
+            };
+
+            const PREFERMENT_DESCRIPTIONS = {
+                'biga': "Prefermento italiano duro (45% agua). Aporta fuerza a la masa y un sabor ligeramente ácido y complejo.",
+                'poolish': "Prefermento polaco líquido (100% agua). Desarrolla extensibilidad en la masa y un sabor suave y aromático.",
+                'esponja': "Prefermento blando (63% agua). Se usa para enriquecer masas (brioche, etc.) y asegurar un levado potente.",
+                'masa_madre': "Cultivo natural (100% agua). Aporta el sabor más complejo y ácido, y mejora la conservación del pan."
+            };
+            
+            const DOUGHBALL_WEIGHT = 270;
+
+            useEffect(() => {
+                if (doughType === 'pizza') {
+                    setHydration(65);
+                    setUseColdProof(true);
+                    setColdProofTime(24);
+                    setSaltPercent(2.8);
+                } else {
+                    setSaltPercent(2);
+                }
+            }, [doughType]);
+
+            useEffect(() => {
+                const calculateFlourForPizza = (balls) => {
+                    const totalDoughWeight = balls * DOUGHBALL_WEIGHT;
+                    const totalPercentage = 100 + hydration + saltPercent;
+                    return totalDoughWeight / (totalPercentage / 100);
+                };
+                
+                const currentFlour = doughType === 'pan' ? flour : calculateFlourForPizza(pizzaBalls);
+
+                const YEAST_CONSTANT = 1.5;
+                const FRIDGE_TEMP = 4;
+                const getRateFactor = (temp) => Math.pow(1.1, temp - 22);
+                
+                const calculateAmbientStartTime = (temp) => (1.5 / getRateFactor(temp));
+                const calculateTemperingTime = (flourAmount, temp) => {
+                    if (!useColdProof) return 0;
+                    let baseTime = (flourAmount <= 750) ? 1.5 : (flourAmount <= 1500) ? 2.5 : 3.5;
+                    return baseTime / getRateFactor(temp);
+                };
+                const calculateFinalProofTime = (temp, isCold) => {
+                    let baseTime = 1.5;
+                    let proofTime = baseTime / getRateFactor(temp);
+                    if (isCold) proofTime *= 1.2;
+                    return proofTime;
+                };
+
+                const calculateBakingPlan = (flourAmount, hyd, pType, dType) => {
+                    if (dType === 'pizza') {
+                        return {
+                            steps: [{ temp: "450-500", time: "60-90 seg", steam: false }],
+                            notes: "Requiere horno de pizza. Girar a mitad de cocción."
+                        };
+                    }
+                    const timeFactor = 1 + ((flourAmount - 500) / 500) * 0.25;
+                    if (pType === 'esponja') return { steps: [{ temp: 185, time: `${Math.round(35*timeFactor)}-${Math.round(45*timeFactor)} min`, steam: false }], notes: "Hornear a temperatura constante. Vigilar el dorado." };
+                    if (hyd > 78) return { steps: [{ temp: 250, time: `${Math.round(18*timeFactor)}-${Math.round(22*timeFactor)} min`, steam: true }, { temp: 230, time: `${Math.round(13*timeFactor)}-${Math.round(17*timeFactor)} min`, steam: false }], notes: "Horno muy precalentado. Mucho vapor al inicio." };
+                    return { steps: [{ temp: 240, time: `${Math.round(13*timeFactor)}-${Math.round(17*timeFactor)} min`, steam: true }, { temp: 210, time: `${Math.round(22*timeFactor)}-${Math.round(28*timeFactor)} min`, steam: false }], notes: "Precalentar bien el horno con la olla o piedra dentro." };
+                };
+
+                const baseResults = {
+                    totalFlour: 0,
+                    waterGrams: 0, saltGrams: 0, yeastGrams: 0, yeastPercent: 0,
+                    ambientTime: 0, coldTime: 0, temperingTime: 0, finalProofTime: 0, prefermentFlour: 0, prefermentWater: 0,
+                    prefermentYeastGrams: 0, finalDoughFlour: 0, finalDoughWater: 0, bakingPlan: null, saltPercent: saltPercent
+                };
+
+                let calculatedResults;
+                const usePreferment = prefermentType !== 'none';
+                let doughFlour = usePreferment ? currentFlour * (1 - prefermentFlourPercent / 100) : currentFlour;
+
+                if (usePreferment) {
+                    const config = PREFERMENT_CONFIG[prefermentType];
+                    const pFlour = currentFlour * (prefermentFlourPercent / 100);
+                    const pWater = pFlour * (config.hydration / 100);
+                    const pRateFactor = getRateFactor(prefermentTemp);
+                    let pYeastPercent = (!config.noYeast && prefermentTime > 0) ? YEAST_CONSTANT / (prefermentTime * pRateFactor) : 0;
+                    pYeastPercent = Math.max(0.01, Math.min(pYeastPercent, 1));
+                    const pYeastGrams = config.noYeast ? 0 : pFlour * (pYeastPercent / 100);
+                    const finalWater = currentFlour * (hydration / 100) - pWater;
+
+                    baseResults.prefermentFlour = pFlour;
+                    baseResults.prefermentWater = pWater;
+                    baseResults.prefermentYeastGrams = pYeastGrams;
+                    baseResults.finalDoughFlour = doughFlour;
+                    baseResults.finalDoughWater = finalWater;
+                }
+
+                let calculatedYeastPercent = 0;
+                let ambientTimeHours = 0;
+                let coldTimeHours = 0;
+                let temperingTimeHours = calculateTemperingTime(currentFlour, temperature);
+                let finalProofTimeHours = calculateFinalProofTime(temperature, useColdProof);
+
+                if (useColdProof) {
+                    ambientTimeHours = calculateAmbientStartTime(temperature);
+                    coldTimeHours = coldProofTime;
+                    const totalFermentationActivity = (ambientTimeHours * getRateFactor(temperature)) + (coldTimeHours * getRateFactor(FRIDGE_TEMP));
+                    if (totalFermentationActivity > 0) calculatedYeastPercent = YEAST_CONSTANT / totalFermentationActivity;
+                } else {
+                    if (totalTime > 0) calculatedYeastPercent = YEAST_CONSTANT / (totalTime * getRateFactor(temperature));
+                    ambientTimeHours = totalTime;
+                }
+                
+                calculatedYeastPercent = Math.max(0.01, Math.min(calculatedYeastPercent, 5));
+
+                calculatedResults = {
+                    ...baseResults,
+                    totalFlour: currentFlour,
+                    yeastPercent: calculatedYeastPercent,
+                    yeastGrams: doughFlour * (calculatedYeastPercent / 100),
+                    waterGrams: usePreferment ? baseResults.finalDoughWater : currentFlour * (hydration / 100),
+                    saltGrams: currentFlour * (saltPercent / 100),
+                    ambientTime: ambientTimeHours,
+                    coldTime: coldTimeHours,
+                    temperingTime: temperingTimeHours,
+                    finalProofTime: finalProofTimeHours,
+                    bakingPlan: calculateBakingPlan(currentFlour, hydration, prefermentType, doughType)
+                };
+
+                setResults(calculatedResults);
+
+            }, [flour, pizzaBalls, hydration, saltPercent, totalTime, temperature, useColdProof, coldProofTime, prefermentType, prefermentFlourPercent, prefermentTime, prefermentTemp, doughType]);
+
+            const formatTime = (hours) => {
+                if (!hours || hours <= 0) return "0h 0m";
+                const h = Math.floor(hours);
+                const m = Math.round((hours - h) * 60);
+                return `${h}h ${m}m`;
+            };
+            
+            return (
+                <div className="bg-gray-50 min-h-screen font-sans p-4 sm:p-8 flex items-center justify-center">
+                    <main className="w-full max-w-4xl bg-white rounded-2xl shadow-lg p-6 sm:p-8 space-y-8">
+                        <header className="text-center">
+                            <h1 className="text-3xl sm:text-4xl font-bold text-gray-800">Calculadora de Fermentación</h1>
+                            <p className="text-gray-500 mt-2">Ajusta los parámetros para encontrar tu receta de pan perfecta.</p>
+                        </header>
+
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                            <section className="space-y-6">
+                                <h2 className="text-2xl font-semibold text-gray-700 border-b pb-2">1. Tipo de Masa</h2>
+                                <div className="flex gap-4">
+                                    <button onClick={() => setDoughType('pan')} className={`w-full py-3 rounded-lg font-semibold transition-all ${doughType === 'pan' ? 'bg-blue-600 text-white shadow-lg' : 'bg-gray-200 text-gray-700'}`}>🍞 Pan</button>
+                                    <button onClick={() => setDoughType('pizza')} className={`w-full py-3 rounded-lg font-semibold transition-all ${doughType === 'pizza' ? 'bg-red-600 text-white shadow-lg' : 'bg-gray-200 text-gray-700'}`}>🍕 Pizza Napolitana</button>
+                                </div>
+
+                                <h2 className="text-2xl font-semibold text-gray-700 border-b pb-2 pt-4">2. Ingredientes y Condiciones</h2>
+                                
+                                {doughType === 'pan' ? (
+                                    <InputSlider label="Cantidad Total de Harina" icon="🌾" value={flour} onChange={setFlour} min="100" max="2000" step="50" unit="g" />
+                                ) : (
+                                    <div>
+                                        <InputSlider label="Número de Bolas" icon="🍕" value={pizzaBalls} onChange={setPizzaBalls} min="1" max="20" step="1" unit="bolas" />
+                                        <p className="text-xs text-gray-500 text-center -mt-1">Cada bola se calcula a {DOUGHBALL_WEIGHT}g de masa.</p>
+                                    </div>
+                                )}
+
+                                <InputSlider label="% Hidratación Final" icon="💧" value={hydration} onChange={setHydration} min="50" max="100" step="1" unit="%" disabled={doughType === 'pizza'} />
+                                <InputSlider label="% Sal" icon="🧂" value={saltPercent} onChange={setSaltPercent} min="1" max="4" step="0.1" unit="%" />
+                                <InputSlider label="Temperatura Ambiente" icon="🌡️" value={temperature} onChange={setTemperature} min="4" max="35" step="1" unit="°C" />
+                                
+                                <div className="space-y-4 pt-4">
+                                     <PrefermentSelector selected={prefermentType} onSelect={setPrefermentType} descriptions={PREFERMENT_DESCRIPTIONS} />
+                                    
+                                    {prefermentType !== 'none' && (
+                                        <div className="pl-8 space-y-4 pt-2 border-l-2 border-gray-200">
+                                             <InputSlider label="% Harina en Prefermento" icon="↳" value={prefermentFlourPercent} onChange={setPrefermentFlourPercent} min="20" max="50" step="5" unit="%" />
+                                             <InputSlider label="Tiempo Levado Prefermento" icon="⏰" value={prefermentTime} onChange={setPrefermentTime} min="8" max="24" step="1" unit="hrs" />
+                                             <InputSlider label="Temp. Levado Prefermento" icon="🌡️" value={prefermentTemp} onChange={setPrefermentTemp} min="4" max="30" step="1" unit="°C" />
+                                        </div>
+                                    )}
+
+                                    <div className="flex items-center justify-between">
+                                        <label className="flex items-center text-sm font-medium text-gray-700">
+                                            <span className="text-xl mr-2">❄️</span>
+                                            ¿Levado en frío (masa final)?
+                                        </label>
+                                        <button onClick={() => setUseColdProof(!useColdProof)} className={`px-6 py-2 rounded-full font-semibold transition-colors ${useColdProof ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'}`} >
+                                            {useColdProof ? 'Sí' : 'No'}
+                                        </button>
+                                    </div>
+                                    {useColdProof && (
+                                        <div className="pl-8 pt-2">
+                                            <InputSlider label="Tiempo en Frío" icon="❄️" value={coldProofTime} onChange={setColdProofTime} min="8" max="72" step="1" unit="hrs" />
+                                        </div>
+                                    )}
+                                     <InputSlider label="Levado Principal (T. Ambiente)" icon="⏰" value={totalTime} onChange={setTotalTime} min="1" max="12" step="0.5" unit="hrs" disabled={useColdProof} />
+                                </div>
+                            </section>
+                            
+                            <section className="bg-gray-50 p-6 rounded-lg">
+                                <h2 className="text-2xl font-semibold text-gray-700 border-b pb-2 mb-4">Tu Receta Calculada</h2>
+                                {results && Object.keys(results).length > 0 ? (
+                                    prefermentType !== 'none'
+                                        ? <PrefermentResults 
+                                            results={results} 
+                                            formatTime={formatTime} 
+                                            prefermentConfig={PREFERMENT_CONFIG[prefermentType]}
+                                            prefermentTime={prefermentTime}
+                                            prefermentTemp={prefermentTemp}
+                                          />
+                                        : <StandardResults results={results} formatTime={formatTime} useColdProof={useColdProof} />
+                                ) : (
+                                    <p>Calculando...</p>
+                                )}
+                                 <div className="text-xs text-gray-500 pt-4 text-center">
+                                    <p><strong>Nota:</strong> Esta es una guía. Observa siempre tu masa; puede variar según la harina y la humedad real.</p>
+                                </div>
+                            </section>
+                        </div>
+                    </main>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+
+    </script>
+</body>
+</html>
+
