@@ -93,21 +93,37 @@
         };
 
         const BakingPlan = ({ plan }) => (
-            <div className="bg-white p-4 rounded-md shadow-sm space-y-3">
-                <h3 className="font-semibold text-center">Plan de Horneado</h3>
-                {plan.steps.map((step, index) => (
-                    <div key={index} className="flex justify-between items-center border-t pt-3">
-                        <div className="flex items-center text-gray-700">
-                            <span className="text-lg mr-2">{step.steam ? '💨' : '🔥'}</span>
-                            <div>
-                                <p className="font-semibold">{step.temp}°C</p>
-                                {step.steam && <p className="text-xs text-gray-500">con vapor</p>}
+            <div className="bg-white p-4 rounded-md shadow-sm space-y-4">
+                <h3 className="font-semibold text-center text-lg">Plan de Horneado</h3>
+                <div className="text-center bg-gray-100 p-3 rounded-lg">
+                    <p className="font-bold text-gray-700">{plan.preheat.temp}</p>
+                    <p className="text-sm text-gray-500">{plan.preheat.time}</p>
+                    <p className="text-xs mt-1">{plan.preheat.notes}</p>
+                </div>
+                {plan.phases.map((phase, index) => (
+                    <div key={index} className="border-t pt-3">
+                        <p className="font-bold text-md text-center text-gray-800 mb-2">Fase {index + 1}: {phase.name}</p>
+                        <div className="grid grid-cols-3 gap-2 text-center text-sm">
+                            <div className="bg-red-50 p-2 rounded-md">
+                                <p className="font-semibold">{phase.temp}</p>
+                                <p className="text-xs text-gray-500">Temperatura</p>
+                            </div>
+                            <div className="bg-blue-50 p-2 rounded-md">
+                                <p className="font-semibold">{phase.time}</p>
+                                <p className="text-xs text-gray-500">Tiempo</p>
+                            </div>
+                             <div className="bg-green-50 p-2 rounded-md">
+                                <p className="font-semibold">{phase.mode}</p>
+                                <p className="text-xs text-gray-500">Modo Horno</p>
                             </div>
                         </div>
-                        <span className="font-bold text-xl">{step.time}</span>
+                        <p className="text-center text-xs text-gray-600 mt-2 bg-gray-50 p-2 rounded-md">{phase.action}</p>
                     </div>
                 ))}
-                {plan.notes && <p className="text-xs text-gray-600 pt-2 border-t text-center">{plan.notes}</p>}
+                 <div className="text-center border-t pt-3">
+                    <p className="font-semibold">❄️ Enfriamiento</p>
+                    <p className="text-sm text-gray-600 mt-1">{plan.cooling}</p>
+                </div>
             </div>
         );
 
@@ -240,14 +256,41 @@
                 const calculateBakingPlan = (flourAmount, hyd, pType, dType) => {
                     if (dType === 'pizza') {
                         return {
-                            steps: [{ temp: "450-500", time: "60-90 seg", steam: false }],
-                            notes: "Requiere horno de pizza. Girar a mitad de cocción."
+                            preheat: { temp: "Máxima (250°C+)", time: "45-60 min", notes: "Precalentar con piedra o acero para pizza dentro." },
+                            phases: [
+                                { name: "Cocción", temp: "Máxima", time: "5-8 min", mode: "Calor Arriba/Abajo + Grill", action: "Colocar la pizza sobre la piedra caliente. Vigilar constantemente el dorado." }
+                            ],
+                            cooling: "Servir inmediatamente para disfrutar de la mejor textura."
                         };
                     }
-                    const timeFactor = 1 + ((flourAmount - 500) / 500) * 0.25;
-                    if (pType === 'esponja') return { steps: [{ temp: 185, time: `${Math.round(35*timeFactor)}-${Math.round(45*timeFactor)} min`, steam: false }], notes: "Hornear a temperatura constante. Vigilar el dorado." };
-                    if (hyd > 78) return { steps: [{ temp: 250, time: `${Math.round(18*timeFactor)}-${Math.round(22*timeFactor)} min`, steam: true }, { temp: 230, time: `${Math.round(13*timeFactor)}-${Math.round(17*timeFactor)} min`, steam: false }], notes: "Horno muy precalentado. Mucho vapor al inicio." };
-                    return { steps: [{ temp: 240, time: `${Math.round(13*timeFactor)}-${Math.round(17*timeFactor)} min`, steam: true }, { temp: 210, time: `${Math.round(22*timeFactor)}-${Math.round(28*timeFactor)} min`, steam: false }], notes: "Precalentar bien el horno con la olla o piedra dentro." };
+                    
+                    const timeFactor = 1 + ((flourAmount - 500) / 500) * 0.25; // Adjust time for bigger loaves
+                    
+                    if (pType === 'esponja') { // Enriched dough
+                         return {
+                            preheat: { temp: "190°C", time: "20 min", notes: "Asegúrate de que el horno esté a la temperatura correcta." },
+                            phases: [
+                                { name: "Horneado", temp: "185°C", time: `${Math.round(35*timeFactor)}-${Math.round(45*timeFactor)} min`, mode: "Calor Arriba y Abajo", action: "Hornear hasta que esté bien dorado y cocido por dentro. Usar molde si es necesario." }
+                            ],
+                            cooling: "Dejar enfriar completamente sobre una rejilla antes de cortar."
+                        };
+                    }
+
+                    // Standard & High Hydration Breads
+                    const phase1Time = hyd > 78 ? `${Math.round(18*timeFactor)}-${Math.round(22*timeFactor)} min` : `${Math.round(15*timeFactor)}-${Math.round(20*timeFactor)} min`;
+                    const phase2Time = hyd > 78 ? `${Math.round(15*timeFactor)}-${Math.round(20*timeFactor)} min` : `${Math.round(20*timeFactor)}-${Math.round(25*timeFactor)} min`;
+                    const preheatTemp = hyd > 78 ? "250°C" : "240°C";
+                    const phase1Temp = hyd > 78 ? "250°C" : "240°C";
+                    const phase2Temp = hyd > 78 ? "230°C" : "210°C";
+
+                    return {
+                        preheat: { temp: preheatTemp, time: "45-60 min", notes: "¡Crítico! Precalentar el horno con la olla de hierro o piedra dentro." },
+                        phases: [
+                            { name: "Expansión con Vapor", temp: phase1Temp, time: phase1Time, mode: "Calor Arriba y Abajo", action: "Hornear tapado en la olla de hierro o creando vapor en el horno." },
+                            { name: "Desarrollo de Corteza", temp: phase2Temp, time: phase2Time, mode: "Calor Arriba y Abajo", action: "Destapar la olla o quitar la fuente de vapor. Continuar hasta obtener un color oscuro y profundo." }
+                        ],
+                        cooling: "¡Esencial! Dejar enfriar sobre una rejilla un mínimo de 2 horas antes de cortar para asentar la miga."
+                    };
                 };
 
                 const baseResults = {
