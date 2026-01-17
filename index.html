@@ -1,15 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-EVTE774402"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-
-      gtag('config', 'G-EVTE774402');
-    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calculadora de Fermentación</title>
@@ -472,7 +463,105 @@
         root.render(<App />);
 
     </script>
+<style>
+    #cookie-consent-banner {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background-color: #222;
+        color: #fff;
+        padding: 20px;
+        text-align: center;
+        z-index: 10000;
+        font-family: sans-serif;
+        box-shadow: 0 -2px 10px rgba(0,0,0,0.3);
+        display: none; /* Oculto por defecto hasta comprobar JS */
+    }
+    #cookie-consent-banner p {
+        margin: 0 0 15px 0;
+        font-size: 14px;
+        line-height: 1.5;
+    }
+    #cookie-consent-banner a {
+        color: #4da6ff;
+        text-decoration: underline;
+    }
+    .cookie-btn {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: bold;
+        margin: 0 5px;
+    }
+    .btn-accept { background-color: #4CAF50; color: white; }
+    .btn-reject { background-color: #f44336; color: white; }
+    .btn-accept:hover { background-color: #45a049; }
+    .btn-reject:hover { background-color: #d32f2f; }
+</style>
+
+<div id="cookie-consent-banner">
+    <p>
+        Uso cookies de Google Analytics para ver estadísticas de visitas anónimas y saber si mi contenido es interesante. 
+        Como es una web personal, no uso estos datos para publicidad. 
+        <br>Puedes leer más en mi <a href="/politica-de-privacidad">Política de Privacidad</a>.
+    </p>
+    <button id="btn-accept-cookies" class="cookie-btn btn-accept">Aceptar estadísticas</button>
+    <button id="btn-reject-cookies" class="cookie-btn btn-reject">Rechazar</button>
+</div>
+
+<script>
+    // 1. Configuración: Tu ID de Google Analytics
+    const GA_MEASUREMENT_ID = 'G-EVTE774402'; // <--- PON AQUÍ TU ID (ej. G-12345ABC)
+
+    // 2. Función para cargar Google Analytics (Solo se llama si aceptan)
+    function loadGoogleAnalytics() {
+        // Inyectar el script de Google
+        var script = document.createElement('script');
+        script.src = `https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`;
+        script.async = true;
+        document.head.appendChild(script);
+
+        // Inicializar Google Analytics
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', GA_MEASUREMENT_ID);
+        
+        console.log("Google Analytics activado.");
+    }
+
+    // 3. Comprobar decisiones anteriores del usuario
+    window.onload = function() {
+        const consent = localStorage.getItem('userConsent');
+
+        if (consent === 'accepted') {
+            // Si ya aceptó antes, cargamos GA directamente sin mostrar banner
+            loadGoogleAnalytics();
+        } else if (consent === 'rejected') {
+            // Si rechazó, no hacemos nada y no mostramos banner
+        } else {
+            // Si no hay decisión (es la primera visita), mostramos el banner
+            document.getElementById('cookie-consent-banner').style.display = 'block';
+        }
+    };
+
+    // 4. Configurar botones
+    document.getElementById('btn-accept-cookies').addEventListener('click', function() {
+        localStorage.setItem('userConsent', 'accepted');
+        document.getElementById('cookie-consent-banner').style.display = 'none';
+        loadGoogleAnalytics(); // <--- Aquí es donde ocurre la magia
+    });
+
+    document.getElementById('btn-reject-cookies').addEventListener('click', function() {
+        localStorage.setItem('userConsent', 'rejected');
+        document.getElementById('cookie-consent-banner').style.display = 'none';
+        // No cargamos GA
+    });
+</script>
 </body>
 </html>
+
 
 
