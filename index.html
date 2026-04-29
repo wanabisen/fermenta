@@ -10,1081 +10,1892 @@
     <!-- End Google Tag Manager -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora de Fermentación</title>
+    <meta name="description" content="Calculadora artesanal de fermentación: calcula levadura, hidratación, tiempos y plan de horneado para pan y pizza.">
+    <title>Calculadora de Fermentación · Panadería Artesanal</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
         :root {
-            --cream:     #fdf6ec;
-            --cream-dark:#f5e9d4;
-            --wheat:     #c8923a;
-            --wheat-dark:#9b6e28;
-            --crust:     #4a2c0a;
-            --crust-mid: #7a4a1e;
-            --miga:      #fff8f0;
-            --text:      #2c1a08;
-            --text-soft: #6b4c30;
-            --cold:      #3b6fa0;
-            --cold-light:#ddeeff;
-            --green:     #4a7c59;
-            --green-light:#ddf0e4;
-            --border:    #e0c99a;
-            --shadow:    rgba(74,44,10,0.12);
+            --bg:           #fbf6ed;
+            --bg-pattern:   rgba(180, 130, 60, 0.04);
+            --surface:      #ffffff;
+            --surface-2:    #f7efe0;
+            --surface-3:    #f1e6d0;
+            --border:       #e6d5b0;
+            --border-soft:  #efe2c5;
+            --text:         #2a1a08;
+            --text-soft:    #6b5236;
+            --text-muted:   #95835f;
+            --primary:      #b27a2a;
+            --primary-dark: #8a5a18;
+            --primary-soft: #fdf3df;
+            --accent:       #4a2c0a;
+            --cold:         #2d6ba8;
+            --cold-soft:    #e3edf8;
+            --warm:         #c0392b;
+            --warm-soft:    #fbe8e3;
+            --success:      #4a7c59;
+            --success-soft: #e3eee5;
+            --warning:      #c97f1d;
+            --warning-soft: #fcefd7;
+            --danger:       #b13f3f;
+            --danger-soft:  #fbe5e3;
+            --shadow-sm:    0 1px 2px rgba(74,44,10,0.06);
+            --shadow-md:    0 4px 16px rgba(74,44,10,0.10);
+            --shadow-lg:    0 8px 32px rgba(74,44,10,0.14);
+            --radius:       14px;
+            --radius-sm:    8px;
+        }
+
+        [data-theme="dark"] {
+            --bg:           #1a140d;
+            --bg-pattern:   rgba(255, 200, 100, 0.03);
+            --surface:      #241c12;
+            --surface-2:    #2d2418;
+            --surface-3:    #3a2e1f;
+            --border:       #4a3a25;
+            --border-soft:  #3a2e1f;
+            --text:         #f5e6c8;
+            --text-soft:    #c4ad85;
+            --text-muted:   #8a7758;
+            --primary:      #d99a4a;
+            --primary-dark: #b27a2a;
+            --primary-soft: #3a2e1a;
+            --accent:       #f5e6c8;
+            --cold:         #6ba0d4;
+            --cold-soft:    #1e2c3d;
+            --warm:         #e57264;
+            --warm-soft:    #3a2018;
+            --success:      #7eb38f;
+            --success-soft: #1e2e22;
+            --warning:      #e5a957;
+            --warning-soft: #3a2c14;
+            --danger:       #e5736d;
+            --danger-soft:  #3a1c1a;
+            --shadow-sm:    0 1px 2px rgba(0,0,0,0.3);
+            --shadow-md:    0 4px 16px rgba(0,0,0,0.35);
+            --shadow-lg:    0 8px 32px rgba(0,0,0,0.5);
         }
 
         body {
-            background-color: var(--cream);
-            font-family: 'Lato', sans-serif;
+            background: var(--bg);
+            font-family: 'Inter', sans-serif;
             color: var(--text);
             min-height: 100vh;
             background-image:
-                radial-gradient(ellipse at 20% 10%, rgba(200,146,58,0.10) 0%, transparent 60%),
-                radial-gradient(ellipse at 80% 90%, rgba(200,146,58,0.08) 0%, transparent 60%);
+                radial-gradient(ellipse 80% 50% at 20% 0%, var(--bg-pattern), transparent 70%),
+                radial-gradient(ellipse 60% 60% at 80% 100%, var(--bg-pattern), transparent 70%);
+            transition: background 0.3s, color 0.3s;
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
         }
 
-        /* ── HEADER ── */
+        .serif { font-family: 'Fraunces', serif; }
+
         .app-header {
-            background: linear-gradient(135deg, var(--crust) 0%, var(--crust-mid) 100%);
-            color: var(--cream);
-            text-align: center;
-            padding: 2.5rem 1.5rem 2rem;
-            position: relative;
-            overflow: hidden;
-        }
-        .app-header::before {
-            content: '';
-            position: absolute; inset: 0;
-            background-image: repeating-linear-gradient(
-                45deg,
-                transparent, transparent 8px,
-                rgba(255,255,255,0.03) 8px, rgba(255,255,255,0.03) 10px
-            );
-        }
-        .app-header h1 {
-            font-family: 'Playfair Display', serif;
-            font-size: clamp(1.8rem, 5vw, 2.8rem);
-            letter-spacing: -0.01em;
-            position: relative;
-        }
-        .app-header p {
-            margin-top: 0.5rem;
-            font-size: 0.95rem;
-            font-weight: 300;
-            opacity: 0.75;
-            position: relative;
-        }
-        .header-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.4rem;
-            font-size: 0.75rem;
-            letter-spacing: 0.12em;
-            text-transform: uppercase;
-            opacity: 0.55;
-            margin-bottom: 0.8rem;
-            position: relative;
-        }
-        .header-badge::before,
-        .header-badge::after {
-            content: '——';
-            letter-spacing: -0.15em;
-        }
-
-        /* ── LAYOUT ── */
-        .app-body {
-            max-width: 1100px;
-            margin: 0 auto;
-            padding: 2rem 1.25rem 4rem;
-        }
-        .two-col {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 2rem;
-            align-items: start;
-        }
-        @media (max-width: 768px) {
-            .two-col { grid-template-columns: 1fr; }
-        }
-
-        /* ── CARDS ── */
-        .card {
-            background: var(--miga);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 1.75rem;
-            box-shadow: 0 4px 24px var(--shadow);
-        }
-        .card-section {
-            margin-bottom: 1.75rem;
-        }
-        .card-section:last-child { margin-bottom: 0; }
-
-        .section-title {
-            font-family: 'Playfair Display', serif;
-            font-size: 1.15rem;
-            color: var(--crust);
-            border-bottom: 2px solid var(--cream-dark);
-            padding-bottom: 0.5rem;
-            margin-bottom: 1.2rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        .section-title span { font-size: 1.2em; }
-
-        /* ── DOUGH TYPE TOGGLE ── */
-        .dough-toggle {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 0.75rem;
-        }
-        .dough-btn {
-            padding: 0.85rem;
-            border: 2px solid var(--border);
-            border-radius: 12px;
-            background: white;
-            cursor: pointer;
-            font-family: 'Lato', sans-serif;
-            font-size: 0.95rem;
-            font-weight: 700;
-            color: var(--text-soft);
-            transition: all 0.2s ease;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 0.3rem;
-        }
-        .dough-btn:hover { border-color: var(--wheat); color: var(--wheat-dark); }
-        .dough-btn.active-pan  { background: var(--crust); border-color: var(--crust); color: white; }
-        .dough-btn.active-pizza{ background: #c0392b; border-color: #c0392b; color: white; }
-        .dough-btn .emoji { font-size: 1.8rem; }
-        .dough-btn .sub {
-            font-size: 0.68rem;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-            opacity: 0.65;
-            font-weight: 400;
-        }
-
-        /* ── SLIDERS ── */
-        .slider-group {
-            display: flex;
-            flex-direction: column;
-            gap: 1.1rem;
-        }
-        .slider-row {
-            display: flex;
-            flex-direction: column;
-            gap: 0.4rem;
-        }
-        .slider-label {
+            border-bottom: 1px solid var(--border);
+            padding: 1.5rem 1.5rem;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            font-size: 0.85rem;
-            font-weight: 700;
+            gap: 1rem;
+            max-width: 1280px;
+            margin: 0 auto;
+        }
+        .brand { display: flex; align-items: center; gap: 0.85rem; }
+        .brand-mark {
+            width: 44px; height: 44px;
+            background: var(--accent);
+            color: var(--bg);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-family: 'Fraunces', serif;
+            font-weight: 700; font-size: 1.25rem; font-style: italic;
+        }
+        [data-theme="dark"] .brand-mark { background: var(--primary); color: #1a140d; }
+        .brand-text h1 {
+            font-family: 'Fraunces', serif;
+            font-size: 1.35rem; font-weight: 500;
+            letter-spacing: -0.01em; line-height: 1.1;
+        }
+        .brand-text p {
+            font-size: 0.78rem; color: var(--text-muted);
+            text-transform: uppercase; letter-spacing: 0.12em;
+            margin-top: 0.15rem;
+        }
+        .header-actions { display: flex; gap: 0.5rem; align-items: center; }
+        .icon-btn {
+            background: transparent;
+            border: 1px solid var(--border);
             color: var(--text-soft);
-            text-transform: uppercase;
-            letter-spacing: 0.06em;
-        }
-        .slider-label.disabled { opacity: 0.4; }
-        .slider-label-left { display: flex; align-items: center; gap: 0.4rem; }
-        .slider-value-pill {
-            background: var(--wheat);
-            color: white;
-            font-size: 0.78rem;
-            font-weight: 700;
-            padding: 0.15rem 0.55rem;
-            border-radius: 20px;
-            min-width: 52px;
-            text-align: center;
-            font-family: 'Lato', sans-serif;
-        }
-        .slider-value-pill.disabled { background: #bbb; }
-        .slider-track {
-            display: flex;
-            align-items: center;
-            gap: 0.6rem;
-        }
-        input[type="range"] {
-            -webkit-appearance: none;
-            flex: 1;
-            height: 6px;
-            border-radius: 4px;
-            background: var(--cream-dark);
-            outline: none;
+            padding: 0.5rem 0.75rem;
+            border-radius: var(--radius-sm);
             cursor: pointer;
+            font-size: 0.85rem; font-family: inherit; font-weight: 500;
+            display: flex; align-items: center; gap: 0.4rem;
+            transition: all 0.15s;
+        }
+        .icon-btn:hover {
+            background: var(--surface-2); color: var(--text);
+            border-color: var(--text-muted);
+        }
+        .icon-btn svg { width: 16px; height: 16px; }
+
+        .app-body { max-width: 1280px; margin: 0 auto; padding: 1.5rem; }
+
+        .hero-strip {
+            background: var(--accent);
+            color: var(--bg);
+            border-radius: var(--radius);
+            padding: 1.25rem 1.5rem;
+            margin-bottom: 1.5rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 1rem;
+            position: relative;
+            overflow: hidden;
+        }
+        [data-theme="dark"] .hero-strip {
+            background: linear-gradient(135deg, #2d2418 0%, #3a2e1f 100%);
+            border: 1px solid var(--border);
+        }
+        .hero-strip::before {
+            content: '';
+            position: absolute; inset: 0;
+            background-image: repeating-linear-gradient(45deg, transparent 0 8px, rgba(255,255,255,0.025) 8px 9px);
+            pointer-events: none;
+        }
+        .hero-stat { position: relative; z-index: 1; }
+        .hero-stat .label {
+            font-size: 0.7rem; text-transform: uppercase;
+            letter-spacing: 0.12em; opacity: 0.7;
+            margin-bottom: 0.25rem;
+        }
+        .hero-stat .value {
+            font-family: 'Fraunces', serif;
+            font-size: 1.6rem; font-weight: 500;
+            letter-spacing: -0.02em; line-height: 1;
+        }
+        .hero-stat .unit { font-size: 0.85rem; opacity: 0.7; margin-left: 0.15rem; }
+
+        .presets-row {
+            display: flex; gap: 0.5rem;
+            overflow-x: auto;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+            scrollbar-width: thin;
+        }
+        .presets-row::-webkit-scrollbar { height: 4px; }
+        .presets-row::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+        .preset-btn {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            padding: 0.45rem 0.95rem;
+            cursor: pointer;
+            font-family: inherit; font-size: 0.83rem; font-weight: 500;
+            color: var(--text-soft);
+            transition: all 0.15s;
+            white-space: nowrap;
+            display: flex; align-items: center; gap: 0.35rem;
+            flex-shrink: 0;
+        }
+        .preset-btn:hover {
+            border-color: var(--primary); color: var(--primary-dark);
+            background: var(--primary-soft);
+        }
+        .preset-btn.active {
+            background: var(--accent); border-color: var(--accent); color: var(--bg);
+        }
+        [data-theme="dark"] .preset-btn.active {
+            background: var(--primary); border-color: var(--primary); color: #1a140d;
+        }
+
+        .two-col {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+            gap: 1.5rem;
+            align-items: start;
+        }
+        @media (max-width: 900px) { .two-col { grid-template-columns: 1fr; } }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .section { margin-bottom: 1.75rem; }
+        .section:last-child { margin-bottom: 0; }
+        .section-label {
+            font-size: 0.72rem; text-transform: uppercase;
+            letter-spacing: 0.1em; color: var(--text-muted);
+            font-weight: 600; margin-bottom: 0.85rem;
+            display: flex; align-items: center; gap: 0.4rem;
+        }
+        .step-num {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 22px; height: 22px;
+            background: var(--primary-soft); color: var(--primary-dark);
+            border-radius: 50%;
+            font-size: 0.75rem; font-weight: 700;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .dough-toggle {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem;
+        }
+        .dough-btn {
+            padding: 1rem 0.85rem;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-sm);
+            background: var(--surface);
+            cursor: pointer; font-family: inherit;
+            transition: all 0.18s;
+            display: flex; flex-direction: column;
+            align-items: flex-start; gap: 0.2rem; text-align: left;
+            color: var(--text);
+        }
+        .dough-btn:hover { border-color: var(--primary); background: var(--primary-soft); }
+        .dough-btn.active { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+        [data-theme="dark"] .dough-btn.active { background: var(--primary); border-color: var(--primary); color: #1a140d; }
+        .dough-btn .top {
+            display: flex; align-items: center; gap: 0.5rem;
+            font-weight: 600; font-size: 0.95rem;
+        }
+        .dough-btn .emoji { font-size: 1.4rem; }
+        .dough-btn .sub { font-size: 0.72rem; opacity: 0.7; font-weight: 400; }
+
+        .slider-group { display: flex; flex-direction: column; gap: 1.1rem; }
+        .slider-row { display: flex; flex-direction: column; gap: 0.45rem; }
+        .slider-label {
+            display: flex; align-items: center; justify-content: space-between;
+            font-size: 0.85rem; font-weight: 500;
+        }
+        .slider-label.disabled { opacity: 0.45; }
+        .slider-label-left {
+            display: flex; align-items: center; gap: 0.45rem;
+            color: var(--text);
+        }
+        .slider-label-left .ic {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 22px; height: 22px;
+            background: var(--surface-2); border-radius: 6px;
+            font-size: 0.95rem;
+        }
+        .slider-value-pill {
+            background: var(--accent); color: var(--bg);
+            font-size: 0.82rem; font-weight: 600;
+            padding: 0.2rem 0.6rem; border-radius: 999px;
+            min-width: 60px; text-align: center;
+            font-variant-numeric: tabular-nums;
+        }
+        [data-theme="dark"] .slider-value-pill { background: var(--primary); color: #1a140d; }
+        .slider-value-pill.disabled { background: var(--text-muted); }
+
+        .slider-track { display: flex; align-items: center; gap: 0.6rem; }
+        input[type="range"] {
+            -webkit-appearance: none; appearance: none;
+            flex: 1; height: 4px; border-radius: 4px;
+            background: var(--border); outline: none; cursor: pointer;
         }
         input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 18px; height: 18px;
-            border-radius: 50%;
-            background: var(--wheat);
-            border: 3px solid white;
-            box-shadow: 0 1px 6px rgba(0,0,0,0.25);
+            -webkit-appearance: none; appearance: none;
+            width: 18px; height: 18px; border-radius: 50%;
+            background: var(--primary);
+            border: 2px solid var(--surface);
+            box-shadow: var(--shadow-sm);
             cursor: pointer;
             transition: transform 0.15s;
         }
         input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.2); }
-        input[type="range"]:disabled { opacity: 0.35; cursor: not-allowed; }
-        input[type="range"]:disabled::-webkit-slider-thumb { background: #aaa; }
-        input[type="number"] {
-            width: 64px;
-            padding: 0.3rem 0.4rem;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            font-family: 'Lato', sans-serif;
-            font-size: 0.85rem;
-            text-align: center;
-            background: white;
-            color: var(--text);
+        input[type="range"]::-moz-range-thumb {
+            width: 18px; height: 18px; border-radius: 50%;
+            background: var(--primary);
+            border: 2px solid var(--surface);
+            cursor: pointer;
         }
+        input[type="range"]:disabled { opacity: 0.3; cursor: not-allowed; }
+        input[type="number"], input[type="time"], input[type="text"] {
+            font-family: inherit; font-size: 0.85rem;
+            padding: 0.35rem 0.55rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: var(--surface); color: var(--text);
+            text-align: center;
+            font-variant-numeric: tabular-nums;
+        }
+        input[type="number"] { width: 64px; }
         input[type="number"]:disabled { opacity: 0.4; }
 
-        /* ── PREFERMENT PILLS ── */
+        .slider-hint {
+            font-size: 0.74rem; color: var(--text-muted);
+            margin-top: -0.15rem; font-style: italic;
+        }
+        .slider-warning {
+            font-size: 0.74rem; color: var(--warning);
+            margin-top: 0.15rem;
+            display: flex; align-items: center; gap: 0.3rem;
+        }
+
         .pref-grid {
-            display: flex;
-            flex-wrap: wrap;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
             gap: 0.5rem;
         }
         .pref-pill {
-            padding: 0.4rem 0.85rem;
-            border-radius: 20px;
-            border: 2px solid var(--border);
-            background: white;
-            font-size: 0.82rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.18s;
-            color: var(--text-soft);
-            font-family: 'Lato', sans-serif;
+            padding: 0.6rem 0.75rem;
+            border-radius: var(--radius-sm);
+            border: 1.5px solid var(--border);
+            background: var(--surface);
+            font-size: 0.83rem; font-weight: 500;
+            cursor: pointer; transition: all 0.15s;
+            color: var(--text-soft); font-family: inherit;
+            display: flex; flex-direction: column;
+            align-items: center; gap: 0.15rem; text-align: center;
         }
-        .pref-pill:hover { border-color: var(--wheat); color: var(--wheat-dark); }
-        .pref-pill.active { background: var(--wheat); border-color: var(--wheat); color: white; }
-        .pref-pill:disabled { opacity: 0.4; cursor: not-allowed; }
+        .pref-pill:hover { border-color: var(--primary); color: var(--primary-dark); background: var(--primary-soft); }
+        .pref-pill.active {
+            background: var(--accent); border-color: var(--accent); color: var(--bg);
+        }
+        [data-theme="dark"] .pref-pill.active {
+            background: var(--primary); border-color: var(--primary); color: #1a140d;
+        }
+        .pref-pill .e { font-size: 1.1rem; }
+        .pref-pill .h {
+            font-size: 0.68rem; opacity: 0.7;
+            font-weight: 400; font-variant-numeric: tabular-nums;
+        }
+        .pref-pill.active .h { opacity: 0.85; }
 
-        .pref-description {
-            margin-top: 0.75rem;
-            padding: 0.75rem 1rem;
-            background: #fef9f0;
-            border-left: 3px solid var(--wheat);
-            border-radius: 0 8px 8px 0;
-            font-size: 0.82rem;
-            color: var(--text-soft);
+        .pref-info {
+            margin-top: 0.85rem;
+            padding: 0.85rem 1rem;
+            background: var(--primary-soft);
+            border-left: 3px solid var(--primary);
+            border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+            font-size: 0.85rem; color: var(--text-soft);
             line-height: 1.55;
         }
-        .pref-tip {
-            margin-top: 0.35rem;
-            font-size: 0.78rem;
-            color: var(--green);
-            font-style: italic;
+        .pref-info-title {
+            display: flex; justify-content: space-between;
+            margin-bottom: 0.4rem;
+            font-weight: 600; color: var(--accent);
+            font-family: 'Fraunces', serif; font-size: 0.95rem;
+        }
+        [data-theme="dark"] .pref-info-title { color: var(--primary); }
+        .pref-info-meta {
+            display: flex; gap: 0.35rem; font-size: 0.7rem;
+        }
+        .pref-info-meta span {
+            background: var(--accent); color: var(--bg);
+            padding: 0.1rem 0.5rem; border-radius: 999px;
+            font-weight: 500;
+            text-transform: uppercase; letter-spacing: 0.05em;
+        }
+        [data-theme="dark"] .pref-info-meta span { background: var(--primary); color: #1a140d; }
+        .pref-info-tip {
+            margin-top: 0.5rem; font-size: 0.78rem; color: var(--success);
+            display: flex; align-items: flex-start; gap: 0.35rem;
+        }
+        .pref-info-flavor {
+            margin-top: 0.3rem; font-size: 0.78rem;
+            font-style: italic; color: var(--text-muted);
         }
 
-        /* ── TOGGLE SWITCH ── */
         .toggle-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 0.75rem;
+            display: flex; align-items: center;
+            justify-content: space-between; gap: 0.75rem;
+            padding: 0.6rem 0.85rem;
+            background: var(--surface-2);
+            border-radius: var(--radius-sm);
         }
         .toggle-label {
-            display: flex;
-            align-items: center;
-            gap: 0.45rem;
-            font-size: 0.85rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: var(--text-soft);
+            display: flex; align-items: center; gap: 0.5rem;
+            font-size: 0.88rem; font-weight: 500; color: var(--text);
         }
-        .toggle-switch {
-            position: relative;
-            width: 52px;
-            height: 28px;
-            flex-shrink: 0;
-        }
+        .toggle-switch { position: relative; width: 44px; height: 24px; flex-shrink: 0; }
         .toggle-switch input { opacity: 0; width: 0; height: 0; }
         .toggle-slider {
-            position: absolute;
-            inset: 0;
-            background: var(--cream-dark);
-            border-radius: 28px;
-            cursor: pointer;
+            position: absolute; inset: 0;
+            background: var(--border);
+            border-radius: 24px; cursor: pointer;
             transition: 0.2s;
         }
         .toggle-slider::before {
             content: '';
             position: absolute;
-            width: 20px; height: 20px;
-            left: 4px; top: 4px;
-            background: white;
-            border-radius: 50%;
-            transition: 0.2s;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+            width: 18px; height: 18px;
+            left: 3px; top: 3px;
+            background: white; border-radius: 50%;
+            transition: 0.2s; box-shadow: var(--shadow-sm);
         }
         input:checked + .toggle-slider { background: var(--cold); }
-        input:checked + .toggle-slider::before { transform: translateX(24px); }
+        input:checked + .toggle-slider::before { transform: translateX(20px); }
 
-        /* ── RESULTS ── */
-        .results-header {
-            font-family: 'Playfair Display', serif;
-            font-size: 1.1rem;
-            color: var(--crust);
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .ingredient-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 0.6rem;
-            margin-bottom: 1rem;
-        }
-        .ingredient-card {
-            background: white;
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            padding: 0.75rem 0.5rem;
-            text-align: center;
-        }
-        .ingredient-card .label {
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            color: var(--text-soft);
-            margin-bottom: 0.25rem;
-        }
-        .ingredient-card .value {
-            font-family: 'Playfair Display', serif;
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--crust);
-        }
-        .ingredient-card .unit {
-            font-size: 0.72rem;
-            color: var(--text-soft);
-        }
-        .ingredient-card.highlight .value { color: var(--green); }
-        .ingredient-card.blue .value { color: var(--cold); }
-
-        /* ── FERMENTATION TIMELINE ── */
-        .timeline {
-            background: white;
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            overflow: hidden;
-            margin-bottom: 1rem;
-        }
-        .timeline-header {
-            background: var(--crust);
-            color: var(--cream);
-            padding: 0.6rem 1rem;
-            font-size: 0.78rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            display: flex;
-            align-items: center;
-            gap: 0.4rem;
-        }
-        .timeline-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0.7rem 1rem;
-            border-top: 1px solid var(--cream-dark);
-        }
-        .timeline-row:first-of-type { border-top: none; }
-        .timeline-step {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.86rem;
-            color: var(--text);
-        }
-        .timeline-step .icon { font-size: 1.2rem; }
-        .timeline-time {
-            font-family: 'Playfair Display', serif;
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: var(--wheat-dark);
-        }
-        .timeline-row.cold-row { background: var(--cold-light); }
-        .timeline-row.cold-row .timeline-time { color: var(--cold); }
-
-        /* ── BAKING PLAN ── */
-        .baking-card {
-            background: white;
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            overflow: hidden;
-            margin-bottom: 1rem;
-        }
-        .baking-card-header {
-            background: linear-gradient(90deg, #8b2500, #c0392b);
-            color: white;
-            padding: 0.6rem 1rem;
-            font-size: 0.78rem;
-            font-weight: 700;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-        }
-        .baking-preheat {
-            padding: 0.75rem 1rem;
-            background: #fff5f5;
-            border-bottom: 1px solid var(--cream-dark);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            font-size: 0.84rem;
-        }
-        .baking-preheat strong { color: #c0392b; font-size: 1rem; }
-        .baking-phase {
-            padding: 0.75rem 1rem;
-            border-top: 1px solid var(--cream-dark);
-        }
-        .baking-phase-title {
-            font-weight: 700;
-            font-size: 0.82rem;
-            text-transform: uppercase;
-            letter-spacing: 0.06em;
-            color: var(--crust);
-            margin-bottom: 0.5rem;
-        }
-        .baking-phase-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 0.4rem;
-            margin-bottom: 0.5rem;
-        }
-        .baking-stat {
-            text-align: center;
-            padding: 0.4rem;
-            border-radius: 8px;
-            background: var(--cream-dark);
-        }
-        .baking-stat .bv { font-weight: 700; font-size: 0.88rem; color: var(--crust); }
-        .baking-stat .bl { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-soft); }
-        .baking-action {
-            font-size: 0.8rem;
-            color: var(--text-soft);
-            background: var(--cream);
-            border-radius: 6px;
-            padding: 0.4rem 0.6rem;
-            line-height: 1.45;
-        }
-        .baking-cooling {
-            padding: 0.6rem 1rem;
-            border-top: 1px solid var(--cream-dark);
-            font-size: 0.82rem;
-            color: var(--text-soft);
-            display: flex;
-            align-items: flex-start;
-            gap: 0.4rem;
-        }
-
-        /* ── PREFERMENT BOX ── */
-        .pref-result-box {
-            background: #fef9ef;
-            border: 1px solid #e8c97a;
-            border-radius: 12px;
-            overflow: hidden;
-            margin-bottom: 1rem;
-        }
-        .pref-result-header {
-            background: var(--wheat);
-            color: white;
-            padding: 0.6rem 1rem;
-            font-size: 0.78rem;
-            font-weight: 700;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-        }
-        .pref-result-body { padding: 0.75rem; }
-
-        /* ── NOTE / INFO BOX ── */
-        .info-note {
-            background: var(--cream-dark);
-            border-left: 3px solid var(--wheat);
-            border-radius: 0 8px 8px 0;
-            padding: 0.6rem 0.85rem;
-            font-size: 0.78rem;
-            color: var(--text-soft);
-            line-height: 1.5;
-            margin-top: 1rem;
-        }
-        .info-note strong { color: var(--crust); }
-
-        /* ── ANIMATIONS ── */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(6px); }
-            to   { opacity: 1; transform: translateY(0); }
-        }
-        .animate-in { animation: fadeIn 0.3s ease both; }
-
-        /* ── MISC ── */
         .indent-group {
             padding-left: 1rem;
-            border-left: 2px solid var(--cream-dark);
-            margin-top: 0.5rem;
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
-        .hint-text {
-            font-size: 0.75rem;
-            color: var(--text-soft);
-            opacity: 0.8;
-            margin-top: 0.2rem;
+            border-left: 2px solid var(--border-soft);
+            margin-top: 0.85rem;
+            display: flex; flex-direction: column; gap: 1rem;
         }
 
-        /* ── COOKIE BANNER ── */
-        #cookie-consent-banner {
-            position: fixed; bottom: 0; left: 0; width: 100%;
-            background: #1a1a1a; color: #eee;
-            padding: 1.25rem 1.5rem; text-align: center;
-            z-index: 10000; font-family: 'Lato', sans-serif;
-            box-shadow: 0 -2px 16px rgba(0,0,0,0.4);
-            display: none;
+        .tabs {
+            display: flex; gap: 0.25rem;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 1.25rem;
         }
-        #cookie-consent-banner p { margin: 0 0 1rem; font-size: 0.85rem; line-height: 1.55; }
-        #cookie-consent-banner a { color: #f0b959; text-decoration: underline; }
-        .cookie-btn { padding: 0.5rem 1.25rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; margin: 0 5px; font-family: 'Lato', sans-serif; }
-        .btn-accept { background: #4CAF50; color: white; }
-        .btn-reject { background: #f44336; color: white; }
+        .tab {
+            background: transparent; border: none;
+            padding: 0.6rem 1rem;
+            cursor: pointer; font-family: inherit;
+            font-size: 0.88rem; font-weight: 500;
+            color: var(--text-muted);
+            border-bottom: 2px solid transparent;
+            margin-bottom: -1px;
+            transition: all 0.15s;
+        }
+        .tab:hover { color: var(--text); }
+        .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+        [data-theme="dark"] .tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+
+        .ing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 0.6rem; margin-bottom: 1rem;
+        }
+        .ing-card {
+            background: var(--surface-2);
+            border-radius: var(--radius-sm);
+            padding: 0.85rem 0.75rem;
+            text-align: center;
+        }
+        .ing-card .l {
+            font-size: 0.7rem; text-transform: uppercase;
+            letter-spacing: 0.08em; color: var(--text-muted);
+            margin-bottom: 0.35rem; font-weight: 600;
+        }
+        .ing-card .v {
+            font-family: 'Fraunces', serif;
+            font-size: 1.65rem; font-weight: 500;
+            color: var(--text); line-height: 1;
+            font-variant-numeric: tabular-nums;
+        }
+        .ing-card .u {
+            font-size: 0.72rem; color: var(--text-muted);
+            margin-top: 0.15rem;
+        }
+
+        .yeast-card {
+            background: var(--success-soft);
+            border: 1px solid var(--success);
+            border-radius: var(--radius-sm);
+            padding: 1rem; text-align: center;
+            margin-bottom: 1rem;
+        }
+        .yeast-card .l {
+            font-size: 0.72rem; text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--success); font-weight: 600;
+            margin-bottom: 0.3rem;
+        }
+        .yeast-card .v {
+            font-family: 'Fraunces', serif;
+            font-size: 2.2rem; font-weight: 500;
+            color: var(--success); line-height: 1;
+            font-variant-numeric: tabular-nums;
+        }
+        .yeast-card .u {
+            font-size: 0.75rem; color: var(--success);
+            opacity: 0.85; margin-top: 0.25rem;
+        }
+        .yeast-card .tiny {
+            font-size: 0.7rem; color: var(--text-muted);
+            margin-top: 0.45rem; padding-top: 0.45rem;
+            border-top: 1px dashed var(--success);
+        }
+
+        .schedule-input {
+            display: flex; align-items: center;
+            justify-content: space-between;
+            background: var(--surface-2);
+            padding: 0.6rem 0.85rem;
+            border-radius: var(--radius-sm);
+            margin-bottom: 1rem;
+        }
+        .schedule-input label {
+            font-size: 0.83rem; font-weight: 500;
+            display: flex; align-items: center; gap: 0.4rem;
+        }
+        .schedule {
+            background: var(--surface-2);
+            border-radius: var(--radius);
+            padding: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        .schedule-row {
+            display: grid;
+            grid-template-columns: 70px 1fr auto;
+            gap: 0.75rem; align-items: center;
+            padding: 0.7rem 0.85rem;
+            border-radius: var(--radius-sm);
+            transition: background 0.15s;
+        }
+        .schedule-row + .schedule-row { margin-top: 0.2rem; }
+        .schedule-row:hover { background: var(--surface); }
+        .schedule-time {
+            font-family: 'Fraunces', serif;
+            font-size: 1.05rem; font-weight: 500;
+            color: var(--accent);
+            font-variant-numeric: tabular-nums;
+        }
+        [data-theme="dark"] .schedule-time { color: var(--primary); }
+        .schedule-step {
+            display: flex; flex-direction: column;
+            gap: 0.1rem; min-width: 0;
+        }
+        .schedule-step .name {
+            font-weight: 600; font-size: 0.92rem;
+            display: flex; align-items: center; gap: 0.4rem;
+        }
+        .schedule-step .ic {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 24px; height: 24px;
+            background: var(--surface);
+            border-radius: 50%;
+            font-size: 0.95rem; flex-shrink: 0;
+        }
+        .schedule-step .desc {
+            font-size: 0.78rem; color: var(--text-muted);
+            padding-left: 32px;
+        }
+        .schedule-duration {
+            font-size: 0.78rem; color: var(--text-muted);
+            font-variant-numeric: tabular-nums; white-space: nowrap;
+        }
+        .schedule-row.cold { background: var(--cold-soft); }
+        .schedule-row.cold .schedule-time { color: var(--cold); }
+        .schedule-row.bake { background: var(--warm-soft); }
+        .schedule-row.bake .schedule-time { color: var(--warm); }
+        .schedule-row.start { background: var(--success-soft); }
+        .schedule-row.start .schedule-time { color: var(--success); }
+
+        .bake-card {
+            background: var(--surface-2);
+            border-radius: var(--radius);
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+        .bake-header {
+            background: var(--warm); color: white;
+            padding: 0.7rem 1rem;
+            font-size: 0.78rem; font-weight: 600;
+            letter-spacing: 0.1em; text-transform: uppercase;
+            display: flex; align-items: center; gap: 0.45rem;
+        }
+        .bake-preheat {
+            padding: 0.85rem 1rem;
+            background: var(--warm-soft);
+            display: flex; align-items: center;
+            justify-content: space-between;
+            font-size: 0.85rem;
+        }
+        .bake-preheat .pt {
+            font-family: 'Fraunces', serif;
+            font-weight: 500; font-size: 1rem;
+            color: var(--warm);
+        }
+        .bake-note {
+            padding: 0.6rem 1rem;
+            font-size: 0.78rem; color: var(--text-muted);
+            background: var(--surface-2);
+            border-top: 1px solid var(--border-soft);
+            display: flex; align-items: flex-start; gap: 0.4rem;
+        }
+        .bake-phase {
+            padding: 0.85rem 1rem;
+            border-top: 1px solid var(--border-soft);
+        }
+        .bake-phase-title {
+            font-weight: 600; font-size: 0.78rem;
+            text-transform: uppercase; letter-spacing: 0.06em;
+            color: var(--accent); margin-bottom: 0.6rem;
+        }
+        [data-theme="dark"] .bake-phase-title { color: var(--primary); }
+        .bake-stats {
+            display: grid; grid-template-columns: repeat(3, 1fr);
+            gap: 0.4rem; margin-bottom: 0.6rem;
+        }
+        .bake-stat {
+            text-align: center; padding: 0.5rem;
+            border-radius: 6px; background: var(--surface);
+        }
+        .bake-stat .v {
+            font-family: 'Fraunces', serif;
+            font-weight: 500; font-size: 0.95rem;
+            color: var(--accent);
+        }
+        [data-theme="dark"] .bake-stat .v { color: var(--text); }
+        .bake-stat .l {
+            font-size: 0.66rem; text-transform: uppercase;
+            letter-spacing: 0.06em; color: var(--text-muted);
+            margin-top: 0.15rem;
+        }
+        .bake-action {
+            font-size: 0.82rem; color: var(--text-soft);
+            background: var(--surface);
+            border-radius: 6px;
+            padding: 0.55rem 0.7rem;
+            line-height: 1.5;
+        }
+
+        .pref-box {
+            background: var(--primary-soft);
+            border: 1px solid var(--primary);
+            border-radius: var(--radius);
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+        .pref-box-header {
+            background: var(--primary); color: white;
+            padding: 0.7rem 1rem;
+            font-size: 0.78rem; font-weight: 600;
+            letter-spacing: 0.1em; text-transform: uppercase;
+            display: flex; align-items: center;
+            justify-content: space-between;
+        }
+        .pref-box-body { padding: 0.85rem; }
+        [data-theme="dark"] .pref-box-header { color: #1a140d; }
+
+        .info-note {
+            background: var(--surface-2);
+            border-left: 3px solid var(--primary);
+            border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+            padding: 0.7rem 0.95rem;
+            font-size: 0.78rem; color: var(--text-soft);
+            line-height: 1.55;
+        }
+        .info-note strong { color: var(--text); font-weight: 600; }
+
+        .warn-box {
+            background: var(--warning-soft);
+            border-left: 3px solid var(--warning);
+            border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+            padding: 0.7rem 0.95rem;
+            font-size: 0.8rem; color: var(--warning);
+            display: flex; align-items: flex-start; gap: 0.45rem;
+            margin-bottom: 1rem;
+        }
+        [data-theme="dark"] .warn-box { color: #f5b95c; }
+
+        .quality-bar {
+            display: flex; align-items: center; gap: 0.5rem;
+            font-size: 0.78rem;
+            margin-bottom: 0.85rem;
+            padding: 0.6rem 0.85rem;
+            background: var(--surface-2);
+            border-radius: var(--radius-sm);
+        }
+        .quality-dots { display: flex; gap: 3px; }
+        .qd { width: 8px; height: 8px; border-radius: 50%; background: var(--border); }
+        .qd.on { background: var(--success); }
+        .qd.warn { background: var(--warning); }
+        .qd.bad { background: var(--danger); }
+
+        button:focus-visible,
+        input:focus-visible {
+            outline: 2px solid var(--primary);
+            outline-offset: 2px;
+        }
+        input[type="range"]:focus-visible { outline: none; }
+        input[type="range"]:focus-visible::-webkit-slider-thumb {
+            box-shadow: 0 0 0 4px rgba(178, 122, 42, 0.3);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .animate-in { animation: fadeIn 0.25s ease both; }
+
+        @keyframes toastIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .toast {
+            position: fixed;
+            bottom: 1.5rem; left: 50%;
+            transform: translateX(-50%);
+            background: var(--accent); color: var(--bg);
+            padding: 0.75rem 1.25rem;
+            border-radius: var(--radius-sm);
+            box-shadow: var(--shadow-lg);
+            font-size: 0.85rem; font-weight: 500;
+            display: flex; align-items: center; gap: 0.5rem;
+            z-index: 9999;
+            animation: toastIn 0.25s ease both;
+        }
+        [data-theme="dark"] .toast { background: var(--primary); color: #1a140d; }
+
+        .modified-badge {
+            display: inline-flex; align-items: center; gap: 0.25rem;
+            background: var(--warning-soft); color: var(--warning);
+            font-size: 0.65rem; font-weight: 600;
+            padding: 0.1rem 0.45rem;
+            border-radius: 999px;
+            margin-left: 0.4rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .difficulty {
+            display: inline-flex; align-items: center; gap: 0.4rem;
+            font-size: 0.72rem; font-weight: 500;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+        .difficulty-bars { display: flex; gap: 2px; }
+        .db {
+            width: 4px; height: 12px;
+            background: var(--border);
+            border-radius: 1px;
+        }
+        .db.on { background: var(--primary); }
+
+        .tooltip-trigger {
+            display: inline-flex; align-items: center;
+            justify-content: center;
+            width: 16px; height: 16px;
+            border-radius: 50%;
+            background: var(--surface-2);
+            color: var(--text-muted);
+            font-size: 0.7rem; font-weight: 700;
+            cursor: help;
+            margin-left: 0.3rem;
+            font-family: 'Fraunces', serif;
+            font-style: italic;
+            user-select: none;
+            position: relative;
+        }
+        .tooltip-trigger:hover { background: var(--primary); color: white; }
+        .tooltip-trigger[data-tip]::after {
+            content: attr(data-tip);
+            position: absolute;
+            bottom: 130%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--accent);
+            color: var(--bg);
+            padding: 0.5rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.74rem;
+            font-weight: 400;
+            font-family: 'Inter', sans-serif;
+            font-style: normal;
+            white-space: normal;
+            width: 220px;
+            line-height: 1.4;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.15s;
+            text-align: left;
+            z-index: 100;
+            box-shadow: var(--shadow-md);
+        }
+        [data-theme="dark"] .tooltip-trigger[data-tip]::after { background: var(--primary); color: #1a140d; }
+        .tooltip-trigger:hover[data-tip]::after { opacity: 1; }
+
+        .reset-link {
+            background: transparent; border: none;
+            color: var(--text-muted);
+            font-family: inherit; font-size: 0.78rem;
+            cursor: pointer; text-decoration: underline;
+            padding: 0;
+        }
+        .reset-link:hover { color: var(--text); }
+
+        #cookie-consent-banner {
+            position: fixed; bottom: 1rem; left: 1rem; right: 1rem;
+            max-width: 480px; margin: 0 auto;
+            background: var(--accent); color: var(--bg);
+            padding: 1rem 1.25rem;
+            border-radius: var(--radius);
+            z-index: 10000; font-family: inherit;
+            box-shadow: var(--shadow-lg);
+            display: none;
+            font-size: 0.83rem; line-height: 1.5;
+        }
+        #cookie-consent-banner p { margin-bottom: 0.85rem; opacity: 0.9; }
+        #cookie-consent-banner a { color: var(--primary); }
+        .cookie-btns { display: flex; gap: 0.5rem; }
+        .cookie-btn {
+            flex: 1;
+            padding: 0.5rem 1rem; border: none;
+            border-radius: var(--radius-sm); cursor: pointer;
+            font-weight: 600; font-family: inherit;
+            font-size: 0.82rem;
+        }
+        .btn-accept { background: var(--primary); color: white; }
+        .btn-reject {
+            background: transparent; color: var(--bg);
+            border: 1px solid rgba(255,255,255,0.25);
+        }
+
+        @media print {
+            .app-header, .header-actions, .presets-row,
+            .card:first-of-type, #cookie-consent-banner { display: none !important; }
+            .two-col { grid-template-columns: 1fr !important; }
+            .card { break-inside: avoid; box-shadow: none; border: 1px solid #ddd; }
+            body { background: white; }
+        }
+
+        @media (max-width: 600px) {
+            .app-header { padding: 1rem; flex-wrap: wrap; }
+            .app-body { padding: 1rem; }
+            .card { padding: 1.15rem; }
+            .hero-strip { padding: 1rem; }
+            .schedule-row {
+                grid-template-columns: 60px 1fr auto;
+                gap: 0.5rem; padding: 0.55rem 0.6rem;
+            }
+            .schedule-step .desc { padding-left: 30px; font-size: 0.74rem; }
+            .schedule-time { font-size: 0.95rem; }
+            .icon-btn span { display: none; }
+        }
     </style>
 </head>
 <body>
-    <!-- Google Tag Manager (noscript) -->
     <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PBNS5KPX" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
     <div id="root"></div>
 
-    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
     <script type="text/babel">
-        const { useState, useEffect } = React;
+        const { useState, useEffect, useMemo, useCallback } = React;
 
-        // ─── SLIDER ───────────────────────────────────────────────────────────
-        const InputSlider = ({ label, icon, value, onChange, min, max, step, unit, disabled = false }) => (
+        // ============================================================
+        // FERMENTATION SCIENCE
+        // Q10 ≈ 2: yeast activity doubles for each 10°C rise (10–30°C)
+        // Reference: at 22°C with 0.4% IDY, basic dough doubles in ~3h
+        // ============================================================
+        const REF_TEMP = 22, REF_TIME = 3, REF_YEAST = 0.4, FRIDGE_TEMP = 4;
+
+        const rateFactor = (temp) => {
+            if (temp < 4) return 0.15;
+            if (temp > 35) return 4.5;
+            return Math.pow(2, (temp - REF_TEMP) / 10);
+        };
+
+        const yeastForTime = (hours, temp) => {
+            if (hours <= 0) return 0;
+            return (REF_YEAST * REF_TIME) / (hours * rateFactor(temp));
+        };
+
+        const yeastForBulk = (ambientH, coldH, ambientT) => {
+            const activity = ambientH * rateFactor(ambientT) + coldH * rateFactor(FRIDGE_TEMP);
+            if (activity <= 0) return 0;
+            return (REF_YEAST * REF_TIME) / activity;
+        };
+
+        const clamp = (n, lo, hi) => Math.max(lo, Math.min(n, hi));
+        const round = (n, d = 0) => {
+            const f = Math.pow(10, d);
+            return Math.round(n * f) / f;
+        };
+
+        // ============================================================
+        // PREFERMENT KNOWLEDGE BASE
+        // ============================================================
+        const PREFERMENTS = {
+            none: { name: 'Sin prefermento', emoji: '∅', hydration: null },
+            biga: {
+                name: 'Biga', emoji: '🇮🇹', hydration: 45, noYeast: false,
+                desc: "Prefermento italiano firme y seco al 45% de hidratación. Fermentación lenta que desarrolla un gluten muy fuerte y aromas complejos por su baja actividad de agua.",
+                tip: "Ideal para ciabatta, focaccia romana, panettone y panes rústicos de miga muy alveolada.",
+                flavor: "Sabor profundo, ligeramente ácido, con notas lácticas y a frutos secos.",
+                ideal: { time: [12, 18], temp: [16, 20] }, origin: "Italia"
+            },
+            poolish: {
+                name: 'Poolish', emoji: '🇫🇷', hydration: 100, noYeast: false,
+                desc: "Prefermento líquido al 100% de hidratación, originado en Polonia y popularizado por panaderos franceses. Aporta extensibilidad, ligereza y sabor aromático.",
+                tip: "Perfecto para baguettes, pan de molde, brioche y masas que requieran extensión y burbujas finas.",
+                flavor: "Suave, dulce, con aromas a fruta fresca y un punto láctico.",
+                ideal: { time: [12, 16], temp: [18, 22] }, origin: "Polonia / Francia"
+            },
+            esponja: {
+                name: 'Esponja', emoji: '🍰', hydration: 63, noYeast: false,
+                desc: "Prefermento de hidratación intermedia, casi una masa madura. Asegura un arranque potente en masas que cuestan fermentar por su riqueza en grasa o azúcar.",
+                tip: "Imprescindible en brioche, pan de leche, panettone, hojaldre fermentado y panes dulces.",
+                flavor: "Neutro, suave, con notas a levadura fresca; deja brillar a los enriquecimientos.",
+                ideal: { time: [4, 8], temp: [22, 26] }, origin: "Repostería europea"
+            },
+            masa_madre: {
+                name: 'Masa Madre', emoji: '🌾', hydration: 100, noYeast: true,
+                desc: "Cultivo simbiótico de levaduras silvestres y bacterias lácticas. Fermenta sin levadura comercial. Requiere una madre activa con duplicación en 4-6h.",
+                tip: "Refresca tu madre 8-12h antes y comprueba que duplica antes de incorporar a la masa.",
+                flavor: "Complejo, ácido (acético en frío, láctico en calor), con conservación notablemente superior.",
+                ideal: { time: [8, 14], temp: [22, 26] }, origin: "Origen ancestral (4000+ años)"
+            }
+        };
+
+        // ============================================================
+        // PRESETS
+        // ============================================================
+        const PRESETS = [
+            { id: 'pan_basico', name: '🍞 Pan básico mismo día',
+              config: { doughType: 'pan', flour: 500, hydration: 70, saltPercent: 2, totalTime: 4, temperature: 22, useColdProof: false, prefermentType: 'none' } },
+            { id: 'pan_frio', name: '❄️ Pan en frío 24h',
+              config: { doughType: 'pan', flour: 500, hydration: 75, saltPercent: 2, temperature: 22, useColdProof: true, coldProofTime: 18, prefermentType: 'none' } },
+            { id: 'baguette', name: '🥖 Baguette con poolish',
+              config: { doughType: 'pan', flour: 500, hydration: 72, saltPercent: 2, totalTime: 3, temperature: 22, useColdProof: false, prefermentType: 'poolish', prefermentFlourPercent: 30, prefermentTime: 14, prefermentTemp: 20 } },
+            { id: 'ciabatta', name: '🧇 Ciabatta con biga',
+              config: { doughType: 'pan', flour: 500, hydration: 80, saltPercent: 2.2, totalTime: 3, temperature: 22, useColdProof: false, prefermentType: 'biga', prefermentFlourPercent: 50, prefermentTime: 16, prefermentTemp: 18 } },
+            { id: 'pizza_napo', name: '🍕 Pizza napolitana 24h',
+              config: { doughType: 'pizza', pizzaBalls: 4, hydration: 62, saltPercent: 2.8, temperature: 22, useColdProof: true, coldProofTime: 24, prefermentType: 'none' } },
+            { id: 'brioche', name: '🥐 Brioche con esponja',
+              config: { doughType: 'pan', flour: 500, hydration: 60, saltPercent: 1.8, totalTime: 2, temperature: 24, useColdProof: false, prefermentType: 'esponja', prefermentFlourPercent: 25, prefermentTime: 5, prefermentTemp: 25 } },
+        ];
+
+        // ============================================================
+        // ICONS
+        // ============================================================
+        const Icon = ({ name, size = 16 }) => {
+            const paths = {
+                sun: (<><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></>),
+                moon: <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>,
+                printer: (<><path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8" rx="1"/></>),
+                copy: (<><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></>),
+                download: (<><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></>),
+                refresh: (<><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></>),
+                alert: (<><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4M12 17h.01"/></>),
+                check: <polyline points="20 6 9 17 4 12"/>,
+            };
+            return (
+                <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    {paths[name]}
+                </svg>
+            );
+        };
+
+        // ============================================================
+        // SLIDER
+        // ============================================================
+        const Slider = ({ label, icon, value, onChange, min, max, step, unit, disabled, hint, warning, tip }) => (
             <div className="slider-row">
                 <div className={`slider-label ${disabled ? 'disabled' : ''}`}>
-                    <span className="slider-label-left">{icon && <span>{icon}</span>}{label}</span>
-                    <span className={`slider-value-pill ${disabled ? 'disabled' : ''}`}>{value} {unit}</span>
+                    <span className="slider-label-left">
+                        {icon && <span className="ic">{icon}</span>}
+                        {label}
+                        {tip && <span className="tooltip-trigger" data-tip={tip}>i</span>}
+                    </span>
+                    <span className={`slider-value-pill ${disabled ? 'disabled' : ''}`}>
+                        {value}{unit && ' ' + unit}
+                    </span>
                 </div>
                 <div className="slider-track">
                     <input type="range" min={min} max={max} step={step} value={value}
                         onChange={e => onChange(parseFloat(e.target.value))} disabled={disabled} />
-                    <input type="number" value={value}
+                    <input type="number" value={value} min={min} max={max} step={step}
                         onChange={e => onChange(parseFloat(e.target.value) || 0)} disabled={disabled} />
                 </div>
+                {hint && !disabled && <div className="slider-hint">{hint}</div>}
+                {warning && !disabled && <div className="slider-warning"><Icon name="alert" size={12}/> {warning}</div>}
             </div>
         );
 
-        // ─── PREFERMENT SELECTOR ──────────────────────────────────────────────
-        const PREFERMENT_DATA = {
-            none:       { name: 'Ninguno', emoji: '∅' },
-            biga:       { name: 'Biga', emoji: '🇮🇹' },
-            poolish:    { name: 'Poolish', emoji: '🇵🇱' },
-            esponja:    { name: 'Esponja', emoji: '🍰' },
-            masa_madre: { name: 'Masa Madre', emoji: '🌾' },
-        };
-
-        const PREFERMENT_INFO = {
-            biga: {
-                desc: "Prefermento italiano de baja hidratación (45%). Muy firme y seco. Aporta estructura y fuerza al gluten, dando una miga irregular y abierta con alvéolos grandes.",
-                tip: "Ideal para ciabatta, focaccia romana y panes rústicos. Mejora la absorción de agua y la conservación.",
-                flavor: "Sabor ligeramente ácido, complejo y con notas lácteas.",
-                hydration: "45%", origin: "Italia"
-            },
-            poolish: {
-                desc: "Prefermento polaco de hidratación 100% (igual harina que agua). Textura líquida y muy pegajosa. Desarrolla extensibilidad y suavidad en la masa.",
-                tip: "Perfecto para baguettes, pan francés y masas que requieran buena extensión y burbujas finas.",
-                flavor: "Sabor suave, aromático, ligeramente dulce con toques fermentados.",
-                hydration: "100%", origin: "Polonia / Francia"
-            },
-            esponja: {
-                desc: "Prefermento blando de hidratación intermedia (63%). Similar a una masa en sí misma. Se usa para masas enriquecidas con grasa, azúcar o huevo.",
-                tip: "Ideal para brioche, pan de leche, panettone y cualquier masa enriquecida. Garantiza un levado potente y controlado.",
-                flavor: "Sabor neutro y suave, enriquecido por los ingredientes de la masa.",
-                hydration: "63%", origin: "Universal"
-            },
-            masa_madre: {
-                desc: "Cultivo vivo de levaduras silvestres y bacterias lácticas. Sin levadura comercial. Proceso largo que transforma profundamente la harina.",
-                tip: "Para dominar la masa madre necesitas una MM activa y con buen alza. El tiempo de fermentación varía mucho según la fuerza de tu cultivo.",
-                flavor: "Sabor más complejo, ácido (acético o láctico según temperatura) y profundo. Mejora significativamente la conservación del pan.",
-                hydration: "100%", origin: "Origen ancestral"
-            }
-        };
-
-        const PrefermentSelector = ({ selected, onSelect, disabled = false }) => (
-            <div>
-                <div className="pref-grid">
-                    {Object.entries(PREFERMENT_DATA).map(([key, { name, emoji }]) => (
-                        <button key={key}
-                            className={`pref-pill ${selected === key ? 'active' : ''}`}
-                            onClick={() => onSelect(key)}
-                            disabled={disabled}>
-                            {emoji} {name}
-                        </button>
-                    ))}
-                </div>
-                {selected !== 'none' && PREFERMENT_INFO[selected] && !disabled && (
-                    <div className="pref-description animate-in">
-                        <div style={{display:'flex', justifyContent:'space-between', marginBottom:'0.35rem'}}>
-                            <strong style={{color:'var(--crust)'}}>{PREFERMENT_DATA[selected].name}</strong>
-                            <span style={{fontSize:'0.72rem', background:'var(--wheat)', color:'white', borderRadius:'10px', padding:'0.1rem 0.5rem'}}>
-                                Hidratación {PREFERMENT_INFO[selected].hydration}
-                            </span>
-                        </div>
-                        {PREFERMENT_INFO[selected].desc}
-                        <div className="pref-tip">💡 {PREFERMENT_INFO[selected].tip}</div>
-                        <div style={{marginTop:'0.3rem', fontSize:'0.76rem', color:'var(--crust-mid)'}}>
-                            🫙 <em>{PREFERMENT_INFO[selected].flavor}</em>
-                        </div>
-                    </div>
-                )}
-            </div>
-        );
-
-        // ─── BAKING PLAN ──────────────────────────────────────────────────────
-        const BakingPlan = ({ plan }) => (
-            <div className="baking-card animate-in">
-                <div className="baking-card-header">🔥 Plan de Horneado</div>
-                <div className="baking-preheat">
-                    <span>Precalentamiento: <strong>{plan.preheat.temp}</strong></span>
-                    <span style={{fontSize:'0.8rem', color:'#888'}}>{plan.preheat.time}</span>
-                </div>
-                <div style={{padding:'0.5rem 1rem 0.25rem', fontSize:'0.76rem', color:'var(--text-soft)', background:'#fff8f5'}}>
-                    ⚠️ {plan.preheat.notes}
-                </div>
-                {plan.phases.map((phase, i) => (
-                    <div key={i} className="baking-phase">
-                        <div className="baking-phase-title">Fase {i + 1}: {phase.name}</div>
-                        <div className="baking-phase-grid">
-                            <div className="baking-stat"><div className="bv">{phase.temp}</div><div className="bl">Temperatura</div></div>
-                            <div className="baking-stat"><div className="bv">{phase.time}</div><div className="bl">Tiempo</div></div>
-                            <div className="baking-stat"><div className="bv" style={{fontSize:'0.75rem'}}>{phase.mode}</div><div className="bl">Modo</div></div>
-                        </div>
-                        <div className="baking-action">{phase.action}</div>
-                    </div>
-                ))}
-                <div className="baking-cooling">❄️ <span>{plan.cooling}</span></div>
-            </div>
-        );
-
-        // ─── TIMELINE ROW ─────────────────────────────────────────────────────
-        const TimelineRow = ({ icon, label, time, isCold = false }) => (
-            <div className={`timeline-row ${isCold ? 'cold-row' : ''}`}>
-                <div className="timeline-step">
-                    <span className="icon">{icon}</span>
-                    <span>{label}</span>
-                </div>
-                <span className="timeline-time">{time}</span>
-            </div>
-        );
-
-        // ─── FORMAT TIME ──────────────────────────────────────────────────────
-        const formatTime = (hours) => {
-            if (!hours || hours <= 0) return "—";
+        // ============================================================
+        // FORMAT HELPERS
+        // ============================================================
+        const formatHours = (hours) => {
+            if (!hours || hours <= 0) return '—';
             const h = Math.floor(hours);
             const m = Math.round((hours - h) * 60);
-            if (h === 0) return `${m}m`;
+            if (h === 0) return `${m} min`;
             if (m === 0) return `${h}h`;
-            return `${h}h ${m}m`;
+            return `${h}h ${m}min`;
         };
 
-        // ─── PREFERMENT RESULTS ───────────────────────────────────────────────
-        const PrefermentResults = ({ results, prefermentConfig, prefermentType, prefermentTime, prefermentTemp }) => {
-            const info = PREFERMENT_INFO[prefermentType];
-            return (
-                <div className="animate-in">
-                    {/* Preferment box */}
-                    <div className="pref-result-box">
-                        <div className="pref-result-header">🌿 {prefermentConfig.name} — Preparar con antelación</div>
-                        <div className="pref-result-body">
-                            <div className="ingredient-grid">
-                                <div className="ingredient-card">
-                                    <div className="label">Harina</div>
-                                    <div className="value">{results.prefermentFlour.toFixed(0)}</div>
-                                    <div className="unit">gramos</div>
-                                </div>
-                                <div className="ingredient-card blue">
-                                    <div className="label">Agua ({prefermentConfig.hydration}%)</div>
-                                    <div className="value">{results.prefermentWater.toFixed(0)}</div>
-                                    <div className="unit">gramos</div>
-                                </div>
-                                <div className="ingredient-card highlight">
-                                    <div className="label">Levadura</div>
-                                    <div className="value" style={{fontSize:'1.2rem'}}>{results.prefermentYeastGrams.toFixed(2)}</div>
-                                    <div className="unit">g seca inst.</div>
-                                </div>
-                            </div>
-                            <div className="timeline" style={{marginBottom:0}}>
-                                <div className="timeline-header">⏱ Fermentación del prefermento</div>
-                                <TimelineRow icon="🌡️" label={`Levado a ${prefermentTemp}°C`} time={formatTime(prefermentTime)} />
-                                {info && <div style={{padding:'0.5rem 1rem', fontSize:'0.76rem', color:'var(--text-soft)', borderTop:'1px solid var(--cream-dark)'}}>
-                                    🫙 <em>{info.flavor}</em>
-                                </div>}
-                            </div>
-                        </div>
-                    </div>
+        const addHours = (date, hours) => new Date(date.getTime() + hours * 3600000);
+        const formatClock = (date) => date.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+        const formatDay = (date, ref) => {
+            const d1 = new Date(date); d1.setHours(0,0,0,0);
+            const d2 = new Date(ref); d2.setHours(0,0,0,0);
+            const diff = Math.round((d1 - d2) / 86400000);
+            if (diff === 0) return '';
+            if (diff === -1) return '(día -1)';
+            if (diff === -2) return '(día -2)';
+            if (diff === 1) return '(día siguiente)';
+            return diff > 0 ? `(+${diff}d)` : `(${diff}d)`;
+        };
 
-                    {/* Final dough */}
-                    <div className="results-header" style={{marginTop:'1rem'}}>🍞 Masa Final</div>
-                    <div className="ingredient-grid">
-                        <div className="ingredient-card">
-                            <div className="label">Harina restante</div>
-                            <div className="value">{results.finalDoughFlour.toFixed(0)}</div>
-                            <div className="unit">gramos</div>
-                        </div>
-                        <div className="ingredient-card blue">
-                            <div className="label">Agua restante</div>
-                            <div className="value">{results.finalDoughWater.toFixed(0)}</div>
-                            <div className="unit">gramos</div>
-                        </div>
-                        <div className="ingredient-card">
-                            <div className="label">Sal ({results.saltPercent}%)</div>
-                            <div className="value">{results.saltGrams.toFixed(1)}</div>
-                            <div className="unit">gramos</div>
-                        </div>
+        // ============================================================
+        // PREFERMENT INFO
+        // ============================================================
+        const PrefermentInfo = ({ type }) => {
+            const info = PREFERMENTS[type];
+            if (!info || type === 'none') return null;
+            return (
+                <div className="pref-info animate-in">
+                    <div className="pref-info-title">
+                        <span>{info.name}</span>
+                        <div className="pref-info-meta"><span>{info.hydration}%</span></div>
                     </div>
-                    <div style={{marginBottom:'1rem', textAlign:'center', background:'white', border:'1px solid var(--border)', borderRadius:'12px', padding:'0.85rem'}}>
-                        <div style={{fontSize:'0.72rem', textTransform:'uppercase', letterSpacing:'0.08em', color:'var(--text-soft)', marginBottom:'0.25rem'}}>⚖️ Levadura seca adicional</div>
-                        <div style={{fontFamily:"'Playfair Display', serif", fontSize:'2rem', fontWeight:700, color:'var(--green)'}}>{results.yeastGrams.toFixed(2)}g</div>
-                        <div style={{fontSize:'0.76rem', color:'var(--text-soft)'}}>{results.yeastPercent.toFixed(2)}% sobre harina final</div>
-                    </div>
-                    <FermentationTimeline results={results} />
-                    {results.bakingPlan && <BakingPlan plan={results.bakingPlan} />}
+                    {info.desc}
+                    <div className="pref-info-tip">💡 {info.tip}</div>
+                    <div className="pref-info-flavor">🫙 {info.flavor}</div>
                 </div>
             );
         };
 
-        // ─── FERMENTATION TIMELINE ────────────────────────────────────────────
-        const FermentationTimeline = ({ results }) => (
-            <div className="timeline" style={{marginBottom:'1rem'}}>
-                <div className="timeline-header">⏱ Plan de Fermentación — Masa Final</div>
-                <TimelineRow icon="🌡️" label={results.coldTime > 0 ? 'Arranque a temperatura ambiente' : 'Levado principal (T. Ambiente)'} time={formatTime(results.ambientTime)} />
-                {results.coldTime > 0 && <TimelineRow icon="❄️" label="Retardo en frío (nevera)" time={formatTime(results.coldTime)} isCold />}
-                {results.temperingTime > 0 && <TimelineRow icon="☀️" label="Atemperar antes de formar" time={formatTime(results.temperingTime)} />}
-                <TimelineRow icon="🫓" label="Levado final (apret./banneton)" time={formatTime(results.finalProofTime)} />
+        // ============================================================
+        // BAKING PLAN
+        // ============================================================
+        const BakingPlan = ({ plan }) => (
+            <div className="bake-card animate-in">
+                <div className="bake-header">🔥 Plan de horneado</div>
+                <div className="bake-preheat">
+                    <span>Precalentamiento</span>
+                    <span><span className="pt">{plan.preheat.temp}</span> · {plan.preheat.time}</span>
+                </div>
+                <div className="bake-note">⚠️ {plan.preheat.notes}</div>
+                {plan.phases.map((phase, i) => (
+                    <div key={i} className="bake-phase">
+                        <div className="bake-phase-title">Fase {i + 1} — {phase.name}</div>
+                        <div className="bake-stats">
+                            <div className="bake-stat"><div className="v">{phase.temp}</div><div className="l">Temp.</div></div>
+                            <div className="bake-stat"><div className="v">{phase.time}</div><div className="l">Tiempo</div></div>
+                            <div className="bake-stat"><div className="v" style={{fontSize:'0.78rem'}}>{phase.mode}</div><div className="l">Modo</div></div>
+                        </div>
+                        <div className="bake-action">{phase.action}</div>
+                    </div>
+                ))}
+                <div className="bake-note">❄️ {plan.cooling}</div>
             </div>
         );
 
-        // ─── STANDARD RESULTS ─────────────────────────────────────────────────
-        const StandardResults = ({ results }) => (
-            <div className="animate-in">
-                <div className="ingredient-grid">
-                    <div className="ingredient-card">
-                        <div className="label">Harina</div>
-                        <div className="value">{results.totalFlour.toFixed(0)}</div>
-                        <div className="unit">gramos</div>
-                    </div>
-                    <div className="ingredient-card blue">
-                        <div className="label">Agua</div>
-                        <div className="value">{results.waterGrams.toFixed(0)}</div>
-                        <div className="unit">gramos</div>
-                    </div>
-                    <div className="ingredient-card">
-                        <div className="label">Sal ({results.saltPercent}%)</div>
-                        <div className="value">{results.saltGrams.toFixed(1)}</div>
-                        <div className="unit">gramos</div>
-                    </div>
-                </div>
-                <div style={{marginBottom:'1rem', textAlign:'center', background:'white', border:'1px solid var(--border)', borderRadius:'12px', padding:'0.85rem'}}>
-                    <div style={{fontSize:'0.72rem', textTransform:'uppercase', letterSpacing:'0.08em', color:'var(--text-soft)', marginBottom:'0.25rem'}}>⚖️ Levadura seca instantánea</div>
-                    <div style={{fontFamily:"'Playfair Display', serif", fontSize:'2rem', fontWeight:700, color:'var(--green)'}}>{results.yeastGrams.toFixed(2)}g</div>
-                    <div style={{fontSize:'0.76rem', color:'var(--text-soft)'}}>{results.yeastPercent.toFixed(2)}% sobre harina</div>
-                </div>
-                <FermentationTimeline results={results} />
-                {results.bakingPlan && <BakingPlan plan={results.bakingPlan} />}
-            </div>
-        );
+        // ============================================================
+        // QUALITY CHECK
+        // ============================================================
+        const useQualityCheck = (params) => useMemo(() => {
+            const issues = [];
+            const { doughType, hydration, saltPercent, temperature, totalTime, useColdProof, coldProofTime, prefermentType, prefermentTemp } = params;
 
-        // ─── APP ──────────────────────────────────────────────────────────────
+            if (doughType === 'pizza' && hydration > 65) issues.push({ level: 'warn', msg: 'Hidratación alta para napolitana tradicional (típico 58-65%).' });
+            if (doughType === 'pan' && hydration < 55) issues.push({ level: 'warn', msg: 'Hidratación baja: la miga será densa.' });
+            if (doughType === 'pan' && hydration > 85) issues.push({ level: 'warn', msg: 'Hidratación muy alta: requiere técnica avanzada (folds frecuentes, pliegues en frío).' });
+            if (saltPercent < 1.5) issues.push({ level: 'warn', msg: 'Poca sal: fermentación demasiado rápida y poco sabor.' });
+            if (saltPercent > 3) issues.push({ level: 'warn', msg: 'Demasiada sal: puede inhibir la levadura.' });
+            if (temperature < 16) issues.push({ level: 'info', msg: 'Temperatura baja: la fermentación será muy lenta.' });
+            if (temperature > 28) issues.push({ level: 'warn', msg: 'Temperatura alta: la masa puede sobrefermentar y desarrollar acidez excesiva.' });
+            if (!useColdProof && totalTime < 1.5) issues.push({ level: 'warn', msg: 'Tiempo muy corto: la masa no desarrollará sabor.' });
+            if (useColdProof && coldProofTime > 48) issues.push({ level: 'info', msg: 'Frío muy largo: vigila signos de sobrefermentación al sacar.' });
+
+            if (prefermentType !== 'none' && prefermentType !== 'masa_madre') {
+                const ideal = PREFERMENTS[prefermentType].ideal;
+                if (prefermentTemp < ideal.temp[0] - 2) issues.push({ level: 'info', msg: `${PREFERMENTS[prefermentType].name}: temperatura por debajo del rango ideal (${ideal.temp[0]}-${ideal.temp[1]}°C).` });
+                if (prefermentTemp > ideal.temp[1] + 2) issues.push({ level: 'warn', msg: `${PREFERMENTS[prefermentType].name}: temperatura por encima del rango ideal, riesgo de sobrefermentación.` });
+            }
+
+            let score = 5;
+            issues.forEach(i => {
+                if (i.level === 'bad') score -= 2;
+                else if (i.level === 'warn') score -= 1;
+            });
+            return { issues, score: clamp(score, 1, 5) };
+        }, [params]);
+
+        // ============================================================
+        // MAIN APP
+        // ============================================================
+        // Default values for reset
+        const DEFAULTS = {
+            doughType: 'pan', flour: 500, pizzaBalls: 4,
+            hydration: 70, saltPercent: 2, totalTime: 4,
+            temperature: 22, useColdProof: false, coldProofTime: 18,
+            prefermentType: 'none', prefermentFlourPercent: 30,
+            prefermentTime: 14, prefermentTemp: 20,
+        };
+
+        // Load saved state from localStorage
+        const loadSaved = () => {
+            try {
+                const saved = localStorage.getItem('fermCalcState');
+                return saved ? { ...DEFAULTS, ...JSON.parse(saved) } : DEFAULTS;
+            } catch (e) { return DEFAULTS; }
+        };
+
         const App = () => {
-            const [doughType, setDoughType]                   = useState('pan');
-            const [flour, setFlour]                           = useState(500);
-            const [pizzaBalls, setPizzaBalls]                 = useState(4);
-            const [hydration, setHydration]                   = useState(68);
-            const [saltPercent, setSaltPercent]               = useState(2);
-            const [totalTime, setTotalTime]                   = useState(4);
-            const [temperature, setTemperature]               = useState(22);
-            const [useColdProof, setUseColdProof]             = useState(false);
-            const [coldProofTime, setColdProofTime]           = useState(12);
-            const [prefermentType, setPrefermentType]         = useState('none');
-            const [prefermentFlourPercent, setPrefermentFlourPercent] = useState(30);
-            const [prefermentTime, setPrefermentTime]         = useState(16);
-            const [prefermentTemp, setPrefermentTemp]         = useState(20);
-            const [results, setResults]                       = useState({});
+            const [theme, setTheme] = useState(() => {
+                if (typeof localStorage !== 'undefined') {
+                    return localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+                }
+                return 'light';
+            });
+            useEffect(() => {
+                document.documentElement.setAttribute('data-theme', theme);
+                if (typeof localStorage !== 'undefined') localStorage.setItem('theme', theme);
+            }, [theme]);
 
-            const PREFERMENT_CONFIG = {
-                biga:       { name: 'Biga',       hydration: 45  },
-                poolish:    { name: 'Poolish',     hydration: 100 },
-                esponja:    { name: 'Esponja',     hydration: 63  },
-                masa_madre: { name: 'Masa Madre',  hydration: 100, noYeast: true }
+            const initial = loadSaved();
+            const [doughType, setDoughType]                   = useState(initial.doughType);
+            const [flour, setFlour]                           = useState(initial.flour);
+            const [pizzaBalls, setPizzaBalls]                 = useState(initial.pizzaBalls);
+            const [hydration, setHydration]                   = useState(initial.hydration);
+            const [saltPercent, setSaltPercent]               = useState(initial.saltPercent);
+            const [totalTime, setTotalTime]                   = useState(initial.totalTime);
+            const [temperature, setTemperature]               = useState(initial.temperature);
+            const [useColdProof, setUseColdProof]             = useState(initial.useColdProof);
+            const [coldProofTime, setColdProofTime]           = useState(initial.coldProofTime);
+            const [prefermentType, setPrefermentType]         = useState(initial.prefermentType);
+            const [prefermentFlourPercent, setPrefermentFlourPercent] = useState(initial.prefermentFlourPercent);
+            const [prefermentTime, setPrefermentTime]         = useState(initial.prefermentTime);
+            const [prefermentTemp, setPrefermentTemp]         = useState(initial.prefermentTemp);
+            const [activePreset, setActivePreset]             = useState(null);
+            const [activeTab, setActiveTab]                   = useState('recipe');
+            const [toast, setToast]                           = useState(null);
+            const [presetModified, setPresetModified]         = useState(false);
+            const [bakeTime, setBakeTime] = useState(() => {
+                const t = new Date(); t.setHours(18, 0, 0, 0);
+                return t.toTimeString().slice(0, 5);
+            });
+
+            // Show toast helper
+            const showToast = useCallback((msg) => {
+                setToast(msg);
+                setTimeout(() => setToast(null), 2200);
+            }, []);
+
+            // Persist state to localStorage
+            useEffect(() => {
+                try {
+                    localStorage.setItem('fermCalcState', JSON.stringify({
+                        doughType, flour, pizzaBalls, hydration, saltPercent, totalTime,
+                        temperature, useColdProof, coldProofTime, prefermentType,
+                        prefermentFlourPercent, prefermentTime, prefermentTemp
+                    }));
+                } catch (e) {}
+            }, [doughType, flour, pizzaBalls, hydration, saltPercent, totalTime, temperature, useColdProof, coldProofTime, prefermentType, prefermentFlourPercent, prefermentTime, prefermentTemp]);
+
+            // Reset to defaults
+            const resetAll = () => {
+                if (!window.confirm('¿Restablecer todos los parámetros a los valores por defecto?')) return;
+                Object.entries(DEFAULTS).forEach(([k, v]) => {
+                    const setter = {
+                        doughType: setDoughType, flour: setFlour, pizzaBalls: setPizzaBalls,
+                        hydration: setHydration, saltPercent: setSaltPercent, totalTime: setTotalTime,
+                        temperature: setTemperature, useColdProof: setUseColdProof,
+                        coldProofTime: setColdProofTime, prefermentType: setPrefermentType,
+                        prefermentFlourPercent: setPrefermentFlourPercent,
+                        prefermentTime: setPrefermentTime, prefermentTemp: setPrefermentTemp
+                    }[k];
+                    if (setter) setter(v);
+                });
+                setActivePreset(null);
+                setPresetModified(false);
+                showToast('Valores restablecidos');
             };
 
             const DOUGHBALL_WEIGHT = 260;
 
+            const applyPreset = useCallback((preset) => {
+                const c = preset.config;
+                if (c.doughType !== undefined) setDoughType(c.doughType);
+                if (c.flour !== undefined) setFlour(c.flour);
+                if (c.pizzaBalls !== undefined) setPizzaBalls(c.pizzaBalls);
+                if (c.hydration !== undefined) setHydration(c.hydration);
+                if (c.saltPercent !== undefined) setSaltPercent(c.saltPercent);
+                if (c.totalTime !== undefined) setTotalTime(c.totalTime);
+                if (c.temperature !== undefined) setTemperature(c.temperature);
+                setUseColdProof(c.useColdProof || false);
+                if (c.coldProofTime !== undefined) setColdProofTime(c.coldProofTime);
+                setPrefermentType(c.prefermentType || 'none');
+                if (c.prefermentFlourPercent !== undefined) setPrefermentFlourPercent(c.prefermentFlourPercent);
+                if (c.prefermentTime !== undefined) setPrefermentTime(c.prefermentTime);
+                if (c.prefermentTemp !== undefined) setPrefermentTemp(c.prefermentTemp);
+                setTimeout(() => {
+                    setActivePreset(preset.id);
+                    setPresetModified(false);
+                }, 0);
+                showToast(`Aplicado: ${preset.name}`);
+            }, [showToast]);
+
             useEffect(() => {
-                if (doughType === 'pizza') {
-                    setHydration(65); setUseColdProof(true);
-                    setColdProofTime(24); setSaltPercent(2.8);
-                } else {
-                    setHydration(68); setSaltPercent(2);
+                if (activePreset) {
+                    // Check if current state matches the preset
+                    const preset = PRESETS.find(p => p.id === activePreset);
+                    if (preset) {
+                        const c = preset.config;
+                        const matches =
+                            (c.doughType === undefined || c.doughType === doughType) &&
+                            (c.flour === undefined || c.flour === flour) &&
+                            (c.pizzaBalls === undefined || c.pizzaBalls === pizzaBalls) &&
+                            (c.hydration === undefined || c.hydration === hydration) &&
+                            (c.saltPercent === undefined || c.saltPercent === saltPercent) &&
+                            (c.totalTime === undefined || c.totalTime === totalTime) &&
+                            (c.temperature === undefined || c.temperature === temperature) &&
+                            ((c.useColdProof || false) === useColdProof) &&
+                            (c.coldProofTime === undefined || c.coldProofTime === coldProofTime) &&
+                            ((c.prefermentType || 'none') === prefermentType) &&
+                            (c.prefermentFlourPercent === undefined || c.prefermentFlourPercent === prefermentFlourPercent) &&
+                            (c.prefermentTime === undefined || c.prefermentTime === prefermentTime) &&
+                            (c.prefermentTemp === undefined || c.prefermentTemp === prefermentTemp);
+                        setPresetModified(!matches);
+                    }
                 }
+            // eslint-disable-next-line
+            }, [flour, pizzaBalls, hydration, saltPercent, totalTime, temperature, useColdProof, coldProofTime, prefermentType, prefermentFlourPercent, prefermentTime, prefermentTemp, doughType]);
+
+            useEffect(() => {
+                if (doughType === 'pizza' && hydration > 70) setHydration(62);
+            // eslint-disable-next-line
             }, [doughType]);
 
-            useEffect(() => {
-                const YEAST_CONSTANT = 1.5;
-                const FRIDGE_TEMP = 4;
-                const getRateFactor = (temp) => Math.pow(1.1, temp - 22);
-
+            // ─── COMPUTATION ─────────────────────────────────────────
+            const calc = useMemo(() => {
                 const currentFlour = doughType === 'pan'
                     ? flour
-                    : (() => {
-                        const total = pizzaBalls * DOUGHBALL_WEIGHT;
-                        return total / ((100 + hydration + saltPercent) / 100);
-                    })();
+                    : (pizzaBalls * DOUGHBALL_WEIGHT) / ((100 + hydration + saltPercent) / 100);
 
-                const calculateAmbientStartTime = (t) => 1.5 / getRateFactor(t);
-                const calculateTemperingTime = (fa, t) => {
-                    if (!useColdProof) return 0;
-                    const base = fa <= 750 ? 1.5 : fa <= 1500 ? 2.5 : 3.5;
-                    return base / getRateFactor(t);
-                };
-                const calculateFinalProofTime = (t, isCold) => {
-                    let p = 1.5 / getRateFactor(t);
-                    if (isCold) p *= 1.2;
-                    return p;
-                };
+                const usePref = prefermentType !== 'none';
+                const cfg = PREFERMENTS[prefermentType];
+                let prefFlour = 0, prefWater = 0, prefYeast = 0;
+                let finalFlour = currentFlour;
+                let finalWater = currentFlour * (hydration / 100);
 
-                const calculateBakingPlan = (fa, hyd, pType, dType) => {
-                    if (dType === 'pizza') return {
-                        preheat: { temp: "Máxima (250°C+)", time: "45–60 min", notes: "Precalentar con piedra o acero para pizza dentro del horno." },
-                        phases: [{ name: "Cocción Rápida", temp: "Máx.", time: "5–8 min", mode: "Grill + Calor Bajo", action: "Colocar la pizza sobre la piedra bien caliente. Vigilar constantemente el burbujeo y el dorado de los bordes." }],
-                        cooling: "Servir inmediatamente para disfrutar de la mejor textura crujiente."
-                    };
-                    const tf = 1 + ((fa - 500) / 500) * 0.25;
-                    if (pType === 'esponja') return {
-                        preheat: { temp: "190°C", time: "20 min", notes: "Temperatura moderada para masas enriquecidas con grasa o azúcar, que se doran antes." },
-                        phases: [{ name: "Horneado Completo", temp: "185°C", time: `${Math.round(35*tf)}–${Math.round(45*tf)} min`, mode: "Calor Arriba/Abajo", action: "Hornear hasta dorado profundo. Si se dora demasiado por encima, cubrir con papel aluminio los últimos 10 min." }],
-                        cooling: "Enfriar completamente sobre rejilla (mín. 1h) antes de cortar para que la miga asiente."
-                    };
-                    const p1t = hyd > 78 ? `${Math.round(18*tf)}–${Math.round(22*tf)} min` : `${Math.round(15*tf)}–${Math.round(20*tf)} min`;
-                    const p2t = hyd > 78 ? `${Math.round(15*tf)}–${Math.round(20*tf)} min` : `${Math.round(20*tf)}–${Math.round(25*tf)} min`;
-                    const preTemp = hyd > 78 ? "250°C" : "240°C";
-                    const p2Temp = hyd > 78 ? "230°C" : "210°C";
-                    return {
-                        preheat: { temp: preTemp, time: "45–60 min", notes: "¡Crítico! Precalentar el horno con la olla de hierro o piedra dentro para acumular calor." },
-                        phases: [
-                            { name: "Expansión con Vapor", temp: preTemp, time: p1t, mode: "Calor Arriba/Abajo", action: "Hornear tapado en la olla de hierro. El vapor atrapa mantiene la corteza elástica para que el pan abra bien por los cortes (greñas)." },
-                            { name: "Desarrollo de Corteza", temp: p2Temp, time: p2t, mode: "Calor Arriba/Abajo", action: "Destapar la olla. El agua se evapora y la corteza se oscurece y crujifica. Continuar hasta un color oscuro y profundo (caoba)." }
-                        ],
-                        cooling: "¡Esencial! Mínimo 2 horas sobre rejilla antes de cortar. La miga sigue cocinándose con el vapor interno."
-                    };
-                };
+                if (usePref) {
+                    prefFlour = currentFlour * (prefermentFlourPercent / 100);
+                    prefWater = prefFlour * (cfg.hydration / 100);
+                    finalFlour = currentFlour - prefFlour;
+                    finalWater = currentFlour * (hydration / 100) - prefWater;
 
-                const base = {
-                    totalFlour:0, waterGrams:0, saltGrams:0, yeastGrams:0, yeastPercent:0,
-                    ambientTime:0, coldTime:0, temperingTime:0, finalProofTime:0,
-                    prefermentFlour:0, prefermentWater:0, prefermentYeastGrams:0,
-                    finalDoughFlour:0, finalDoughWater:0, bakingPlan:null, saltPercent
-                };
-
-                const usePreferment = prefermentType !== 'none';
-                let doughFlour = usePreferment ? currentFlour * (1 - prefermentFlourPercent/100) : currentFlour;
-
-                if (usePreferment) {
-                    const cfg = PREFERMENT_CONFIG[prefermentType];
-                    const pF = currentFlour * (prefermentFlourPercent/100);
-                    const pW = pF * (cfg.hydration/100);
-                    const pRF = getRateFactor(prefermentTemp);
-                    let pYP = (!cfg.noYeast && prefermentTime > 0) ? YEAST_CONSTANT/(prefermentTime*pRF) : 0;
-                    pYP = Math.max(0.01, Math.min(pYP, 1));
-                    base.prefermentFlour = pF;
-                    base.prefermentWater = pW;
-                    base.prefermentYeastGrams = cfg.noYeast ? 0 : pF*(pYP/100);
-                    base.finalDoughFlour = doughFlour;
-                    base.finalDoughWater = currentFlour*(hydration/100) - pW;
+                    if (!cfg.noYeast && prefermentTime > 0) {
+                        let pYP = yeastForTime(prefermentTime, prefermentTemp);
+                        pYP = clamp(pYP, 0.02, 1);
+                        prefYeast = prefFlour * (pYP / 100);
+                    }
                 }
 
-                let yP = 0, ambientH = 0, coldH = 0;
-                const temperingH = calculateTemperingTime(currentFlour, temperature);
-                const finalProofH = calculateFinalProofTime(temperature, useColdProof);
+                let yeastPercent = 0, ambientH = 0, coldH = 0;
+                if (useColdProof) {
+                    ambientH = clamp(1.5 / rateFactor(temperature), 0.5, 3);
+                    coldH = coldProofTime;
+                    yeastPercent = yeastForBulk(ambientH, coldH, temperature);
+                } else {
+                    ambientH = totalTime;
+                    yeastPercent = yeastForTime(totalTime, temperature);
+                }
+                yeastPercent = clamp(yeastPercent, 0.01, 5);
+
+                if (usePref && !cfg.noYeast) {
+                    const prefContribution = (prefermentFlourPercent / 100) * 0.5;
+                    yeastPercent = yeastPercent * (1 - prefContribution);
+                    yeastPercent = clamp(yeastPercent, 0.01, 5);
+                }
+                if (usePref && cfg.noYeast) yeastPercent = 0;
+
+                const yeastGrams = finalFlour * (yeastPercent / 100);
+                const saltGrams = currentFlour * (saltPercent / 100);
+
+                const temperingTime = useColdProof
+                    ? (currentFlour <= 750 ? 1.5 : currentFlour <= 1500 ? 2.5 : 3.5) / rateFactor(temperature)
+                    : 0;
+
+                const finalProofTime = (1.5 / rateFactor(temperature)) * (useColdProof ? 1.2 : 1);
+
+                const bakingPlan = (() => {
+                    if (doughType === 'pizza') return {
+                        preheat: { temp: 'Máxima (250-300°C)', time: '45-60 min', notes: 'Imprescindible piedra o acero refractario dentro del horno desde el inicio.' },
+                        phases: [{
+                            name: 'Cocción rápida',
+                            temp: 'Máx.', time: '5-8 min', mode: 'Grill + suelo',
+                            action: 'Pizza directa sobre la piedra ardiendo. La cocción es muy rápida: vigila el burbujeo y el dorado del cornicione.'
+                        }],
+                        cooling: 'Servir al instante para mantener la masa elástica y los bordes crujientes.'
+                    };
+
+                    const tf = 1 + ((currentFlour - 500) / 500) * 0.25;
+
+                    if (prefermentType === 'esponja') return {
+                        preheat: { temp: '180°C', time: '20 min', notes: 'Temperatura moderada porque las grasas y azúcares aceleran el dorado.' },
+                        phases: [{
+                            name: 'Horneado completo',
+                            temp: '180°C', time: `${Math.round(35 * tf)}-${Math.round(45 * tf)} min`, mode: 'Calor arriba/abajo',
+                            action: 'Hornea hasta dorado profundo. Si se dora demasiado por arriba, cubre con papel de aluminio los últimos 10-15 minutos. Tester: 92-95°C de temperatura interna.'
+                        }],
+                        cooling: 'Enfría completamente sobre rejilla (mínimo 1h) antes de cortar para que la miga asiente.'
+                    };
+
+                    const high = hydration > 78;
+                    return {
+                        preheat: { temp: high ? '250°C' : '240°C', time: '45-60 min', notes: 'Crítico: precalienta con la dutch oven o piedra dentro para acumular calor.' },
+                        phases: [
+                            {
+                                name: 'Salto y expansión (con vapor)',
+                                temp: high ? '250°C' : '240°C',
+                                time: high ? `${Math.round(20 * tf)}-${Math.round(22 * tf)} min` : `${Math.round(15 * tf)}-${Math.round(20 * tf)} min`,
+                                mode: 'Calor arriba/abajo',
+                                action: 'Hornea tapado en la dutch oven (o crea vapor con bandeja de hielo). El vapor mantiene la corteza elástica para que el pan rompa por las greñas y suba al máximo.'
+                            },
+                            {
+                                name: 'Corteza y color',
+                                temp: high ? '230°C' : '210°C',
+                                time: high ? `${Math.round(18 * tf)}-${Math.round(22 * tf)} min` : `${Math.round(20 * tf)}-${Math.round(25 * tf)} min`,
+                                mode: 'Calor arriba/abajo',
+                                action: 'Destapa o retira la fuente de vapor. La corteza se oscurece y crujifica. Busca un caoba profundo. Temp. interna 96-99°C.'
+                            }
+                        ],
+                        cooling: 'Esencial: mínimo 2h sobre rejilla antes de cortar. La miga sigue cocinándose con el vapor interno y el sabor termina de desarrollarse.'
+                    };
+                })();
+
+                const totalDough = currentFlour + (currentFlour * hydration / 100) + saltGrams + yeastGrams + prefYeast;
+
+                return {
+                    currentFlour, finalFlour, finalWater, prefFlour, prefWater, prefYeast,
+                    yeastPercent, yeastGrams, saltGrams,
+                    ambientH, coldH, temperingTime, finalProofTime,
+                    bakingPlan, totalDough,
+                };
+            }, [doughType, flour, pizzaBalls, hydration, saltPercent, totalTime, temperature, useColdProof, coldProofTime, prefermentType, prefermentFlourPercent, prefermentTime, prefermentTemp]);
+
+            const quality = useQualityCheck({ doughType, hydration, saltPercent, temperature, totalTime, useColdProof, coldProofTime, prefermentType, prefermentTemp });
+
+            // Difficulty score (1-5)
+            const difficulty = useMemo(() => {
+                let score = 1;
+                if (hydration > 75) score++;
+                if (hydration > 85) score++;
+                if (useColdProof) score++;
+                if (prefermentType !== 'none') score++;
+                if (prefermentType === 'masa_madre') score++;
+                if (doughType === 'pizza') score++;
+                return clamp(score, 1, 5);
+            }, [hydration, useColdProof, prefermentType, doughType]);
+            const difficultyLabel = ['', 'Principiante', 'Fácil', 'Intermedio', 'Avanzado', 'Experto'][difficulty];
+
+            // ─── SCHEDULE ────────────────────────────────────────────
+            const schedule = useMemo(() => {
+                const [bh, bm] = bakeTime.split(':').map(Number);
+                const bake = new Date();
+                bake.setHours(bh, bm, 0, 0);
+                if (bake < new Date()) bake.setDate(bake.getDate() + 1);
+
+                const events = [];
+                events.push({ time: new Date(bake), name: 'Hornear', desc: 'El pan entra al horno precalentado', icon: '🔥', kind: 'bake' });
+
+                let cursor = new Date(bake);
+                // Final proof
+                cursor = addHours(cursor, -calc.finalProofTime);
+                events.push({ time: new Date(cursor), name: 'Levado final', desc: doughType === 'pizza' ? 'Bolea las pizzas y deja reposar' : 'En banneton o molde, hasta ~70% de aumento', icon: '🫓', kind: 'normal', dur: calc.finalProofTime });
+
+                // Bench rest before final proof (only for pan, not pizza)
+                if (doughType === 'pan') {
+                    const benchRest = 0.4; // ~25 min
+                    cursor = addHours(cursor, -benchRest);
+                    events.push({ time: new Date(cursor), name: 'Boleado y reposo', desc: 'Preforma, deja relajar 20-30 min, luego forma definitiva', icon: '🤲', kind: 'normal', dur: benchRest });
+                }
 
                 if (useColdProof) {
-                    ambientH = calculateAmbientStartTime(temperature);
-                    coldH = coldProofTime;
-                    const act = (ambientH*getRateFactor(temperature)) + (coldH*getRateFactor(FRIDGE_TEMP));
-                    if (act > 0) yP = YEAST_CONSTANT/act;
-                } else {
-                    if (totalTime > 0) yP = YEAST_CONSTANT/(totalTime*getRateFactor(temperature));
-                    ambientH = totalTime;
-                }
-                yP = Math.max(0.01, Math.min(yP, 5));
+                    if (calc.temperingTime > 0) {
+                        cursor = addHours(cursor, -calc.temperingTime);
+                        events.push({ time: new Date(cursor), name: 'Atemperar', desc: 'Saca de la nevera, deja que pierda el frío', icon: '☀️', kind: 'normal', dur: calc.temperingTime });
+                    }
+                    cursor = addHours(cursor, -calc.coldH);
+                    events.push({ time: new Date(cursor), name: 'A la nevera', desc: `Retardo en frío a ${FRIDGE_TEMP}°C — desarrolla sabor`, icon: '❄️', kind: 'cold', dur: calc.coldH });
 
-                setResults({
-                    ...base,
-                    totalFlour: currentFlour,
-                    yeastPercent: yP,
-                    yeastGrams: doughFlour*(yP/100),
-                    waterGrams: usePreferment ? base.finalDoughWater : currentFlour*(hydration/100),
-                    saltGrams: currentFlour*(saltPercent/100),
-                    ambientTime: ambientH,
-                    coldTime: coldH,
-                    temperingTime: temperingH,
-                    finalProofTime: finalProofH,
-                    bakingPlan: calculateBakingPlan(currentFlour, hydration, prefermentType, doughType)
-                });
-            }, [flour, pizzaBalls, hydration, saltPercent, totalTime, temperature, useColdProof,
-                coldProofTime, prefermentType, prefermentFlourPercent, prefermentTime, prefermentTemp, doughType]);
+                    // Folds during bulk if hydration is high
+                    if (hydration >= 70 && calc.ambientH >= 1) {
+                        const foldsCount = hydration >= 80 ? 4 : 3;
+                        cursor = addHours(cursor, -calc.ambientH);
+                        events.push({ time: new Date(cursor), name: 'Mezcla + bulk con pliegues', desc: `${foldsCount} pliegues cada 30 min durante la fermentación a ${temperature}°C`, icon: '🥣', kind: 'normal', dur: calc.ambientH });
+                    } else {
+                        cursor = addHours(cursor, -calc.ambientH);
+                        events.push({ time: new Date(cursor), name: 'Mezcla y bulk corto', desc: `Fermentación a ${temperature}°C antes del frío`, icon: '🥣', kind: 'normal', dur: calc.ambientH });
+                    }
+                } else {
+                    // Folds during bulk if hydration is high
+                    if (hydration >= 70 && calc.ambientH >= 2) {
+                        const foldsCount = hydration >= 80 ? 4 : 3;
+                        cursor = addHours(cursor, -calc.ambientH);
+                        events.push({ time: new Date(cursor), name: 'Bulk con pliegues', desc: `${foldsCount} pliegues cada ${Math.round(calc.ambientH * 60 / (foldsCount + 1))} min a ${temperature}°C`, icon: '🥣', kind: 'normal', dur: calc.ambientH });
+                    } else {
+                        cursor = addHours(cursor, -calc.ambientH);
+                        events.push({ time: new Date(cursor), name: 'Bulk principal', desc: `Fermentación en bloque a ${temperature}°C`, icon: '🥣', kind: 'normal', dur: calc.ambientH });
+                    }
+                }
+
+                // Autolisis only suggested for high hydration breads
+                if (doughType === 'pan' && hydration >= 75) {
+                    const autolyse = 0.5;
+                    cursor = addHours(cursor, -autolyse);
+                    events.push({ time: new Date(cursor), name: 'Autólisis', desc: 'Mezcla harina + agua, deja reposar 30 min antes de añadir sal y levadura', icon: '💧', kind: 'normal', dur: autolyse });
+                }
+
+                events.push({ time: new Date(cursor), name: 'Empezar aquí', desc: prefermentType !== 'none' ? 'Mezcla la masa final con el prefermento ya activo' : 'Pesa los ingredientes y comienza', icon: '👐', kind: 'start' });
+
+                if (prefermentType !== 'none') {
+                    cursor = addHours(cursor, -prefermentTime);
+                    const desc = PREFERMENTS[prefermentType].noYeast
+                        ? `${prefermentTime}h a ${prefermentTemp}°C — refresca tu masa madre`
+                        : `${prefermentTime}h a ${prefermentTemp}°C en bote tapado`;
+                    events.push({ time: new Date(cursor), name: `Preparar ${PREFERMENTS[prefermentType].name}`, desc, icon: '🌿', kind: 'normal', dur: prefermentTime });
+                }
+
+                return events.reverse();
+            }, [bakeTime, calc, useColdProof, temperature, prefermentType, prefermentTime, prefermentTemp, doughType, hydration]);
+
+            // ─── RECIPE TEXT ─────────────────────────────────────────
+            const recipeText = useMemo(() => {
+                const lines = [];
+                lines.push(`RECETA — ${doughType === 'pizza' ? 'Pizza' : 'Pan'}${prefermentType !== 'none' ? ' con ' + PREFERMENTS[prefermentType].name : ''}`);
+                lines.push('═══════════════════════════');
+                if (prefermentType !== 'none') {
+                    lines.push(`\n${PREFERMENTS[prefermentType].name} (${prefermentTime}h a ${prefermentTemp}°C):`);
+                    lines.push(`  Harina: ${round(calc.prefFlour)}g`);
+                    lines.push(`  Agua: ${round(calc.prefWater)}g`);
+                    if (calc.prefYeast > 0) lines.push(`  Levadura seca: ${round(calc.prefYeast, 2)}g`);
+                    if (PREFERMENTS[prefermentType].noYeast) lines.push(`  Masa madre activa: ${round(calc.prefFlour * 0.4)}g aprox`);
+                }
+                lines.push(`\nMasa final:`);
+                lines.push(`  Harina: ${round(calc.finalFlour)}g`);
+                lines.push(`  Agua: ${round(calc.finalWater)}g`);
+                lines.push(`  Sal: ${round(calc.saltGrams, 1)}g`);
+                if (calc.yeastGrams > 0) lines.push(`  Levadura seca: ${round(calc.yeastGrams, 2)}g`);
+                lines.push(`\nTotales: ${round(calc.currentFlour)}g harina · ${hydration}% hidratación · ${saltPercent}% sal`);
+                lines.push(`\nFermentación:`);
+                if (useColdProof) {
+                    lines.push(`  • Bulk corto: ${formatHours(calc.ambientH)} a ${temperature}°C`);
+                    lines.push(`  • Frío: ${formatHours(calc.coldH)} a ${FRIDGE_TEMP}°C`);
+                    if (calc.temperingTime > 0) lines.push(`  • Atemperar: ${formatHours(calc.temperingTime)}`);
+                } else {
+                    lines.push(`  • Bulk: ${formatHours(calc.ambientH)} a ${temperature}°C`);
+                }
+                lines.push(`  • Levado final: ${formatHours(calc.finalProofTime)}`);
+                return lines.join('\n');
+            }, [calc, doughType, prefermentType, prefermentTime, prefermentTemp, hydration, saltPercent, useColdProof, temperature]);
+
+            const copyRecipe = () => {
+                if (navigator.clipboard) {
+                    navigator.clipboard.writeText(recipeText).then(() => {
+                        showToast('Receta copiada al portapapeles ✓');
+                    }).catch(() => {
+                        showToast('Error al copiar');
+                    });
+                } else {
+                    showToast('Portapapeles no disponible');
+                }
+            };
+
+            const downloadRecipe = () => {
+                const blob = new Blob([recipeText], { type: 'text/plain;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `receta-${doughType}-${Date.now()}.txt`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                showToast('Receta descargada ✓');
+            };
+
+            const totalTimeAll = useMemo(() => {
+                let t = calc.finalProofTime;
+                if (doughType === 'pan') t += 0.4; // bench rest
+                if (useColdProof) {
+                    t += calc.ambientH + calc.coldH + calc.temperingTime;
+                } else {
+                    t += calc.ambientH;
+                }
+                if (doughType === 'pan' && hydration >= 75) t += 0.5; // autolysis
+                if (prefermentType !== 'none') t += prefermentTime;
+                return t;
+            }, [calc, useColdProof, prefermentType, prefermentTime, doughType, hydration]);
 
             return (
-                <div>
+                <>
                     <header className="app-header">
-                        <div className="header-badge">Panadería artesanal</div>
-                        <h1>🌾 Calculadora de Fermentación</h1>
-                        <p>Ajusta los parámetros y obtén tu receta y plan de levado exacto.</p>
+                        <div className="brand">
+                            <div className="brand-mark">F</div>
+                            <div className="brand-text">
+                                <h1>Calculadora de Fermentación</h1>
+                                <p>Panadería artesanal · cálculo asistido</p>
+                            </div>
+                        </div>
+                        <div className="header-actions">
+                            <button className="icon-btn" onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
+                                title={theme === 'light' ? 'Modo oscuro' : 'Modo claro'}>
+                                <Icon name={theme === 'light' ? 'moon' : 'sun'} />
+                            </button>
+                            <button className="icon-btn" onClick={copyRecipe} title="Copiar receta">
+                                <Icon name="copy" /> <span>Copiar</span>
+                            </button>
+                            <button className="icon-btn" onClick={downloadRecipe} title="Descargar receta como .txt">
+                                <Icon name="download" />
+                            </button>
+                            <button className="icon-btn" onClick={() => window.print()} title="Imprimir">
+                                <Icon name="printer" />
+                            </button>
+                        </div>
                     </header>
 
                     <div className="app-body">
+                        {/* HERO STRIP */}
+                        <div className="hero-strip">
+                            <div className="hero-stat">
+                                <div className="label">Harina total</div>
+                                <div className="value">{Math.round(calc.currentFlour)}<span className="unit">g</span></div>
+                            </div>
+                            <div className="hero-stat">
+                                <div className="label">Hidratación</div>
+                                <div className="value">{hydration}<span className="unit">%</span></div>
+                            </div>
+                            <div className="hero-stat">
+                                <div className="label">Levadura</div>
+                                <div className="value">
+                                    {calc.yeastGrams > 0 ? round(calc.yeastGrams, 2) : '—'}
+                                    {calc.yeastGrams > 0 && <span className="unit">g</span>}
+                                </div>
+                            </div>
+                            <div className="hero-stat">
+                                <div className="label">Tiempo total</div>
+                                <div className="value">{formatHours(totalTimeAll)}</div>
+                            </div>
+                            <div className="hero-stat">
+                                <div className="label">Masa total</div>
+                                <div className="value">{Math.round(calc.totalDough)}<span className="unit">g</span></div>
+                            </div>
+                        </div>
+
+                        {/* DIFFICULTY + RESET */}
+                        <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.75rem'}}>
+                            <div className="difficulty">
+                                <span>Dificultad:</span>
+                                <div className="difficulty-bars">
+                                    {[1,2,3,4,5].map(n => (
+                                        <span key={n} className={`db ${n <= difficulty ? 'on' : ''}`}></span>
+                                    ))}
+                                </div>
+                                <span style={{color: 'var(--text-soft)', fontWeight: 600}}>{difficultyLabel}</span>
+                            </div>
+                            <button className="reset-link" onClick={resetAll}>↻ Restablecer valores</button>
+                        </div>
+
+                        {/* PRESETS */}
+                        <div className="presets-row">
+                            {PRESETS.map(p => (
+                                <button key={p.id}
+                                    className={`preset-btn ${activePreset === p.id ? 'active' : ''}`}
+                                    onClick={() => applyPreset(p)}>
+                                    {p.name}
+                                    {activePreset === p.id && presetModified && (
+                                        <span className="modified-badge">modif.</span>
+                                    )}
+                                </button>
+                            ))}
+                        </div>
+
                         <div className="two-col">
-                            {/* ── LEFT: CONTROLS ── */}
+                            {/* ─── LEFT: CONTROLS ─── */}
                             <div className="card">
                                 {/* Tipo de masa */}
-                                <div className="card-section">
-                                    <div className="section-title"><span>①</span> Tipo de Masa</div>
+                                <div className="section">
+                                    <div className="section-label"><span className="step-num">1</span> Tipo de masa</div>
                                     <div className="dough-toggle">
-                                        <button className={`dough-btn ${doughType==='pan' ? 'active-pan' : ''}`}
+                                        <button className={`dough-btn ${doughType === 'pan' ? 'active' : ''}`}
                                             onClick={() => setDoughType('pan')}>
-                                            <span className="emoji">🍞</span>
-                                            Pan
-                                            <span className="sub">Hogazas, barras, brioche…</span>
+                                            <span className="top"><span className="emoji">🍞</span> Pan</span>
+                                            <span className="sub">Hogazas, baguettes, brioche</span>
                                         </button>
-                                        <button className={`dough-btn ${doughType==='pizza' ? 'active-pizza' : ''}`}
+                                        <button className={`dough-btn ${doughType === 'pizza' ? 'active' : ''}`}
                                             onClick={() => setDoughType('pizza')}>
-                                            <span className="emoji">🍕</span>
-                                            Pizza Napolitana
-                                            <span className="sub">Bolas de {260}g c/u</span>
+                                            <span className="top"><span className="emoji">🍕</span> Pizza Napolitana</span>
+                                            <span className="sub">Bolas de 260g</span>
                                         </button>
                                     </div>
                                 </div>
 
-                                {/* Ingredientes */}
-                                <div className="card-section">
-                                    <div className="section-title"><span>②</span> Ingredientes y Cantidad</div>
+                                {/* Cantidad e ingredientes */}
+                                <div className="section">
+                                    <div className="section-label"><span className="step-num">2</span> Cantidad e ingredientes</div>
                                     <div className="slider-group">
                                         {doughType === 'pan' ? (
-                                            <InputSlider label="Harina Total" icon="🌾" value={flour}
-                                                onChange={setFlour} min="100" max="2000" step="50" unit="g" />
+                                            <Slider label="Harina total" icon="🌾" value={flour} onChange={setFlour}
+                                                min="100" max="2000" step="50" unit="g" />
                                         ) : (
-                                            <>
-                                                <InputSlider label="Número de Bolas" icon="🍕" value={pizzaBalls}
-                                                    onChange={setPizzaBalls} min="1" max="20" step="1" unit="bolas" />
-                                                <p className="hint-text" style={{marginTop:'-0.6rem'}}>Cada bola → 260g de masa lista</p>
-                                            </>
+                                            <Slider label="Número de bolas" icon="🍕" value={pizzaBalls} onChange={setPizzaBalls}
+                                                min="1" max="20" step="1" unit="bolas"
+                                                hint="Cada bola → 260g de masa lista" />
                                         )}
-                                        <InputSlider label="Hidratación Final" icon="💧" value={hydration}
-                                            onChange={setHydration}
-                                            min={doughType==='pizza' ? 60 : 50}
-                                            max={doughType==='pizza' ? 65 : 100}
-                                            step="1" unit="%" />
-                                        <InputSlider label="Porcentaje de Sal" icon="🧂" value={saltPercent}
-                                            onChange={setSaltPercent} min="1" max="4" step="0.1" unit="%" />
-                                        <InputSlider label="Temperatura Ambiente" icon="🌡️" value={temperature}
-                                            onChange={setTemperature} min="4" max="35" step="1" unit="°C" />
+                                        <Slider label="Hidratación final" icon="💧" value={hydration} onChange={setHydration}
+                                            min={doughType === 'pizza' ? 55 : 50}
+                                            max={doughType === 'pizza' ? 75 : 100}
+                                            step="1" unit="%"
+                                            tip="Porcentaje de agua sobre el peso de la harina total. A más hidratación, miga más abierta y alveolada, pero más difícil de manejar."
+                                            hint={doughType === 'pizza'
+                                                ? 'Napolitana clásica: 58-65%'
+                                                : hydration < 65 ? 'Miga densa, fácil de manipular'
+                                                : hydration < 75 ? 'Equilibrio clásico, buen alveolado'
+                                                : hydration < 85 ? 'Miga abierta, requiere folds'
+                                                : 'Hidratación alta, técnica avanzada'} />
+                                        <Slider label="Sal" icon="🧂" value={saltPercent} onChange={setSaltPercent}
+                                            min="1" max="3.5" step="0.1" unit="%"
+                                            tip="Sobre el peso de la harina total. La sal controla la fermentación y aporta sabor. Menos de 1.5% acelera demasiado; más de 3% inhibe la levadura."
+                                            hint="Estándar: 1.8-2.2% · pizza napolitana: 2.5-3%" />
+                                        <Slider label="Temperatura ambiente" icon="🌡️" value={temperature} onChange={setTemperature}
+                                            min="4" max="32" step="1" unit="°C"
+                                            tip="Q10 es la regla biológica que dice que la actividad enzimática se duplica cada 10°C. Para la levadura: a 32°C fermenta el doble que a 22°C."
+                                            hint={`Q10≈2: ${temperature < 22 ? 'fermenta más lento' : temperature > 22 ? 'fermenta más rápido' : 'velocidad de referencia'} que a 22°C`} />
                                     </div>
                                 </div>
 
                                 {/* Prefermento */}
-                                <div className="card-section">
-                                    <div className="section-title"><span>③</span> Prefermento</div>
-                                    <PrefermentSelector selected={prefermentType} onSelect={setPrefermentType} />
+                                <div className="section">
+                                    <div className="section-label"><span className="step-num">3</span> Prefermento (opcional)</div>
+                                    <div className="pref-grid">
+                                        {Object.entries(PREFERMENTS).map(([key, p]) => (
+                                            <button key={key}
+                                                className={`pref-pill ${prefermentType === key ? 'active' : ''}`}
+                                                onClick={() => setPrefermentType(key)}>
+                                                <span className="e">{p.emoji}</span>
+                                                <span>{p.name}</span>
+                                                {p.hydration && <span className="h">{p.hydration}%</span>}
+                                            </button>
+                                        ))}
+                                    </div>
+                                    <PrefermentInfo type={prefermentType} />
                                     {prefermentType !== 'none' && (
                                         <div className="indent-group">
-                                            <InputSlider label="% Harina en Prefermento" icon="↳" value={prefermentFlourPercent}
+                                            <Slider label="% Harina en prefermento" icon="↳" value={prefermentFlourPercent}
                                                 onChange={setPrefermentFlourPercent} min="20" max="50" step="5" unit="%" />
-                                            <InputSlider label="Tiempo de Levado" icon="⏰" value={prefermentTime}
-                                                onChange={setPrefermentTime} min="8" max="24" step="1" unit="hrs" />
-                                            <InputSlider label="Temperatura de Levado" icon="🌡️" value={prefermentTemp}
+                                            <Slider label="Tiempo de levado" icon="⏰" value={prefermentTime}
+                                                onChange={setPrefermentTime} min="4" max="24" step="1" unit="hrs" />
+                                            <Slider label="Temperatura del prefermento" icon="🌡️" value={prefermentTemp}
                                                 onChange={setPrefermentTemp} min="4" max="30" step="1" unit="°C" />
                                         </div>
                                     )}
                                 </div>
 
-                                {/* Tiempos de fermentación */}
-                                <div className="card-section">
-                                    <div className="section-title"><span>④</span> Fermentación</div>
-                                    <div className="slider-group">
-                                        <div className="toggle-row">
-                                            <label className="toggle-label">❄️ Levado en frío (nevera)</label>
-                                            <label className="toggle-switch">
-                                                <input type="checkbox" checked={useColdProof}
-                                                    onChange={e => setUseColdProof(e.target.checked)} />
-                                                <span className="toggle-slider"></span>
-                                            </label>
-                                        </div>
+                                {/* Fermentación */}
+                                <div className="section">
+                                    <div className="section-label"><span className="step-num">4</span> Plan de fermentación</div>
+                                    <div className="toggle-row">
+                                        <span className="toggle-label">❄️ Levado en frío (nevera)</span>
+                                        <label className="toggle-switch">
+                                            <input type="checkbox" checked={useColdProof}
+                                                onChange={e => setUseColdProof(e.target.checked)} />
+                                            <span className="toggle-slider"></span>
+                                        </label>
+                                    </div>
+                                    <div style={{marginTop: '0.85rem', display: 'flex', flexDirection: 'column', gap: '1rem'}}>
                                         {useColdProof && (
-                                            <div className="indent-group" style={{marginTop:'0.25rem'}}>
-                                                <InputSlider label="Tiempo en Frío" icon="❄️" value={coldProofTime}
-                                                    onChange={setColdProofTime} min="8" max="72" step="1" unit="hrs" />
-                                            </div>
+                                            <Slider label="Tiempo en frío" icon="❄️" value={coldProofTime}
+                                                onChange={setColdProofTime} min="8" max="72" step="1" unit="hrs" />
                                         )}
-                                        <InputSlider label="Levado a T. Ambiente" icon="⏰" value={totalTime}
+                                        <Slider label="Levado a temperatura ambiente" icon="⏰" value={totalTime}
                                             onChange={setTotalTime} min="1" max="12" step="0.5" unit="hrs"
-                                            disabled={useColdProof} />
+                                            disabled={useColdProof}
+                                            hint={useColdProof ? 'El bulk se calcula automáticamente al activar levado en frío' : ''} />
                                     </div>
                                 </div>
                             </div>
 
-                            {/* ── RIGHT: RESULTS ── */}
+                            {/* ─── RIGHT: RESULTS ─── */}
                             <div className="card">
-                                <div className="section-title"><span>📋</span> Tu Receta Calculada</div>
-                                {results && Object.keys(results).length > 0 ? (
-                                    prefermentType !== 'none'
-                                        ? <PrefermentResults
-                                            results={results}
-                                            prefermentConfig={PREFERMENT_CONFIG[prefermentType]}
-                                            prefermentType={prefermentType}
-                                            prefermentTime={prefermentTime}
-                                            prefermentTemp={prefermentTemp} />
-                                        : <StandardResults results={results} />
-                                ) : (
-                                    <p style={{color:'var(--text-soft)'}}>Calculando…</p>
+                                <div className="tabs">
+                                    <button className={`tab ${activeTab === 'recipe' ? 'active' : ''}`} onClick={() => setActiveTab('recipe')}>📋 Receta</button>
+                                    <button className={`tab ${activeTab === 'schedule' ? 'active' : ''}`} onClick={() => setActiveTab('schedule')}>⏱ Cronograma</button>
+                                    <button className={`tab ${activeTab === 'baking' ? 'active' : ''}`} onClick={() => setActiveTab('baking')}>🔥 Horneado</button>
+                                </div>
+
+                                {quality.issues.length > 0 && (
+                                    <div className="quality-bar">
+                                        <span style={{fontWeight: 600}}>Calidad:</span>
+                                        <div className="quality-dots">
+                                            {[1,2,3,4,5].map(n => (
+                                                <span key={n} className={`qd ${n <= quality.score ? (quality.score >= 4 ? 'on' : quality.score >= 3 ? 'warn' : 'bad') : ''}`}></span>
+                                            ))}
+                                        </div>
+                                        <span style={{color: 'var(--text-muted)', fontSize: '0.76rem'}}>
+                                            {quality.issues.length} ajuste{quality.issues.length !== 1 ? 's' : ''} sugerido{quality.issues.length !== 1 ? 's' : ''}
+                                        </span>
+                                    </div>
                                 )}
-                                <div className="info-note">
-                                    <strong>Nota:</strong> Esta calculadora es una guía orientativa.
-                                    Observa siempre tu masa: la fuerza de la harina, la humedad real del ambiente
-                                    y la actividad de tu levadura pueden variar los tiempos significativamente.
+
+                                {quality.issues.filter(i => i.level === 'warn').slice(0, 2).map((iss, i) => (
+                                    <div key={i} className="warn-box">
+                                        <Icon name="alert" /> <span>{iss.msg}</span>
+                                    </div>
+                                ))}
+
+                                {/* RECIPE TAB */}
+                                {activeTab === 'recipe' && (
+                                    <div className="animate-in">
+                                        {prefermentType !== 'none' && (
+                                            <div className="pref-box">
+                                                <div className="pref-box-header">
+                                                    <span>🌿 {PREFERMENTS[prefermentType].name}</span>
+                                                    <span style={{opacity: 0.85}}>{prefermentTime}h · {prefermentTemp}°C</span>
+                                                </div>
+                                                <div className="pref-box-body">
+                                                    <div className="ing-grid" style={{marginBottom: 0}}>
+                                                        <div className="ing-card"><div className="l">Harina</div><div className="v">{round(calc.prefFlour)}</div><div className="u">gramos</div></div>
+                                                        <div className="ing-card"><div className="l">Agua ({PREFERMENTS[prefermentType].hydration}%)</div><div className="v">{round(calc.prefWater)}</div><div className="u">gramos</div></div>
+                                                        {PREFERMENTS[prefermentType].noYeast ? (
+                                                            <div className="ing-card"><div className="l">Masa madre</div><div className="v">{round(calc.prefFlour * 0.4)}</div><div className="u">g (aprox.)</div></div>
+                                                        ) : (
+                                                            <div className="ing-card"><div className="l">Levadura seca</div><div className="v">{round(calc.prefYeast, 2)}</div><div className="u">gramos</div></div>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        <div style={{fontFamily: 'Fraunces, serif', fontSize: '0.95rem', fontWeight: 500, marginBottom: '0.6rem', color: 'var(--accent)'}}>
+                                            {prefermentType !== 'none' ? '🍞 Masa final (resto)' : '🍞 Masa'}
+                                        </div>
+                                        <div className="ing-grid">
+                                            <div className="ing-card"><div className="l">Harina</div><div className="v">{round(calc.finalFlour)}</div><div className="u">gramos</div></div>
+                                            <div className="ing-card"><div className="l">Agua</div><div className="v">{round(calc.finalWater)}</div><div className="u">gramos</div></div>
+                                            <div className="ing-card"><div className="l">Sal ({saltPercent}%)</div><div className="v">{round(calc.saltGrams, 1)}</div><div className="u">gramos</div></div>
+                                        </div>
+
+                                        {calc.yeastGrams > 0 && (
+                                            <div className="yeast-card">
+                                                <div className="l">⚖️ Levadura seca instantánea</div>
+                                                <div className="v">{round(calc.yeastGrams, 2)}g</div>
+                                                <div className="u">{round(calc.yeastPercent, 2)}% sobre harina · ×3 si fresca</div>
+                                                <div className="tiny">Si solo tienes levadura fresca prensada, multiplica por 3 (≈{round(calc.yeastGrams * 3, 1)}g)</div>
+                                            </div>
+                                        )}
+
+                                        <div className="info-note">
+                                            <strong>Total de la masa:</strong> {round(calc.totalDough)}g
+                                            {doughType === 'pizza' && ` · ${pizzaBalls} bolas de ~${DOUGHBALL_WEIGHT}g`}
+                                            <br/><strong>Hidratación efectiva:</strong> {hydration}% · <strong>Sal:</strong> {saltPercent}% del peso de harina
+                                        </div>
+
+                                        {/* Visual indicators */}
+                                        <div style={{marginTop: '1rem'}}>
+                                            <div style={{fontFamily: 'Fraunces, serif', fontSize: '0.95rem', fontWeight: 500, marginBottom: '0.6rem', color: 'var(--accent)'}}>
+                                                👁️ Cómo saber si está lista
+                                            </div>
+                                            <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '0.5rem'}}>
+                                                <div style={{background: 'var(--surface-2)', padding: '0.7rem', borderRadius: 'var(--radius-sm)', fontSize: '0.78rem', lineHeight: 1.45}}>
+                                                    <strong style={{color: 'var(--accent)'}}>🥣 Bulk</strong>
+                                                    <div style={{color: 'var(--text-soft)', marginTop: '0.2rem'}}>
+                                                        +60-75% volumen, jiggly al mover, burbujas en superficie y laterales del bote.
+                                                    </div>
+                                                </div>
+                                                <div style={{background: 'var(--surface-2)', padding: '0.7rem', borderRadius: 'var(--radius-sm)', fontSize: '0.78rem', lineHeight: 1.45}}>
+                                                    <strong style={{color: 'var(--accent)'}}>🫓 Levado final</strong>
+                                                    <div style={{color: 'var(--text-soft)', marginTop: '0.2rem'}}>
+                                                        Poke test: presiona y la marca debe rebotar lentamente y dejar leve hueco.
+                                                    </div>
+                                                </div>
+                                                {doughType === 'pan' && (
+                                                    <div style={{background: 'var(--surface-2)', padding: '0.7rem', borderRadius: 'var(--radius-sm)', fontSize: '0.78rem', lineHeight: 1.45}}>
+                                                        <strong style={{color: 'var(--accent)'}}>🍞 Horneado</strong>
+                                                        <div style={{color: 'var(--text-soft)', marginTop: '0.2rem'}}>
+                                                            Caoba profundo, base hueca al golpear, 96-99°C interior.
+                                                        </div>
+                                                    </div>
+                                                )}
+                                                {doughType === 'pizza' && (
+                                                    <div style={{background: 'var(--surface-2)', padding: '0.7rem', borderRadius: 'var(--radius-sm)', fontSize: '0.78rem', lineHeight: 1.45}}>
+                                                        <strong style={{color: 'var(--accent)'}}>🍕 Pizza</strong>
+                                                        <div style={{color: 'var(--text-soft)', marginTop: '0.2rem'}}>
+                                                            Cornicione hinchado con leoparding (manchitas oscuras) y queso fundido.
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* SCHEDULE TAB */}
+                                {activeTab === 'schedule' && (
+                                    <div className="animate-in">
+                                        <div className="schedule-input">
+                                            <label>🔥 ¿A qué hora quieres hornear?</label>
+                                            <input type="time" value={bakeTime} onChange={e => setBakeTime(e.target.value)} />
+                                        </div>
+                                        <div className="schedule">
+                                            {schedule.map((ev, i) => (
+                                                <div key={i} className={`schedule-row ${ev.kind}`}>
+                                                    <div className="schedule-time">
+                                                        {formatClock(ev.time)}
+                                                        <div style={{fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: 400, fontFamily: 'Inter'}}>
+                                                            {formatDay(ev.time, schedule[schedule.length-1].time)}
+                                                        </div>
+                                                    </div>
+                                                    <div className="schedule-step">
+                                                        <div className="name">
+                                                            <span className="ic">{ev.icon}</span>
+                                                            {ev.name}
+                                                        </div>
+                                                        <div className="desc">{ev.desc}</div>
+                                                    </div>
+                                                    <div className="schedule-duration">
+                                                        {ev.dur ? formatHours(ev.dur) : ''}
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                        <div className="info-note">
+                                            <strong>Cronograma calculado hacia atrás</strong> desde tu hora de horneado.
+                                            Ajusta la hora arriba para ver cuándo empezar.
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* BAKING TAB */}
+                                {activeTab === 'baking' && (
+                                    <div className="animate-in">
+                                        <BakingPlan plan={calc.bakingPlan} />
+                                        <div className="info-note">
+                                            <strong>Indicador de cocción:</strong> {doughType === 'pizza'
+                                                ? 'cornicione bien dorado y con leoparding (manchas oscuras).'
+                                                : 'corteza color caoba profundo, base que suena hueca al golpear, temperatura interna 96-99°C.'}
+                                        </div>
+                                    </div>
+                                )}
+
+                                <div className="info-note" style={{marginTop: '1rem'}}>
+                                    <strong>Nota:</strong> Esta calculadora es una guía. La fuerza real de la harina, la actividad de tu levadura y la humedad ambiente pueden variar los tiempos. Aprende a leer la masa: doblada, jiggly, llena de burbujas en superficie y al menos al 70% de su volumen inicial.
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
+
+                    {/* TOAST */}
+                    {toast && <div className="toast"><Icon name="check" size={16}/> {toast}</div>}
+                </>
             );
         };
 
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
+        ReactDOM.createRoot(document.getElementById('root')).render(<App />);
     </script>
 
-    <!-- COOKIE BANNER -->
     <div id="cookie-consent-banner">
         <p>
-            Uso cookies de Google Analytics para ver estadísticas de visitas anónimas y saber si mi contenido es interesante.
-            Como es una web personal, no uso estos datos para publicidad.
-            <br>Puedes leer más en mi <a href="/politica-de-privacidad">Política de Privacidad</a>.
+            Uso cookies de Google Analytics para ver estadísticas anónimas. Como es una web personal, no uso estos datos para publicidad.
+            Más en mi <a href="/politica-de-privacidad">Política de Privacidad</a>.
         </p>
-        <button id="btn-accept-cookies" class="cookie-btn btn-accept">Aceptar estadísticas</button>
-        <button id="btn-reject-cookies" class="cookie-btn btn-reject">Rechazar</button>
+        <div class="cookie-btns">
+            <button id="btn-reject-cookies" class="cookie-btn btn-reject">Rechazar</button>
+            <button id="btn-accept-cookies" class="cookie-btn btn-accept">Aceptar</button>
+        </div>
     </div>
 
     <script>
@@ -1099,11 +1910,11 @@
             gtag('js', new Date());
             gtag('config', GA_MEASUREMENT_ID);
         }
-        window.onload = function() {
+        window.addEventListener('load', function() {
             const consent = localStorage.getItem('userConsent');
             if (consent === 'accepted') loadGoogleAnalytics();
             else if (!consent) document.getElementById('cookie-consent-banner').style.display = 'block';
-        };
+        });
         document.getElementById('btn-accept-cookies').addEventListener('click', function() {
             localStorage.setItem('userConsent', 'accepted');
             document.getElementById('cookie-consent-banner').style.display = 'none';
