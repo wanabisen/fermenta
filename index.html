@@ -982,7 +982,7 @@
             { id: 'ciabatta', name: '🧇 Ciabatta con biga',
               config: { doughType: 'pan', flour: 500, hydration: 80, saltPercent: 2.2, totalTime: 3, temperature: 22, useColdProof: false, prefermentType: 'biga', prefermentFlourPercent: 50, prefermentTime: 16, prefermentTemp: 18 } },
             { id: 'pizza_napo', name: '🍕 Pizza napolitana 24h',
-              config: { doughType: 'pizza', pizzaBalls: 4, hydration: 62, saltPercent: 2.8, temperature: 22, useColdProof: true, coldProofTime: 24, prefermentType: 'none' } },
+              config: { doughType: 'pizza', pizzaBalls: 4, hydration: 65, saltPercent: 2.8, temperature: 22, useColdProof: true, coldProofTime: 24, prefermentType: 'none' } },
             { id: 'brioche', name: '🥐 Brioche con esponja',
               config: { doughType: 'pan', flour: 500, hydration: 60, saltPercent: 1.8, totalTime: 2, temperature: 24, useColdProof: false, prefermentType: 'esponja', prefermentFlourPercent: 25, prefermentTime: 5, prefermentTemp: 25 } },
         ];
@@ -1011,7 +1011,9 @@
         // ============================================================
         // SLIDER
         // ============================================================
-        const Slider = ({ label, icon, value, onChange, min, max, step, unit, disabled, hint, warning, tip }) => (
+        const Slider = ({ label, icon, value, onChange, min, max, step, unit, disabled, hint, warning, tip, hidden }) => {
+            if (hidden) return null;
+            return (
             <div className="slider-row">
                 <div className={`slider-label ${disabled ? 'disabled' : ''}`}>
                     <span className="slider-label-left">
@@ -1032,7 +1034,8 @@
                 {hint && !disabled && <div className="slider-hint">{hint}</div>}
                 {warning && !disabled && <div className="slider-warning"><Icon name="alert" size={12}/> {warning}</div>}
             </div>
-        );
+            );
+        };
 
         // ============================================================
         // FORMAT HELPERS
@@ -1111,11 +1114,11 @@
             const issues = [];
             const { doughType, hydration, saltPercent, temperature, totalTime, useColdProof, coldProofTime, prefermentType, prefermentTemp } = params;
 
-            if (doughType === 'pizza' && hydration > 65) issues.push({ level: 'warn', msg: 'Hidratación alta para napolitana tradicional (típico 58-65%).' });
+            // Hydration and salt warnings only apply to pan (pizza uses fixed canonical values)
             if (doughType === 'pan' && hydration < 55) issues.push({ level: 'warn', msg: 'Hidratación baja: la miga será densa.' });
             if (doughType === 'pan' && hydration > 85) issues.push({ level: 'warn', msg: 'Hidratación muy alta: requiere técnica avanzada (folds frecuentes, pliegues en frío).' });
-            if (saltPercent < 1.5) issues.push({ level: 'warn', msg: 'Poca sal: fermentación demasiado rápida y poco sabor.' });
-            if (saltPercent > 3) issues.push({ level: 'warn', msg: 'Demasiada sal: puede inhibir la levadura.' });
+            if (doughType === 'pan' && saltPercent < 1.5) issues.push({ level: 'warn', msg: 'Poca sal: fermentación demasiado rápida y poco sabor.' });
+            if (doughType === 'pan' && saltPercent > 3) issues.push({ level: 'warn', msg: 'Demasiada sal: puede inhibir la levadura.' });
             if (temperature < 16) issues.push({ level: 'info', msg: 'Temperatura baja: la fermentación será muy lenta.' });
             if (temperature > 28) issues.push({ level: 'warn', msg: 'Temperatura alta: la masa puede sobrefermentar y desarrollar acidez excesiva.' });
             if (!useColdProof && totalTime < 1.5) issues.push({ level: 'warn', msg: 'Tiempo muy corto: la masa no desarrollará sabor.' });
@@ -1227,6 +1230,9 @@
             };
 
             const DOUGHBALL_WEIGHT = 260;
+            // AVPN standard values — not exposed as sliders for pizza
+            const PIZZA_HYDRATION = 65;
+            const PIZZA_SALT = 2.8;
 
             const applyPreset = useCallback((preset) => {
                 const c = preset.config;
@@ -1283,21 +1289,25 @@
 
             // ─── COMPUTATION ─────────────────────────────────────────
             const calc = useMemo(() => {
+                // For pizza, always use canonical AVPN values regardless of slider state
+                const effHydration = doughType === 'pizza' ? PIZZA_HYDRATION : hydration;
+                const effSalt      = doughType === 'pizza' ? PIZZA_SALT      : saltPercent;
+
                 const currentFlour = doughType === 'pan'
                     ? flour
-                    : (pizzaBalls * DOUGHBALL_WEIGHT) / ((100 + hydration + saltPercent) / 100);
+                    : (pizzaBalls * DOUGHBALL_WEIGHT) / ((100 + effHydration + effSalt) / 100);
 
                 const usePref = prefermentType !== 'none';
                 const cfg = PREFERMENTS[prefermentType];
                 let prefFlour = 0, prefWater = 0, prefYeast = 0;
                 let finalFlour = currentFlour;
-                let finalWater = currentFlour * (hydration / 100);
+                let finalWater = currentFlour * (effHydration / 100);
 
                 if (usePref) {
                     prefFlour = currentFlour * (prefermentFlourPercent / 100);
                     prefWater = prefFlour * (cfg.hydration / 100);
                     finalFlour = currentFlour - prefFlour;
-                    finalWater = currentFlour * (hydration / 100) - prefWater;
+                    finalWater = currentFlour * (effHydration / 100) - prefWater;
 
                     if (!cfg.noYeast && prefermentTime > 0) {
                         let pYP = yeastForTime(prefermentTime, prefermentTemp);
@@ -1325,7 +1335,7 @@
                 if (usePref && cfg.noYeast) yeastPercent = 0;
 
                 const yeastGrams = finalFlour * (yeastPercent / 100);
-                const saltGrams = currentFlour * (saltPercent / 100);
+                const saltGrams = currentFlour * (effSalt / 100);
 
                 const temperingTime = useColdProof
                     ? (currentFlour <= 750 ? 1.5 : currentFlour <= 1500 ? 2.5 : 3.5) / rateFactor(temperature)
@@ -1379,13 +1389,14 @@
                     };
                 })();
 
-                const totalDough = currentFlour + (currentFlour * hydration / 100) + saltGrams + yeastGrams + prefYeast;
+                const totalDough = currentFlour + (currentFlour * effHydration / 100) + saltGrams + yeastGrams + prefYeast;
 
                 return {
                     currentFlour, finalFlour, finalWater, prefFlour, prefWater, prefYeast,
                     yeastPercent, yeastGrams, saltGrams,
                     ambientH, coldH, temperingTime, finalProofTime,
                     bakingPlan, totalDough,
+                    effHydration, effSalt,
                 };
             }, [doughType, flour, pizzaBalls, hydration, saltPercent, totalTime, temperature, useColdProof, coldProofTime, prefermentType, prefermentFlourPercent, prefermentTime, prefermentTemp]);
 
@@ -1492,7 +1503,7 @@
                 lines.push(`  Agua: ${round(calc.finalWater)}g`);
                 lines.push(`  Sal: ${round(calc.saltGrams, 1)}g`);
                 if (calc.yeastGrams > 0) lines.push(`  Levadura seca: ${round(calc.yeastGrams, 2)}g`);
-                lines.push(`\nTotales: ${round(calc.currentFlour)}g harina · ${hydration}% hidratación · ${saltPercent}% sal`);
+                lines.push(`\nTotales: ${round(calc.currentFlour)}g harina · ${calc.effHydration}% hidratación · ${calc.effSalt}% sal`);
                 lines.push(`\nFermentación:`);
                 if (useColdProof) {
                     lines.push(`  • Bulk corto: ${formatHours(calc.ambientH)} a ${temperature}°C`);
@@ -1579,7 +1590,7 @@
                             </div>
                             <div className="hero-stat">
                                 <div className="label">Hidratación</div>
-                                <div className="value">{hydration}<span className="unit">%</span></div>
+                                <div className="value">{calc.effHydration}<span className="unit">%</span></div>
                             </div>
                             <div className="hero-stat">
                                 <div className="label">Levadura</div>
@@ -1659,20 +1670,46 @@
                                                 hint="Cada bola → 260g de masa lista" />
                                         )}
                                         <Slider label="Hidratación final" icon="💧" value={hydration} onChange={setHydration}
-                                            min={doughType === 'pizza' ? 55 : 50}
-                                            max={doughType === 'pizza' ? 75 : 100}
+                                            min={50} max={100}
                                             step="1" unit="%"
                                             tip="Porcentaje de agua sobre el peso de la harina total. A más hidratación, miga más abierta y alveolada, pero más difícil de manejar."
-                                            hint={doughType === 'pizza'
-                                                ? 'Napolitana clásica: 58-65%'
-                                                : hydration < 65 ? 'Miga densa, fácil de manipular'
+                                            hint={hydration < 65 ? 'Miga densa, fácil de manipular'
                                                 : hydration < 75 ? 'Equilibrio clásico, buen alveolado'
                                                 : hydration < 85 ? 'Miga abierta, requiere folds'
-                                                : 'Hidratación alta, técnica avanzada'} />
+                                                : 'Hidratación alta, técnica avanzada'}
+                                            hidden={doughType === 'pizza'} />
                                         <Slider label="Sal" icon="🧂" value={saltPercent} onChange={setSaltPercent}
                                             min="1" max="3.5" step="0.1" unit="%"
                                             tip="Sobre el peso de la harina total. La sal controla la fermentación y aporta sabor. Menos de 1.5% acelera demasiado; más de 3% inhibe la levadura."
-                                            hint="Estándar: 1.8-2.2% · pizza napolitana: 2.5-3%" />
+                                            hint="Estándar: 1.8-2.2% · pizza napolitana: 2.5-3%"
+                                            hidden={doughType === 'pizza'} />
+                                        {doughType === 'pizza' && (
+                                            <div style={{
+                                                background: 'var(--warm-soft)',
+                                                border: '1px solid var(--warm)',
+                                                borderRadius: 'var(--radius-sm)',
+                                                padding: '0.75rem 1rem',
+                                                fontSize: '0.82rem',
+                                                lineHeight: 1.55,
+                                            }}>
+                                                <div style={{fontWeight: 700, color: 'var(--warm)', marginBottom: '0.4rem', display: 'flex', alignItems: 'center', gap: '0.4rem'}}>
+                                                    🍕 Estándar AVPN (fijo)
+                                                </div>
+                                                <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.4rem'}}>
+                                                    <div style={{background: 'var(--surface)', borderRadius: '6px', padding: '0.4rem 0.6rem', textAlign: 'center'}}>
+                                                        <div style={{fontSize: '0.66rem', textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--text-soft)', marginBottom: '0.15rem'}}>Hidratación</div>
+                                                        <div style={{fontFamily: 'Fraunces, serif', fontWeight: 500, fontSize: '1.25rem', color: 'var(--text)'}}>{PIZZA_HYDRATION}%</div>
+                                                    </div>
+                                                    <div style={{background: 'var(--surface)', borderRadius: '6px', padding: '0.4rem 0.6rem', textAlign: 'center'}}>
+                                                        <div style={{fontSize: '0.66rem', textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--text-soft)', marginBottom: '0.15rem'}}>Sal</div>
+                                                        <div style={{fontFamily: 'Fraunces, serif', fontWeight: 500, fontSize: '1.25rem', color: 'var(--text)'}}>{PIZZA_SALT}%</div>
+                                                    </div>
+                                                </div>
+                                                <div style={{marginTop: '0.5rem', fontSize: '0.75rem', color: 'var(--text-soft)', fontStyle: 'italic'}}>
+                                                    Rango moderno (63-65%). El reglamento AVPN clásico marca hasta 62%, pero con harinas W300+ y amasado largo el 65% da mejor extensibilidad.
+                                                </div>
+                                            </div>
+                                        )}
                                         <Slider label="Temperatura ambiente" icon="🌡️" value={temperature} onChange={setTemperature}
                                             min="4" max="32" step="1" unit="°C"
                                             tip="Q10 es la regla biológica que dice que la actividad enzimática se duplica cada 10°C. Para la levadura: a 32°C fermenta el doble que a 22°C."
@@ -1803,7 +1840,7 @@
                                         <div className="info-note">
                                             <strong>Total de la masa:</strong> {round(calc.totalDough)}g
                                             {doughType === 'pizza' && ` · ${pizzaBalls} bolas de ~${DOUGHBALL_WEIGHT}g`}
-                                            <br/><strong>Hidratación efectiva:</strong> {hydration}% · <strong>Sal:</strong> {saltPercent}% del peso de harina
+                                            <br/><strong>Hidratación:</strong> {calc.effHydration}% · <strong>Sal:</strong> {calc.effSalt}% del peso de harina
                                         </div>
 
                                         {/* Visual indicators */}
