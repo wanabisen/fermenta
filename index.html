@@ -263,10 +263,13 @@
         }
 
         .dough-toggle {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem;
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.6rem;
+        }
+        @media (max-width: 500px) {
+            .dough-toggle { grid-template-columns: 1fr; }
         }
         .dough-btn {
-            padding: 1rem 0.85rem;
+            padding: 0.85rem 0.7rem;
             border: 1.5px solid var(--border);
             border-radius: var(--radius-sm);
             background: var(--surface);
@@ -280,11 +283,218 @@
         .dough-btn.active { background: var(--accent); border-color: var(--accent); color: var(--bg); }
         [data-theme="dark"] .dough-btn.active { background: var(--primary); border-color: var(--primary); color: #1a140d; }
         .dough-btn .top {
-            display: flex; align-items: center; gap: 0.5rem;
-            font-weight: 600; font-size: 0.95rem;
+            display: flex; align-items: center; gap: 0.45rem;
+            font-weight: 600; font-size: 0.9rem;
         }
-        .dough-btn .emoji { font-size: 1.4rem; }
-        .dough-btn .sub { font-size: 0.72rem; opacity: 0.7; font-weight: 400; }
+        .dough-btn .emoji { font-size: 1.3rem; }
+        .dough-btn .sub { font-size: 0.7rem; opacity: 0.75; font-weight: 400; }
+
+        /* Panettone-specific */
+        .pan-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        .pan-mold-btn {
+            padding: 0.6rem 0.5rem;
+            border-radius: var(--radius-sm);
+            border: 1.5px solid var(--border);
+            background: var(--surface);
+            font-size: 0.78rem; font-weight: 500;
+            cursor: pointer; transition: all 0.15s;
+            color: var(--text-soft); font-family: inherit;
+            display: flex; flex-direction: column;
+            align-items: center; gap: 0.15rem; text-align: center;
+        }
+        .pan-mold-btn:hover { border-color: var(--primary); color: var(--primary-dark); background: var(--primary-soft); }
+        .pan-mold-btn.active {
+            background: var(--accent); border-color: var(--accent); color: var(--bg);
+        }
+        [data-theme="dark"] .pan-mold-btn.active {
+            background: var(--primary); border-color: var(--primary); color: #1a140d;
+        }
+        .pan-mold-btn .ms {
+            font-size: 0.66rem; opacity: 0.75;
+            font-variant-numeric: tabular-nums;
+        }
+        .pan-mold-btn.active .ms { opacity: 0.85; }
+
+        .ph-pill {
+            display: inline-flex; align-items: center; gap: 0.3rem;
+            background: var(--cold-soft); color: var(--cold);
+            font-size: 0.72rem; font-weight: 600;
+            padding: 0.15rem 0.55rem; border-radius: 999px;
+            font-variant-numeric: tabular-nums;
+            border: 1px solid var(--cold);
+        }
+        .ph-pill.warn { background: var(--warning-soft); color: var(--warning); border-color: var(--warning); }
+        .ph-pill.ok { background: var(--success-soft); color: var(--success); border-color: var(--success); }
+
+        .recipe-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.83rem;
+            margin-bottom: 0.75rem;
+        }
+        .recipe-table th, .recipe-table td {
+            padding: 0.45rem 0.5rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-soft);
+        }
+        .recipe-table th {
+            font-size: 0.68rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-soft);
+            font-weight: 700;
+            background: var(--surface-2);
+        }
+        .recipe-table td {
+            color: var(--text);
+        }
+        .recipe-table td.qty {
+            text-align: right;
+            font-variant-numeric: tabular-nums;
+            font-weight: 600;
+            color: var(--accent);
+            white-space: nowrap;
+        }
+        [data-theme="dark"] .recipe-table td.qty { color: var(--primary); }
+        .recipe-table td.note {
+            font-size: 0.74rem;
+            color: var(--text-soft);
+            font-style: italic;
+        }
+        .recipe-table tr.subtotal td {
+            background: var(--surface-2);
+            font-weight: 700;
+            color: var(--accent);
+            border-bottom: 2px solid var(--border);
+        }
+        [data-theme="dark"] .recipe-table tr.subtotal td { color: var(--primary); }
+
+        .phase-card {
+            background: var(--surface-2);
+            border: 1px solid var(--border-soft);
+            border-radius: var(--radius);
+            padding: 1rem 1.15rem;
+            margin-bottom: 0.85rem;
+        }
+        .phase-card-header {
+            display: flex; align-items: center; justify-content: space-between;
+            gap: 0.5rem;
+            margin-bottom: 0.65rem;
+            padding-bottom: 0.6rem;
+            border-bottom: 1px solid var(--border-soft);
+        }
+        .phase-card-title {
+            font-family: 'Fraunces', serif;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text);
+            display: flex; align-items: center; gap: 0.45rem;
+        }
+        .phase-day {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-soft);
+            font-weight: 600;
+        }
+
+        .checklist {
+            list-style: none;
+            display: flex; flex-direction: column;
+            gap: 0.35rem;
+        }
+        .checklist li {
+            display: flex; align-items: flex-start; gap: 0.55rem;
+            padding: 0.45rem 0.6rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.15s;
+            font-size: 0.84rem;
+            line-height: 1.4;
+        }
+        .checklist li:hover { background: var(--surface-2); }
+        .checklist li.done {
+            color: var(--text-soft);
+            text-decoration: line-through;
+            opacity: 0.7;
+        }
+        .check-box {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 18px; height: 18px;
+            border: 1.5px solid var(--border);
+            border-radius: 4px;
+            flex-shrink: 0;
+            margin-top: 1px;
+            transition: all 0.15s;
+            background: var(--surface);
+        }
+        .checklist li.done .check-box {
+            background: var(--success);
+            border-color: var(--success);
+            color: white;
+        }
+        .check-day {
+            font-size: 0.66rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-muted);
+            font-weight: 700;
+            min-width: 70px;
+            flex-shrink: 0;
+        }
+
+        .danger-box {
+            background: var(--danger-soft);
+            border-left: 3px solid var(--danger);
+            border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+            padding: 0.7rem 0.95rem;
+            font-size: 0.82rem;
+            color: var(--text);
+            margin-bottom: 0.6rem;
+        }
+        .danger-box-title {
+            font-weight: 700; color: var(--danger);
+            margin-bottom: 0.25rem;
+            display: flex; align-items: center; gap: 0.35rem;
+        }
+
+        .accordion {
+            background: var(--surface-2);
+            border-radius: var(--radius-sm);
+            margin-bottom: 0.5rem;
+            overflow: hidden;
+        }
+        .accordion-header {
+            padding: 0.7rem 0.95rem;
+            background: var(--surface-2);
+            border: none;
+            width: 100%;
+            text-align: left;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text);
+            display: flex; align-items: center; justify-content: space-between;
+            gap: 0.5rem;
+        }
+        .accordion-header:hover { background: var(--surface-3); }
+        .accordion-header .arrow {
+            transition: transform 0.2s;
+            color: var(--text-soft);
+        }
+        .accordion.open .accordion-header .arrow { transform: rotate(90deg); }
+        .accordion-body {
+            padding: 0 0.95rem 0.85rem;
+            font-size: 0.82rem;
+            color: var(--text-soft);
+            line-height: 1.55;
+        }
 
         .slider-group { display: flex; flex-direction: column; gap: 1.1rem; }
         .slider-row { display: flex; flex-direction: column; gap: 0.45rem; }
@@ -972,6 +1182,78 @@
         // ============================================================
         // PRESETS
         // ============================================================
+        // ============================================================
+        // PANETTONE KNOWLEDGE BASE
+        // Recipe by Víctor Molina Pitarch · V2.0
+        // High hydration · Bassinage · Manitoba W415
+        // ============================================================
+        const PANETTONE_MOLDS = {
+            '300_alto':   { label: '300g alto',  capacity: 300,  loadCrudo: 345,  diameter: 9,    height: 8.5,  bakeTemp: 160, bakeMin: 28, bakeMax: 35, note: 'Ideal para regalo' },
+            '500_alto':   { label: '500g alto',  capacity: 500,  loadCrudo: 575,  diameter: 13,   height: 9.5,  bakeTemp: 160, bakeMin: 35, bakeMax: 42, note: 'Clásico' },
+            '500_bajo':   { label: '500g bajo',  capacity: 500,  loadCrudo: 575,  diameter: 15.5, height: 5.5,  bakeTemp: 160, bakeMin: 35, bakeMax: 42, note: 'Tipo Galup' },
+            '900_alto':   { label: '900g alto',  capacity: 900,  loadCrudo: 1035, diameter: 17,   height: 12.5, bakeTemp: 155, bakeMin: 50, bakeMax: 55, note: 'Cuidado altura horno' },
+            '900_bajo':   { label: '900g bajo',  capacity: 900,  loadCrudo: 1035, diameter: 21,   height: 7,    bakeTemp: 155, bakeMin: 50, bakeMax: 55, note: 'Necesita bandeja grande' },
+        };
+
+        // Reference quantities for 500g mold (main reference in dossier)
+        // Other sizes scale linearly by loadCrudo ratio
+        const REF_LOAD = 575;
+
+        // First impasto ingredients (per 575g loadCrudo)
+        const PANETTONE_IMPASTO_1 = [
+            { name: 'Lievito Madre (listo)',     g: 53, note: '' },
+            { name: 'Harina El Amasadero W415',  g: 110, note: '' },
+            { name: 'Agua fría',                 g: 38, note: '' },
+            { name: 'Azúcar',                    g: 44, note: '' },
+            { name: 'Mantequilla (pomada)',      g: 45, note: '' },
+            { name: 'Yemas (frías)',             g: 32, note: '' },
+            { name: 'Agua reserva (opcional)',   g: 5,  note: 'Solo si la masa lo pide' },
+        ];
+
+        // Second impasto ingredients (per 575g loadCrudo)
+        const PANETTONE_IMPASTO_2 = [
+            { name: 'Harina El Amasadero',       g: 54, note: '' },
+            { name: 'Leche en polvo',            g: 7,  note: '' },
+            { name: 'Pasta de naranja',          g: 20, note: 'Temp. ambiente' },
+            { name: 'Crema pastelera',           g: 7,  note: 'Fría de nevera' },
+            { name: 'Miel / vainilla',           g: 5,  note: '' },
+            { name: 'Azúcar',                    g: 22, note: '' },
+            { name: 'Sal',                       g: 4,  note: '' },
+            { name: 'Yemas',                     g: 32, note: 'Frías' },
+            { name: 'Mantequilla',               g: 47, note: 'Pomada (no derretida)' },
+            { name: 'Agua bassinage',            g: 37, note: 'Helada' },
+            { name: 'Chocolate (congelado)',     g: 91, note: 'Congelado hasta el último momento' },
+        ];
+
+        // Phase 0 preparations (Thursday)
+        const PANETTONE_PREP = [
+            { name: 'Naranja confitada (tropezones)', desc: 'Pela 2 naranjas con parte blanca. Blanquea 3 veces en agua hirviendo. Cuece a fuego lento con el mismo peso de azúcar y agua, 40-50 min. Corta en cubitos. Seca en rejilla antes de usar.', warn: 'La naranja casera retiene humedad. Sin secar bien puede soltar agua en la masa.' },
+            { name: 'Pasta de naranja (aroma)', desc: 'Tritura 100g naranja confitada + 20g de su jarabe. Guarda en tupper. Refrigerar hasta el momento de uso.', warn: null },
+            { name: 'Crema pastelera (mini lote)', desc: '125g leche · 35g yema (~2ud) · 35g azúcar · 10g maicena · vainilla. Hervir leche, mezclar con resto, cocer hasta espesar. Enfriar con film a piel. Solo usarás 4-7g en la masa.', warn: 'El resto: desayuno del panadero.' },
+            { name: 'Chocolate (congelador)', desc: 'Trocea el chocolate en pepitas irregulares de ~1 cm. Al congelador. Debe estar congelado en el momento de incorporarlo al 2º impasto.', warn: 'Si usas pepitas comerciales, asegúrate de que sean de alta cobertura (>60% cacao). Las pepitas con estabilizadores no funden igual.' },
+            { name: 'La Glassa (cobertura crujiente)', desc: '75g harina de almendra + 100g azúcar blanco + 10g maicena + 35-40g clara. Mezcla con tenedor (NO montar). Debe quedar pasta densa y opaca. Reposo en nevera hasta el domingo.', warn: 'Si queda líquida añade maicena de 2 en 2g. Nunca montar las claras.' },
+        ];
+
+        // Danger signals
+        const PANETTONE_DANGERS = [
+            { problem: 'Madre poco activa', signal: 'No dobla en 4h · huele a vinagre · pH > 4.3', fix: 'Repite bagnetto + un refresco extra antes de continuar.' },
+            { problem: 'Masa sobrecalentada (2º impasto)', signal: 'T masa > 26°C durante el amasado', fix: 'Para la amasadora. Mete la masa 15 min en nevera y retoma.' },
+            { problem: 'Glassa demasiado líquida', signal: 'Cae de la cuchara sin resistencia', fix: 'Añade maicena de 2 en 2g. Nunca montar las claras.' },
+            { problem: '1º impasto no triplica', signal: 'Menos de x3 en 14h · pH < 5.2', fix: 'No continues. La madre no estaba lista. Revisa Fase 2.' },
+            { problem: 'Glassa quemada por el chocolate', signal: 'Color negro antes de los 30 min (900g) o 25 min (500g)', fix: 'Cubre con aluminio inmediatamente y baja 5°C.' },
+            { problem: 'Cúpula que no sube', signal: 'Masa plana tras fermentación final', fix: 'T de fermentación baja o masa ácida. Comprueba pH.' },
+            { problem: 'Chocolate que mancha la miga de gris', signal: 'Miga con vetas oscuras uniformes', fix: 'El chocolate se derritió parcialmente. La próxima vez congela más tiempo.' },
+        ];
+
+        // Scale ingredient list to total grams of finished panettone
+        const scalePanettone = (ingredients, totalLoadCrudo, units) => {
+            const factor = (totalLoadCrudo * units) / REF_LOAD;
+            return ingredients.map(i => ({
+                ...i,
+                g: i.g * factor,
+            }));
+        };
+
         const PRESETS = [
             { id: 'pan_basico', name: '🍞 Pan básico mismo día',
               config: { doughType: 'pan', flour: 500, hydration: 70, saltPercent: 2, totalTime: 4, temperature: 22, useColdProof: false, prefermentType: 'none' } },
@@ -1139,6 +1421,442 @@
         }, [params]);
 
         // ============================================================
+        // PANETTONE RESULTS COMPONENT
+        // ============================================================
+        const PanettoneResults = ({ mold, units, liquidStarter, bakeDay, checks, onToggleCheck, showToast }) => {
+            const [activeTab, setActiveTab] = useState('process');
+            const moldData = PANETTONE_MOLDS[mold];
+            const totalLoad = moldData.loadCrudo * units;
+            const factor = totalLoad / REF_LOAD;
+
+            const impasto1 = useMemo(() => scalePanettone(PANETTONE_IMPASTO_1, moldData.loadCrudo, units), [mold, units]);
+            const impasto2 = useMemo(() => scalePanettone(PANETTONE_IMPASTO_2, moldData.loadCrudo, units), [mold, units]);
+
+            const impasto1Total = impasto1.reduce((s, i) => s + i.g, 0);
+            const impasto2Total = impasto2.reduce((s, i) => s + i.g, 0);
+
+            // Build a 5-day schedule based on bake day
+            const days = useMemo(() => {
+                const dayNames = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+                const bakeDayIndex = bakeDay === 'sunday' ? 6 : bakeDay === 'saturday' ? 5 : 4;
+                const sequence = [];
+                // Day -4: prep
+                sequence.push({ offset: -4, name: dayNames[(bakeDayIndex - 4 + 7) % 7], phase: 'prep' });
+                // Day -3: liquid->solid step 1 (if applicable)
+                sequence.push({ offset: -3, name: dayNames[(bakeDayIndex - 3 + 7) % 7], phase: 'conversion' });
+                // Day -2: refresh activation
+                sequence.push({ offset: -2, name: dayNames[(bakeDayIndex - 2 + 7) % 7], phase: 'awakening' });
+                // Day -1: bagnetto + 1st impasto
+                sequence.push({ offset: -1, name: dayNames[(bakeDayIndex - 1 + 7) % 7], phase: 'madre_impasto1' });
+                // Day 0: 2nd impasto + bake
+                sequence.push({ offset: 0, name: dayNames[bakeDayIndex], phase: 'final' });
+                return sequence;
+            }, [bakeDay]);
+
+            // Build full recipe text for copy
+            const buildText = () => {
+                const lines = [];
+                lines.push(`PANETTONE DE CHOCOLATE — ${moldData.label} × ${units} = ${Math.round(totalLoad)}g`);
+                lines.push('═══════════════════════════════════════');
+                lines.push('\nReceta: Víctor Molina Pitarch · V2.0');
+                lines.push(`Harina Manitoba El Amasadero W415\n`);
+
+                lines.push('━━━ FASE 0 · PREPARACIÓN PREVIA (JUEVES) ━━━');
+                PANETTONE_PREP.forEach(p => {
+                    lines.push(`\n• ${p.name}`);
+                    lines.push(`  ${p.desc}`);
+                    if (p.warn) lines.push(`  ⚠️ ${p.warn}`);
+                });
+
+                lines.push('\n━━━ FASE 3 · PRIMER IMPASTO (SÁBADO NOCHE) ━━━');
+                impasto1.forEach(i => {
+                    lines.push(`  ${i.name}: ${round(i.g, 1)}g${i.note ? ' (' + i.note + ')' : ''}`);
+                });
+                lines.push(`  Total: ${round(impasto1Total, 0)}g`);
+                lines.push('  Fermentación: 25-26°C · 12-14h · debe TRIPLICAR · pH ideal 5.2-5.4');
+
+                lines.push('\n━━━ FASE 4 · SEGUNDO IMPASTO (DOMINGO MAÑANA) ━━━');
+                impasto2.forEach(i => {
+                    lines.push(`  ${i.name}: ${round(i.g, 1)}g${i.note ? ' (' + i.note + ')' : ''}`);
+                });
+                lines.push(`  Total añadido: ${round(impasto2Total, 0)}g`);
+                lines.push('  Temperatura ideal: 24-26°C · test de membrana translúcida');
+
+                lines.push('\n━━━ FASE 6 · HORNEADO ━━━');
+                lines.push(`  Temperatura: ${moldData.bakeTemp}°C`);
+                lines.push(`  Tiempo: ${moldData.bakeMin}-${moldData.bakeMax} min`);
+                lines.push('  Sonda interna: 92°C');
+                lines.push('  VOLTEO INMEDIATO al salir · Enfriar 12h boca abajo');
+
+                return lines.join('\n');
+            };
+
+            const copyAll = () => {
+                navigator.clipboard?.writeText(buildText()).then(() => showToast('Receta copiada ✓'));
+            };
+
+            const downloadAll = () => {
+                const blob = new Blob([buildText()], { type: 'text/plain;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `panettone-${mold}-x${units}.txt`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                showToast('Receta descargada ✓');
+            };
+
+            // Checklist items
+            const allChecks = [
+                { id: 'prep_naranja',   day: 'Jueves',  text: 'Naranja confitada hecha y secando en rejilla' },
+                { id: 'prep_choco',     day: 'Jueves',  text: 'Chocolate troceado en el congelador' },
+                { id: 'prep_aux',       day: 'Jueves',  text: 'Pasta de naranja, crema pastelera y glassa en nevera' },
+                ...(liquidStarter ? [{ id: 'conversion', day: 'Mié-Jue', text: 'Conversión líquida → sólida completada' }] : []),
+                { id: 'fri_refresh',    day: 'Viernes', text: 'Refresco de activación. Madre dura en nevera' },
+                { id: 'sat_bagnetto',   day: 'Sábado',  text: 'Bagnetto + 3 refrescos completos · pH 4.1' },
+                { id: 'sat_impasto1',   day: 'Sáb. noche', text: '1er impasto amasado y en fermentación 25-26°C' },
+                { id: 'sun_triplica',   day: 'Domingo', text: '1er impasto triplicado · pH > 5.2 · OK para continuar' },
+                { id: 'sun_impasto2',   day: 'Domingo', text: '2º impasto OK · T 24-26°C · membrana translúcida' },
+                { id: 'sun_choco',      day: 'Domingo', text: 'Chocolate aún congelado al incorporarlo' },
+                { id: 'sun_pirlado',    day: 'Domingo', text: 'Pirlado doble · cargado en molde' },
+                { id: 'sun_ferm_final', day: 'Domingo', text: 'Fermentación final: cuerpo a 1 dedo del borde · pH 5.1-5.2' },
+                { id: 'sun_glassa',     day: 'Domingo', text: 'Piel secada 10 min · glassa aplicada · almendras + perlado' },
+                { id: 'sun_horno',      day: 'Domingo', text: `Horneado ${moldData.bakeTemp}°C · sonda lista para 92°C` },
+                { id: 'sun_volteo',     day: 'Domingo', text: 'VOLTEO inmediato · enfriar 12h boca abajo' },
+            ];
+            const doneCount = allChecks.filter(c => checks[c.id]).length;
+
+            return (
+                <div>
+                    <div className="tabs">
+                        <button className={`tab ${activeTab === 'process' ? 'active' : ''}`} onClick={() => setActiveTab('process')}>📜 Proceso</button>
+                        <button className={`tab ${activeTab === 'recipe' ? 'active' : ''}`} onClick={() => setActiveTab('recipe')}>📋 Ingredientes</button>
+                        <button className={`tab ${activeTab === 'checklist' ? 'active' : ''}`} onClick={() => setActiveTab('checklist')}>✓ Checklist</button>
+                        <button className={`tab ${activeTab === 'baking' ? 'active' : ''}`} onClick={() => setActiveTab('baking')}>🔥 Horneado</button>
+                    </div>
+
+                    {/* PROCESS TAB */}
+                    {activeTab === 'process' && (
+                        <div className="animate-in">
+                            {/* Phase 0 — Prep */}
+                            <div className="phase-card">
+                                <div className="phase-card-header">
+                                    <div className="phase-card-title">🍊 Fase 0 · Preparación previa</div>
+                                    <span className="phase-day">Jueves</span>
+                                </div>
+                                {PANETTONE_PREP.map((p, i) => (
+                                    <div key={i} style={{marginBottom: i < PANETTONE_PREP.length - 1 ? '0.85rem' : 0, paddingBottom: i < PANETTONE_PREP.length - 1 ? '0.85rem' : 0, borderBottom: i < PANETTONE_PREP.length - 1 ? '1px solid var(--border-soft)' : 'none'}}>
+                                        <div style={{fontWeight: 600, fontSize: '0.88rem', color: 'var(--text)', marginBottom: '0.3rem'}}>{p.name}</div>
+                                        <div style={{fontSize: '0.82rem', color: 'var(--text-soft)', lineHeight: 1.55}}>{p.desc}</div>
+                                        {p.warn && (
+                                            <div style={{marginTop: '0.4rem', fontSize: '0.78rem', color: 'var(--warning)', fontStyle: 'italic', display: 'flex', alignItems: 'flex-start', gap: '0.3rem'}}>
+                                                ⚠️ <span>{p.warn}</span>
+                                            </div>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+
+                            {/* Phase 1 — Awakening */}
+                            <div className="phase-card">
+                                <div className="phase-card-header">
+                                    <div className="phase-card-title">🌙 Fase 1 · El despertar</div>
+                                    <span className="phase-day">Viernes noche</span>
+                                </div>
+                                <table className="recipe-table" style={{marginBottom: '0.5rem'}}>
+                                    <tbody>
+                                        <tr><td style={{width: '70px', color: 'var(--text-soft)', fontWeight: 600}}>20:00</td><td>Refresco de activación: 1:1 · 50g madre + 50g harina + 22g agua</td></tr>
+                                        <tr><td style={{color: 'var(--text-soft)', fontWeight: 600}}>~21:30</td><td>Forma rulo apretado en film, pínchalo. Espera a que se hinche y se ponga DURO al tacto. Luego nevera hasta el sábado.</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            {/* Phase 2 — Madre */}
+                            <div className="phase-card">
+                                <div className="phase-card-header">
+                                    <div className="phase-card-title">🌾 Fase 2 · Día de la masa madre</div>
+                                    <span className="phase-day">Sábado mañana</span>
+                                </div>
+                                <div style={{fontSize: '0.85rem', color: 'var(--text-soft)', marginBottom: '0.6rem', lineHeight: 1.55}}>
+                                    <strong style={{color: 'var(--text)'}}>Objetivo:</strong> <span className="ph-pill ok">pH 4.1</span> y fuerza bruta.
+                                </div>
+                                <table className="recipe-table" style={{marginBottom: '0.5rem'}}>
+                                    <tbody>
+                                        <tr><td style={{width: '70px', color: 'var(--text-soft)', fontWeight: 600}}>07:30</td><td><strong>Bagnetto:</strong> rodajas de 1cm en 1L agua tibia + 2g azúcar · 20 min · escurrir bien. Lava el exceso de ácido acético.</td></tr>
+                                        <tr><td style={{color: 'var(--text-soft)', fontWeight: 600}}>08:30</td><td><strong>Ciclo 3 refrescos:</strong> proporción 1:1:0.45 · 28°C · 3.5-4h por ciclo. pH final ideal 4.1 (rango 4.0-4.2).</td></tr>
+                                    </tbody>
+                                </table>
+                                <div className="info-note" style={{fontSize: '0.78rem'}}>
+                                    <strong>Sin pHmetro:</strong> la madre está lista cuando dobla en menos de 4h y huele a yogur fresco (ácido láctico), no a vinagre. Alveolado regular, sin burbujas grandes.
+                                </div>
+                            </div>
+
+                            {/* Phase 3 — Impasto 1 */}
+                            <div className="phase-card">
+                                <div className="phase-card-header">
+                                    <div className="phase-card-title">🍳 Fase 3 · Primer impasto</div>
+                                    <span className="phase-day">Sábado noche</span>
+                                </div>
+                                <div style={{fontSize: '0.83rem', color: 'var(--text-soft)', marginBottom: '0.5rem', lineHeight: 1.55}}>
+                                    <strong style={{color: 'var(--text)'}}>Fermentación:</strong> 25-26°C · 12-14h. Debe <strong>TRIPLICAR</strong> volumen.
+                                    <br/><strong style={{color: 'var(--text)'}}>pH final:</strong> <span className="ph-pill ok">5.2-5.4</span>
+                                </div>
+                                <div className="danger-box">
+                                    <div className="danger-box-title">⚠️ Peligro</div>
+                                    Si pH &lt; 5.0: la masa está ácida y degradada. <strong>No continues</strong> con el 2º impasto.
+                                    Si no triplica en 14h: la madre no estaba suficientemente activa.
+                                </div>
+                            </div>
+
+                            {/* Phase 4 — Impasto 2 */}
+                            <div className="phase-card">
+                                <div className="phase-card-header">
+                                    <div className="phase-card-title">🥄 Fase 4 · Segundo impasto</div>
+                                    <span className="phase-day">Domingo mañana</span>
+                                </div>
+                                <div style={{fontSize: '0.83rem', color: 'var(--text-soft)', marginBottom: '0.6rem', lineHeight: 1.55}}>
+                                    Amasado intensivo. Controla la temperatura de la masa en todo momento — <strong>no debe superar 26°C.</strong>
+                                </div>
+                                <div style={{fontSize: '0.82rem', color: 'var(--text)', lineHeight: 1.65}}>
+                                    <div style={{marginBottom: '0.35rem'}}><strong>Orden de amasado:</strong></div>
+                                    <ol style={{paddingLeft: '1.2rem', display: 'flex', flexDirection: 'column', gap: '0.3rem'}}>
+                                        <li>Harina + 1er impasto · amasar 15 min hasta tener nervio (velo incipiente)</li>
+                                        <li>Azúcar + yemas · alternar en 3-4 tandas, recuperar velo entre cada una</li>
+                                        <li>Aromas: sal + miel + pasta naranja + crema pastelera</li>
+                                        <li>Mantequilla en pomada, añadir despacio, recuperar velo</li>
+                                        <li>Bassinage (agua helada) en hilos muy finos. Para si T &gt; 26°C</li>
+                                        <li>Chocolate <strong>congelado</strong>: 1 min a velocidad mínima, solo integrar</li>
+                                    </ol>
+                                </div>
+                                <div className="info-note" style={{marginTop: '0.7rem', fontSize: '0.78rem'}}>
+                                    <strong>Test de membrana:</strong> estira un trozo entre los dedos. Debe ser translúcida sin romperse. Temp final: 24-26°C.
+                                </div>
+                            </div>
+
+                            {/* Phase 5 — Formado */}
+                            <div className="phase-card">
+                                <div className="phase-card-header">
+                                    <div className="phase-card-title">🎯 Fase 5 · Formado y carga</div>
+                                    <span className="phase-day">Domingo</span>
+                                </div>
+                                <table className="recipe-table" style={{marginBottom: '0.5rem'}}>
+                                    <tbody>
+                                        <tr><td><strong>1.</strong> Reposo en bloque</td><td className="qty">45 min · 28°C, tapado</td></tr>
+                                        <tr><td><strong>2.</strong> Pirlado</td><td className="qty">Bolear suave → 15 min → bolear fuerte</td></tr>
+                                        <tr><td><strong>3.</strong> Cargar molde</td><td className="qty">{Math.round(moldData.loadCrudo)}g por molde</td></tr>
+                                        <tr><td><strong>4.</strong> Fermentación final</td><td className="qty">30°C, hasta 1 dedo del borde</td></tr>
+                                    </tbody>
+                                </table>
+                                <div style={{fontSize: '0.83rem', color: 'var(--text-soft)', lineHeight: 1.55}}>
+                                    <strong style={{color: 'var(--text)'}}>pH ideal antes del horno:</strong> <span className="ph-pill ok">5.1-5.2</span>
+                                </div>
+                                <div className="info-note" style={{marginTop: '0.6rem', fontSize: '0.78rem'}}>
+                                    <strong>Pieza de prueba:</strong> con el sobrante haz un panecillo en un vaso o molde pequeño. Te permite comprobar la cocción interior sin sacrificar el panettone principal.
+                                </div>
+                            </div>
+
+                            {/* Phase 6 — Horneado */}
+                            <div className="phase-card">
+                                <div className="phase-card-header">
+                                    <div className="phase-card-title">🔥 Fase 6 · Decoración y horneado</div>
+                                    <span className="phase-day">Domingo</span>
+                                </div>
+                                <div style={{fontSize: '0.82rem', color: 'var(--text)', lineHeight: 1.65, marginBottom: '0.6rem'}}>
+                                    <ol style={{paddingLeft: '1.2rem', display: 'flex', flexDirection: 'column', gap: '0.3rem'}}>
+                                        <li><strong>Secar piel:</strong> cuando falte 1 dedo, sacar moldes. 10 min al aire libre.</li>
+                                        <li><strong>Aplicar glassa</strong> con manga o cuchara, capa uniforme. NO hacer corte.</li>
+                                        <li><strong>Decorar:</strong> azúcar perlado + almendras crudas enteras encima.</li>
+                                    </ol>
+                                </div>
+                                <div className="danger-box">
+                                    <div className="danger-box-title">⚠️ Clave chocolate</div>
+                                    El chocolate hace que la cúpula se oscurezca antes que en el clásico. Pon aluminio a los 25-30 min en el 900g. Revisa el 500g a los 30 min.
+                                </div>
+                            </div>
+
+                            {/* Volteo */}
+                            <div className="phase-card">
+                                <div className="phase-card-header">
+                                    <div className="phase-card-title">🔄 Volteo · Inmediato al salir</div>
+                                </div>
+                                <table className="recipe-table" style={{marginBottom: '0.5rem'}}>
+                                    <tbody>
+                                        <tr><td><strong>1.</strong> Clavar pinchos</td><td>Atraviesa de lado a lado a ~2 cm de la base. Mín. 2 cruzados</td></tr>
+                                        <tr><td><strong>2.</strong> Colgar boca abajo</td><td>Apoya pinchos sobre bricks o cazuelas. Cúpula sin tocar nada</td></tr>
+                                        <tr><td><strong>3.</strong> Enfriar</td><td>Mínimo <strong>12 horas</strong> boca abajo. No mover hasta frío total</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            {/* Dangers / troubleshooting */}
+                            <div className="phase-card">
+                                <div className="phase-card-header">
+                                    <div className="phase-card-title">🚨 Señales de peligro y rescate</div>
+                                </div>
+                                <div style={{display: 'flex', flexDirection: 'column', gap: '0.4rem'}}>
+                                    {PANETTONE_DANGERS.map((d, i) => (
+                                        <details key={i} className="accordion" style={{margin: 0}}>
+                                            <summary className="accordion-header" style={{listStyle: 'none', cursor: 'pointer', padding: '0.65rem 0.85rem'}}>
+                                                {d.problem}
+                                            </summary>
+                                            <div className="accordion-body" style={{padding: '0 0.85rem 0.75rem'}}>
+                                                <div style={{marginBottom: '0.3rem'}}><strong style={{color: 'var(--text)'}}>Señal:</strong> {d.signal}</div>
+                                                <div><strong style={{color: 'var(--text)'}}>Solución:</strong> {d.fix}</div>
+                                            </div>
+                                        </details>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* RECIPE TAB */}
+                    {activeTab === 'recipe' && (
+                        <div className="animate-in">
+                            <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.5rem'}}>
+                                <div style={{fontSize: '0.83rem', color: 'var(--text-soft)'}}>
+                                    Para <strong style={{color: 'var(--text)'}}>{units}</strong> {units === 1 ? 'molde' : 'moldes'} de <strong style={{color: 'var(--text)'}}>{moldData.label}</strong>
+                                </div>
+                                <div style={{display: 'flex', gap: '0.4rem'}}>
+                                    <button className="icon-btn" onClick={copyAll}><Icon name="copy" size={14}/> Copiar</button>
+                                    <button className="icon-btn" onClick={downloadAll}><Icon name="download" size={14}/></button>
+                                </div>
+                            </div>
+
+                            {/* Impasto 1 */}
+                            <div style={{fontFamily: 'Fraunces, serif', fontSize: '1rem', fontWeight: 500, marginBottom: '0.5rem', color: 'var(--accent)'}}>
+                                🍳 Primer impasto <span style={{fontSize: '0.78rem', color: 'var(--text-soft)', fontWeight: 400, fontFamily: 'Inter'}}>· sábado noche</span>
+                            </div>
+                            <table className="recipe-table">
+                                <thead>
+                                    <tr><th>Ingrediente</th><th style={{textAlign: 'right'}}>Cantidad</th></tr>
+                                </thead>
+                                <tbody>
+                                    {impasto1.map((i, idx) => (
+                                        <tr key={idx}>
+                                            <td>
+                                                {i.name}
+                                                {i.note && <div className="note">{i.note}</div>}
+                                            </td>
+                                            <td className="qty">{round(i.g, 1)}g</td>
+                                        </tr>
+                                    ))}
+                                    <tr className="subtotal">
+                                        <td>Total 1er impasto</td>
+                                        <td className="qty">{round(impasto1Total, 0)}g</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            {/* Impasto 2 */}
+                            <div style={{fontFamily: 'Fraunces, serif', fontSize: '1rem', fontWeight: 500, marginBottom: '0.5rem', marginTop: '1rem', color: 'var(--accent)'}}>
+                                🥄 Segundo impasto <span style={{fontSize: '0.78rem', color: 'var(--text-soft)', fontWeight: 400, fontFamily: 'Inter'}}>· domingo mañana</span>
+                            </div>
+                            <table className="recipe-table">
+                                <thead>
+                                    <tr><th>Ingrediente</th><th style={{textAlign: 'right'}}>Cantidad</th></tr>
+                                </thead>
+                                <tbody>
+                                    {impasto2.map((i, idx) => (
+                                        <tr key={idx}>
+                                            <td>
+                                                {i.name}
+                                                {i.note && <div className="note">{i.note}</div>}
+                                            </td>
+                                            <td className="qty">{round(i.g, 1)}g</td>
+                                        </tr>
+                                    ))}
+                                    <tr className="subtotal">
+                                        <td>Total añadido</td>
+                                        <td className="qty">{round(impasto2Total, 0)}g</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <div className="info-note" style={{marginTop: '1rem'}}>
+                                <strong>Total final:</strong> ~{Math.round(totalLoad)}g de masa cruda · {units} × {moldData.loadCrudo}g por molde de {moldData.label}
+                                <br/><strong>Factor de escala:</strong> {factor.toFixed(2)}× respecto a la receta base de 500g alto
+                            </div>
+                        </div>
+                    )}
+
+                    {/* CHECKLIST TAB */}
+                    {activeTab === 'checklist' && (
+                        <div className="animate-in">
+                            <div className="quality-bar">
+                                <span style={{fontWeight: 600}}>Progreso:</span>
+                                <span style={{color: 'var(--text-soft)', fontSize: '0.85rem', fontVariantNumeric: 'tabular-nums'}}>{doneCount} / {allChecks.length}</span>
+                                <div style={{flex: 1, height: '6px', background: 'var(--border)', borderRadius: '3px', overflow: 'hidden', marginLeft: '0.5rem'}}>
+                                    <div style={{width: `${(doneCount / allChecks.length) * 100}%`, height: '100%', background: 'var(--success)', transition: 'width 0.3s'}}></div>
+                                </div>
+                            </div>
+                            <ul className="checklist">
+                                {allChecks.map(c => (
+                                    <li key={c.id} className={checks[c.id] ? 'done' : ''} onClick={() => onToggleCheck(c.id)}>
+                                        <span className="check-box">
+                                            {checks[c.id] && <Icon name="check" size={12}/>}
+                                        </span>
+                                        <span className="check-day">{c.day}</span>
+                                        <span style={{flex: 1}}>{c.text}</span>
+                                    </li>
+                                ))}
+                            </ul>
+                            <div className="info-note" style={{marginTop: '1rem'}}>
+                                Marca cada paso a medida que avanzas. El progreso se guarda automáticamente.
+                            </div>
+                        </div>
+                    )}
+
+                    {/* BAKING TAB */}
+                    {activeTab === 'baking' && (
+                        <div className="animate-in">
+                            <div className="bake-card">
+                                <div className="bake-header">🔥 Horneado · {moldData.label}</div>
+                                <div className="bake-preheat">
+                                    <span>Precalentamiento</span>
+                                    <span><span className="pt">{moldData.bakeTemp}°C</span> · sin vapor · calor estático</span>
+                                </div>
+                                <div className="bake-note">⚠️ El chocolate hace que la cúpula se oscurezca antes que en el clásico.</div>
+                                <div className="bake-phase">
+                                    <div className="bake-phase-title">Cocción</div>
+                                    <div className="bake-stats">
+                                        <div className="bake-stat"><div className="v">{moldData.bakeTemp}°C</div><div className="l">Temp.</div></div>
+                                        <div className="bake-stat"><div className="v">{moldData.bakeMin}-{moldData.bakeMax} min</div><div className="l">Tiempo</div></div>
+                                        <div className="bake-stat"><div className="v">92°C</div><div className="l">Sonda</div></div>
+                                    </div>
+                                    <div className="bake-action">
+                                        Hornea sin vapor con calor estático. Cubre la cúpula con aluminio si se dora demasiado ({mold.startsWith('900') ? 'a los 25-30 min' : 'a los 30 min'} aprox.). Sonda interna 92°C indica cocción correcta.
+                                    </div>
+                                </div>
+                                <div className="bake-note">❄️ <strong>Volteo inmediato</strong> al salir del horno. Pinchos cruzados, boca abajo, mínimo 12h sin mover.</div>
+                            </div>
+
+                            <div style={{marginTop: '1rem'}}>
+                                <div style={{fontFamily: 'Fraunces, serif', fontSize: '0.95rem', fontWeight: 500, marginBottom: '0.6rem', color: 'var(--accent)'}}>
+                                    📐 Datos del molde
+                                </div>
+                                <table className="recipe-table">
+                                    <tbody>
+                                        <tr><td>Tipo</td><td className="qty">{moldData.label}</td></tr>
+                                        <tr><td>Ø base</td><td className="qty">{moldData.diameter} cm</td></tr>
+                                        <tr><td>Altura</td><td className="qty">{moldData.height} cm</td></tr>
+                                        <tr><td>Carga (crudo)</td><td className="qty">{moldData.loadCrudo}g</td></tr>
+                                        <tr><td>Capacidad final</td><td className="qty">{moldData.capacity}g</td></tr>
+                                    </tbody>
+                                </table>
+                                <div className="info-note" style={{marginTop: '0.6rem', fontSize: '0.76rem'}}>
+                                    {moldData.note}. Cargar siempre un 15% más del peso nominal del molde.
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        // ============================================================
         // MAIN APP
         // ============================================================
         // Default values for reset
@@ -1192,6 +1910,37 @@
                 const t = new Date(); t.setHours(18, 0, 0, 0);
                 return t.toTimeString().slice(0, 5);
             });
+
+            // Panettone state
+            const [panMold, setPanMold]         = useState(() => {
+                try { return localStorage.getItem('panMold') || '500_alto'; } catch(e) { return '500_alto'; }
+            });
+            const [panUnits, setPanUnits]       = useState(() => {
+                try { return parseInt(localStorage.getItem('panUnits')) || 2; } catch(e) { return 2; }
+            });
+            const [panLiquidStarter, setPanLiquidStarter] = useState(() => {
+                try { return localStorage.getItem('panLiquidStarter') === 'true'; } catch(e) { return false; }
+            });
+            const [panChecks, setPanChecks]     = useState(() => {
+                try { return JSON.parse(localStorage.getItem('panChecks') || '{}'); } catch(e) { return {}; }
+            });
+            const [panBakeDay, setPanBakeDay]   = useState(() => {
+                try { return localStorage.getItem('panBakeDay') || 'sunday'; } catch(e) { return 'sunday'; }
+            });
+
+            useEffect(() => {
+                try {
+                    localStorage.setItem('panMold', panMold);
+                    localStorage.setItem('panUnits', String(panUnits));
+                    localStorage.setItem('panLiquidStarter', String(panLiquidStarter));
+                    localStorage.setItem('panChecks', JSON.stringify(panChecks));
+                    localStorage.setItem('panBakeDay', panBakeDay);
+                } catch(e) {}
+            }, [panMold, panUnits, panLiquidStarter, panChecks, panBakeDay]);
+
+            const togglePanCheck = (id) => {
+                setPanChecks(prev => ({ ...prev, [id]: !prev[id] }));
+            };
 
             // Show toast helper
             const showToast = useCallback((msg) => {
@@ -1569,12 +2318,16 @@
                                 title={theme === 'light' ? 'Modo oscuro' : 'Modo claro'}>
                                 <Icon name={theme === 'light' ? 'moon' : 'sun'} />
                             </button>
-                            <button className="icon-btn" onClick={copyRecipe} title="Copiar receta">
-                                <Icon name="copy" /> <span>Copiar</span>
-                            </button>
-                            <button className="icon-btn" onClick={downloadRecipe} title="Descargar receta como .txt">
-                                <Icon name="download" />
-                            </button>
+                            {doughType !== 'panettone' && (
+                                <>
+                                    <button className="icon-btn" onClick={copyRecipe} title="Copiar receta">
+                                        <Icon name="copy" /> <span>Copiar</span>
+                                    </button>
+                                    <button className="icon-btn" onClick={downloadRecipe} title="Descargar receta como .txt">
+                                        <Icon name="download" />
+                                    </button>
+                                </>
+                            )}
                             <button className="icon-btn" onClick={() => window.print()} title="Imprimir">
                                 <Icon name="printer" />
                             </button>
@@ -1582,60 +2335,107 @@
                     </header>
 
                     <div className="app-body">
-                        {/* HERO STRIP */}
-                        <div className="hero-strip">
-                            <div className="hero-stat">
-                                <div className="label">Harina total</div>
-                                <div className="value">{Math.round(calc.currentFlour)}<span className="unit">g</span></div>
-                            </div>
-                            <div className="hero-stat">
-                                <div className="label">Hidratación</div>
-                                <div className="value">{calc.effHydration}<span className="unit">%</span></div>
-                            </div>
-                            <div className="hero-stat">
-                                <div className="label">Levadura</div>
-                                <div className="value">
-                                    {calc.yeastGrams > 0 ? round(calc.yeastGrams, 2) : '—'}
-                                    {calc.yeastGrams > 0 && <span className="unit">g</span>}
+                        {doughType === 'panettone' ? (
+                            <>
+                                {/* HERO STRIP — panettone */}
+                                <div className="hero-strip">
+                                    <div className="hero-stat">
+                                        <div className="label">Molde</div>
+                                        <div className="value" style={{fontSize: '1.3rem'}}>{PANETTONE_MOLDS[panMold].label}</div>
+                                    </div>
+                                    <div className="hero-stat">
+                                        <div className="label">Unidades</div>
+                                        <div className="value">{panUnits}</div>
+                                    </div>
+                                    <div className="hero-stat">
+                                        <div className="label">Carga total</div>
+                                        <div className="value">{Math.round(PANETTONE_MOLDS[panMold].loadCrudo * panUnits)}<span className="unit">g</span></div>
+                                    </div>
+                                    <div className="hero-stat">
+                                        <div className="label">Proceso</div>
+                                        <div className="value" style={{fontSize: '1.3rem'}}>5 días</div>
+                                    </div>
+                                    <div className="hero-stat">
+                                        <div className="label">Hornea</div>
+                                        <div className="value" style={{fontSize: '1.3rem'}}>
+                                            {panBakeDay === 'sunday' ? 'Domingo' : panBakeDay === 'saturday' ? 'Sábado' : 'Viernes'}
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                            <div className="hero-stat">
-                                <div className="label">Tiempo total</div>
-                                <div className="value">{formatHours(totalTimeAll)}</div>
-                            </div>
-                            <div className="hero-stat">
-                                <div className="label">Masa total</div>
-                                <div className="value">{Math.round(calc.totalDough)}<span className="unit">g</span></div>
-                            </div>
-                        </div>
 
-                        {/* DIFFICULTY + RESET */}
-                        <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.75rem'}}>
-                            <div className="difficulty">
-                                <span>Dificultad:</span>
-                                <div className="difficulty-bars">
-                                    {[1,2,3,4,5].map(n => (
-                                        <span key={n} className={`db ${n <= difficulty ? 'on' : ''}`}></span>
+                                <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.75rem'}}>
+                                    <div className="difficulty">
+                                        <span>Dificultad:</span>
+                                        <div className="difficulty-bars">
+                                            {[1,2,3,4,5].map(n => (
+                                                <span key={n} className={`db on`}></span>
+                                            ))}
+                                        </div>
+                                        <span style={{color: 'var(--text-soft)', fontWeight: 600}}>Experto</span>
+                                    </div>
+                                    <span style={{fontSize: '0.78rem', color: 'var(--text-soft)', fontStyle: 'italic'}}>
+                                        Receta: V. Molina Pitarch · V2.0
+                                    </span>
+                                </div>
+                            </>
+                        ) : (
+                            <>
+                                {/* HERO STRIP */}
+                                <div className="hero-strip">
+                                    <div className="hero-stat">
+                                        <div className="label">Harina total</div>
+                                        <div className="value">{Math.round(calc.currentFlour)}<span className="unit">g</span></div>
+                                    </div>
+                                    <div className="hero-stat">
+                                        <div className="label">Hidratación</div>
+                                        <div className="value">{calc.effHydration}<span className="unit">%</span></div>
+                                    </div>
+                                    <div className="hero-stat">
+                                        <div className="label">Levadura</div>
+                                        <div className="value">
+                                            {calc.yeastGrams > 0 ? round(calc.yeastGrams, 2) : '—'}
+                                            {calc.yeastGrams > 0 && <span className="unit">g</span>}
+                                        </div>
+                                    </div>
+                                    <div className="hero-stat">
+                                        <div className="label">Tiempo total</div>
+                                        <div className="value">{formatHours(totalTimeAll)}</div>
+                                    </div>
+                                    <div className="hero-stat">
+                                        <div className="label">Masa total</div>
+                                        <div className="value">{Math.round(calc.totalDough)}<span className="unit">g</span></div>
+                                    </div>
+                                </div>
+
+                                {/* DIFFICULTY + RESET */}
+                                <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.75rem'}}>
+                                    <div className="difficulty">
+                                        <span>Dificultad:</span>
+                                        <div className="difficulty-bars">
+                                            {[1,2,3,4,5].map(n => (
+                                                <span key={n} className={`db ${n <= difficulty ? 'on' : ''}`}></span>
+                                            ))}
+                                        </div>
+                                        <span style={{color: 'var(--text-soft)', fontWeight: 600}}>{difficultyLabel}</span>
+                                    </div>
+                                    <button className="reset-link" onClick={resetAll}>↻ Restablecer valores</button>
+                                </div>
+
+                                {/* PRESETS */}
+                                <div className="presets-row">
+                                    {PRESETS.map(p => (
+                                        <button key={p.id}
+                                            className={`preset-btn ${activePreset === p.id ? 'active' : ''}`}
+                                            onClick={() => applyPreset(p)}>
+                                            {p.name}
+                                            {activePreset === p.id && presetModified && (
+                                                <span className="modified-badge">modif.</span>
+                                            )}
+                                        </button>
                                     ))}
                                 </div>
-                                <span style={{color: 'var(--text-soft)', fontWeight: 600}}>{difficultyLabel}</span>
-                            </div>
-                            <button className="reset-link" onClick={resetAll}>↻ Restablecer valores</button>
-                        </div>
-
-                        {/* PRESETS */}
-                        <div className="presets-row">
-                            {PRESETS.map(p => (
-                                <button key={p.id}
-                                    className={`preset-btn ${activePreset === p.id ? 'active' : ''}`}
-                                    onClick={() => applyPreset(p)}>
-                                    {p.name}
-                                    {activePreset === p.id && presetModified && (
-                                        <span className="modified-badge">modif.</span>
-                                    )}
-                                </button>
-                            ))}
-                        </div>
+                            </>
+                        )}
 
                         <div className="two-col">
                             {/* ─── LEFT: CONTROLS ─── */}
@@ -1651,11 +2451,88 @@
                                         </button>
                                         <button className={`dough-btn ${doughType === 'pizza' ? 'active' : ''}`}
                                             onClick={() => setDoughType('pizza')}>
-                                            <span className="top"><span className="emoji">🍕</span> Pizza Napolitana</span>
-                                            <span className="sub">Bolas de 260g</span>
+                                            <span className="top"><span className="emoji">🍕</span> Pizza</span>
+                                            <span className="sub">Napolitana, bolas de 260g</span>
+                                        </button>
+                                        <button className={`dough-btn ${doughType === 'panettone' ? 'active' : ''}`}
+                                            onClick={() => setDoughType('panettone')}>
+                                            <span className="top"><span className="emoji">🎄</span> Panettone</span>
+                                            <span className="sub">Chocolate · proceso 5 días</span>
                                         </button>
                                     </div>
                                 </div>
+
+                                {/* ═══ PANETTONE BRANCH ═══ */}
+                                {doughType === 'panettone' && (
+                                    <>
+                                        {/* Molde */}
+                                        <div className="section">
+                                            <div className="section-label"><span className="step-num">2</span> Molde</div>
+                                            <div className="pan-grid">
+                                                {Object.entries(PANETTONE_MOLDS).map(([k, m]) => (
+                                                    <button key={k}
+                                                        className={`pan-mold-btn ${panMold === k ? 'active' : ''}`}
+                                                        onClick={() => setPanMold(k)}>
+                                                        <span style={{fontWeight: 600}}>{m.label}</span>
+                                                        <span className="ms">Ø{m.diameter} · {m.height}cm</span>
+                                                    </button>
+                                                ))}
+                                            </div>
+                                            <div style={{fontSize: '0.78rem', color: 'var(--text-soft)', fontStyle: 'italic', marginTop: '0.4rem'}}>
+                                                {PANETTONE_MOLDS[panMold].note} · carga: {PANETTONE_MOLDS[panMold].loadCrudo}g por unidad
+                                            </div>
+                                        </div>
+
+                                        {/* Unidades */}
+                                        <div className="section">
+                                            <div className="section-label"><span className="step-num">3</span> Cantidad</div>
+                                            <Slider label="Número de panettones" icon="🎄"
+                                                value={panUnits} onChange={setPanUnits}
+                                                min="1" max="10" step="1" unit={panUnits === 1 ? 'unidad' : 'unidades'}
+                                                hint={`Total: ${(PANETTONE_MOLDS[panMold].loadCrudo * panUnits).toFixed(0)}g de masa cruda`} />
+                                        </div>
+
+                                        {/* Madre líquida → sólida */}
+                                        <div className="section">
+                                            <div className="section-label"><span className="step-num">4</span> Tu masa madre</div>
+                                            <div className="toggle-row">
+                                                <span className="toggle-label">🧪 Tengo masa madre líquida (necesito convertir)</span>
+                                                <label className="toggle-switch">
+                                                    <input type="checkbox" checked={panLiquidStarter}
+                                                        onChange={e => setPanLiquidStarter(e.target.checked)} />
+                                                    <span className="toggle-slider"></span>
+                                                </label>
+                                            </div>
+                                            {panLiquidStarter && (
+                                                <div style={{marginTop: '0.85rem', padding: '0.85rem 1rem', background: 'var(--cold-soft)', border: '1px solid var(--cold)', borderRadius: 'var(--radius-sm)', fontSize: '0.82rem', color: 'var(--text)', lineHeight: 1.55}}>
+                                                    <div style={{fontWeight: 700, color: 'var(--cold)', marginBottom: '0.3rem'}}>Fase 0-bis · Conversión líquida → sólida</div>
+                                                    <strong>Miércoles:</strong> 20g madre líquida + 40g harina Manitoba + 15g agua tibia. Amasa fuerte (bola dura), 28°C hasta doblar, después nevera.
+                                                    <br/><strong>Jueves:</strong> Saca el centro (50g), refresca con 50g harina + 22g agua. Forma rulo apretado, deja endurecer a t.a., nevera.
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        {/* Día de horneado */}
+                                        <div className="section">
+                                            <div className="section-label"><span className="step-num">5</span> Día de horneado</div>
+                                            <div className="schedule-input">
+                                                <label>📅 ¿Qué día quieres hornear?</label>
+                                                <select value={panBakeDay} onChange={e => setPanBakeDay(e.target.value)}
+                                                    style={{padding: '0.35rem 0.55rem', border: '1px solid var(--border)', borderRadius: '6px', background: 'var(--surface)', color: 'var(--text)', fontFamily: 'inherit', fontSize: '0.85rem'}}>
+                                                    <option value="sunday">Domingo</option>
+                                                    <option value="saturday">Sábado</option>
+                                                    <option value="friday">Viernes</option>
+                                                </select>
+                                            </div>
+                                            <div style={{fontSize: '0.78rem', color: 'var(--text-soft)', fontStyle: 'italic', marginTop: '0.5rem'}}>
+                                                El proceso completo dura 5 días. La preparación previa empieza 4 días antes del horneado.
+                                            </div>
+                                        </div>
+                                    </>
+                                )}
+
+                                {/* ═══ PAN/PIZZA BRANCH ═══ */}
+                                {doughType !== 'panettone' && (<>
 
                                 {/* Cantidad e ingredientes */}
                                 <div className="section">
@@ -1766,10 +2643,23 @@
                                             hint={useColdProof ? 'El bulk se calcula automáticamente al activar levado en frío' : ''} />
                                     </div>
                                 </div>
+                                </>)}
                             </div>
 
                             {/* ─── RIGHT: RESULTS ─── */}
                             <div className="card">
+                                {doughType === 'panettone' ? (
+                                    <PanettoneResults
+                                        mold={panMold}
+                                        units={panUnits}
+                                        liquidStarter={panLiquidStarter}
+                                        bakeDay={panBakeDay}
+                                        checks={panChecks}
+                                        onToggleCheck={togglePanCheck}
+                                        showToast={showToast}
+                                    />
+                                ) : (
+                                <>
                                 <div className="tabs">
                                     <button className={`tab ${activeTab === 'recipe' ? 'active' : ''}`} onClick={() => setActiveTab('recipe')}>📋 Receta</button>
                                     <button className={`tab ${activeTab === 'schedule' ? 'active' : ''}`} onClick={() => setActiveTab('schedule')}>⏱ Cronograma</button>
@@ -1933,6 +2823,8 @@
                                 <div className="info-note" style={{marginTop: '1rem'}}>
                                     <strong>Nota:</strong> Esta calculadora es una guía. La fuerza real de la harina, la actividad de tu levadura y la humedad ambiente pueden variar los tiempos. Aprende a leer la masa: doblada, jiggly, llena de burbujas en superficie y al menos al 70% de su volumen inicial.
                                 </div>
+                                </>
+                                )}
                             </div>
                         </div>
                     </div>
