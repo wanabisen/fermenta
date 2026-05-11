@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -264,31 +263,33 @@
         }
 
         .dough-toggle {
-            display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.6rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(115px, 1fr));
+            gap: 0.5rem;
         }
         @media (max-width: 500px) {
-            .dough-toggle { grid-template-columns: 1fr; }
+            .dough-toggle { grid-template-columns: repeat(2, 1fr); }
         }
         .dough-btn {
-            padding: 0.85rem 0.7rem;
+            padding: 0.7rem 0.55rem;
             border: 1.5px solid var(--border);
             border-radius: var(--radius-sm);
             background: var(--surface);
             cursor: pointer; font-family: inherit;
             transition: all 0.18s;
             display: flex; flex-direction: column;
-            align-items: flex-start; gap: 0.2rem; text-align: left;
+            align-items: flex-start; gap: 0.15rem; text-align: left;
             color: var(--text);
         }
         .dough-btn:hover { border-color: var(--primary); background: var(--primary-soft); }
         .dough-btn.active { background: var(--accent); border-color: var(--accent); color: var(--bg); }
         [data-theme="dark"] .dough-btn.active { background: var(--primary); border-color: var(--primary); color: #1a140d; }
         .dough-btn .top {
-            display: flex; align-items: center; gap: 0.45rem;
-            font-weight: 600; font-size: 0.9rem;
+            display: flex; align-items: center; gap: 0.35rem;
+            font-weight: 600; font-size: 0.85rem;
         }
-        .dough-btn .emoji { font-size: 1.3rem; }
-        .dough-btn .sub { font-size: 0.7rem; opacity: 0.75; font-weight: 400; }
+        .dough-btn .emoji { font-size: 1.2rem; }
+        .dough-btn .sub { font-size: 0.66rem; opacity: 0.75; font-weight: 400; line-height: 1.3; }
 
         /* Panettone-specific */
         .pan-grid {
@@ -1184,6 +1185,63 @@
         // PRESETS
         // ============================================================
         // ============================================================
+        // GOFRES DE LIEJA KNOWLEDGE BASE
+        // Belgian liège waffles with slow fermentation and pearl sugar
+        // Reference batch: ~1180g total dough → 12-14 waffles of 100-110g
+        // ============================================================
+        const GOFRES_BASE = {
+            flour: 500,      // g harina de fuerza
+            milk: 180,       // ml leche entera tibia
+            yeast: 7,        // g levadura seca
+            eggs: 2,         // unidades (~50g cada uno = 100g)
+            sugar: 12,       // g azúcar para activar
+            salt: 5,         // ~1 cdita
+            vanilla: 8,      // ~2 cditas en gramos
+            butter: 250,     // g mantequilla a t.a.
+            pearls: 250,     // g azúcar perlado
+        };
+
+        const GOFRES_BASE_UNITS = 13; // average of 12-14
+        const GOFRE_WEIGHT = 105;     // average 100-110g per gofre
+
+        const GOFRES_PROCESS = [
+            { time: '~10 min', step: 1, name: 'Activar la levadura', desc: 'Disuelve la levadura seca en la leche tibia (35°C) junto con la cucharada de azúcar. Deja reposar 10 min hasta que aparezca espuma. Si no espuma, está muerta y hay que empezar de nuevo.', icon: '🫧' },
+            { time: '~5 min', step: 2, name: 'Formar la masa base', desc: 'En el bol de la amasadora con gancho (o a mano), mezcla la harina y la sal. Añade la leche activada, los huevos y el extracto de vainilla. Amasa a velocidad baja unos 5 min hasta tener masa cohesionada.', icon: '🌾' },
+            { time: '8-10 min', step: 3, name: 'Incorporar la mantequilla', desc: 'Con la máquina en marcha a velocidad media-baja, añade la mantequilla en trozos pequeños, uno a uno, esperando que se integre antes del siguiente. Hasta que la masa esté lisa, elástica y se despegue de las paredes. Será una masa rica y algo pegajosa, es lo correcto.', icon: '🧈' },
+            { time: '90 min', step: 4, name: 'Primera fermentación', desc: 'Cubre el bol con film y deja fermentar a temperatura ambiente (20-22°C) hasta que doble el volumen. Esta fermentación es la que da el sabor profundo característico.', icon: '🥣' },
+            { time: 'variable', step: 5, name: 'Fermentación en frío', desc: '', icon: '❄️', dynamic: true },
+            { time: '~15 min', step: 6, name: 'Incorporar el azúcar perlado', desc: 'Saca la masa de la nevera. Aplástala sobre la mesa formando un rectángulo y reparte las perlas de azúcar por encima. Pliega la masa sobre sí misma varias veces para distribuir las perlas, sin amasar fuerte (no queremos que se disuelvan). Deja reposar 15 min para que pierda el frío extremo.', icon: '✨' },
+            { time: '~5 min', step: 7, name: 'Formar las bolas', desc: 'Divide la masa en porciones de unos 100-110g y bolea con cuidado. Tapa con un paño.', icon: '🤲', dynamic2: true },
+            { time: '30 min', step: 8, name: 'Última fermentación', desc: 'Deja fermentar las bolas a temperatura ambiente hasta que estén visiblemente hinchadas y blandas al tacto. Mientras tanto, precalienta la gofrera a temperatura media-alta.', icon: '🥯' },
+            { time: '3-5 min/tanda', step: 9, name: 'Cocción', desc: 'Coloca una bola en cada cavidad y cierra. Cocina 3-5 min hasta dorado y caramelizado. Sabrás que están cuando deje de salir vapor abundante. NO los cocines pegados: el azúcar fundido necesita salir por los bordes.', icon: '🔥' },
+            { time: '2 min', step: 10, name: 'Reposo final', desc: 'Saca con cuidado (la gofrera estará pringosa de caramelo, normal) y deja enfriar 2 min sobre rejilla. Es ahora cuando el caramelo exterior endurece y crea la costra crujiente. Cómelos tibios.', icon: '⏳' },
+        ];
+
+        const GOFRES_TIPS = [
+            { title: 'El azúcar perlado es imprescindible', desc: 'No se puede sustituir por azúcar normal — se disolvería en la masa. Las perlas grandes (tipo belga) dan mejor crujiente que las pequeñas.' },
+            { title: 'Limpieza de la gofrera', desc: 'Apágala, deja templar y limpia con papel húmedo mientras aún esté caliente. En frío el caramelo es una pesadilla.' },
+            { title: 'Conservación', desc: 'Aguantan bien un día a temperatura ambiente en bolsa. Para recuperar el crujiente: 2 min en horno a 180°C. Congelan perfectamente.' },
+            { title: 'Cuanto más frío, más sabor', desc: 'Las 4h son el mínimo. Lo ideal es 12-24h en nevera. Cuanto más larga la fermentación fría, más complejo el sabor.' },
+        ];
+
+        // Scale ingredients based on number of waffles
+        const scaleGofres = (units) => {
+            const factor = units / GOFRES_BASE_UNITS;
+            return {
+                flour: GOFRES_BASE.flour * factor,
+                milk: GOFRES_BASE.milk * factor,
+                yeast: GOFRES_BASE.yeast * factor,
+                eggs: GOFRES_BASE.eggs * factor,
+                sugar: GOFRES_BASE.sugar * factor,
+                salt: GOFRES_BASE.salt * factor,
+                vanilla: GOFRES_BASE.vanilla * factor,
+                butter: GOFRES_BASE.butter * factor,
+                pearls: GOFRES_BASE.pearls * factor,
+                factor,
+            };
+        };
+
+        // ============================================================
         // FOCACCIA KNOWLEDGE BASE
         // Two starter options: masa madre (sourdough) or fresh yeast
         // Two thermal modes: normal vs warm (T > 26°C)
@@ -1482,6 +1540,242 @@
             });
             return { issues, score: clamp(score, 1, 5) };
         }, [params]);
+
+        // ============================================================
+        // GOFRES RESULTS COMPONENT
+        // ============================================================
+        const GofresResults = ({ units, coldHours, readyTime, setReadyTime, showToast }) => {
+            const [activeTab, setActiveTab] = useState('recipe');
+            const recipe = useMemo(() => scaleGofres(units), [units]);
+
+            // Build schedule (working backwards from ready time)
+            const schedule = useMemo(() => {
+                const [bh, bm] = readyTime.split(':').map(Number);
+                const ready = new Date();
+                ready.setHours(bh, bm, 0, 0);
+                if (ready < new Date()) ready.setDate(ready.getDate() + 1);
+
+                // Cooking takes ~3-5 min per waffle batch; assume 4 per batch on average
+                const batchesNeeded = Math.ceil(units / 4);
+                const cookingTime = batchesNeeded * 4 / 60; // hours
+
+                const events = [];
+                events.push({ time: new Date(ready), name: 'Listos para servir', desc: 'Cómelos tibios, recién caramelizados', icon: '🧇', kind: 'normal' });
+                events.push({ time: addHours(ready, -0.03), name: 'Reposo final', desc: '2 min sobre rejilla — el caramelo endurece', icon: '⏳', kind: 'normal', dur: 0.03 });
+                events.push({ time: addHours(ready, -0.03 - cookingTime), name: 'Cocción en gofrera', desc: `${batchesNeeded} ${batchesNeeded === 1 ? 'tanda' : 'tandas'} de 3-5 min`, icon: '🔥', kind: 'bake', dur: cookingTime });
+                events.push({ time: addHours(ready, -0.5 - 0.03 - cookingTime), name: 'Última fermentación + precalentar gofrera', desc: '30 min · bolas hinchadas y blandas al tacto', icon: '🥯', kind: 'normal', dur: 0.5 });
+                events.push({ time: addHours(ready, -0.58 - 0.03 - cookingTime), name: 'Formar las bolas', desc: `${units} bolas de ~${GOFRE_WEIGHT}g`, icon: '🤲', kind: 'normal', dur: 0.08 });
+                events.push({ time: addHours(ready, -0.83 - 0.03 - cookingTime), name: 'Incorporar azúcar perlado + reposo', desc: 'Plegar suave sin amasar · 15 min reposo', icon: '✨', kind: 'normal', dur: 0.25 });
+                events.push({ time: addHours(ready, -0.83 - 0.03 - cookingTime - coldHours), name: 'A la nevera', desc: `Fermentación fría: ${formatHours(coldHours)}`, icon: '❄️', kind: 'cold', dur: coldHours });
+                events.push({ time: addHours(ready, -2.33 - 0.03 - cookingTime - coldHours), name: 'Primera fermentación', desc: '90 min a 20-22°C · debe doblar volumen', icon: '🥣', kind: 'normal', dur: 1.5 });
+                events.push({ time: addHours(ready, -2.55 - 0.03 - cookingTime - coldHours), name: 'Amasar + incorporar mantequilla', desc: '~13 min en total', icon: '🧈', kind: 'normal', dur: 0.22 });
+                events.push({ time: addHours(ready, -2.72 - 0.03 - cookingTime - coldHours), name: 'Activar la levadura', desc: '10 min · leche tibia + levadura + azúcar → debe espumar', icon: '🫧', kind: 'start', dur: 0.17 });
+                return events.reverse();
+            }, [readyTime, units, coldHours]);
+
+            const buildText = () => {
+                const lines = [];
+                lines.push(`GOFRES DE LIEJA — ${units} unidades (~${Math.round(GOFRE_WEIGHT * units)}g de masa)`);
+                lines.push('═══════════════════════════════════════');
+                lines.push('\nINGREDIENTES:');
+                lines.push(`  Harina de fuerza: ${round(recipe.flour, 0)}g`);
+                lines.push(`  Leche entera tibia (35°C): ${round(recipe.milk, 0)}ml`);
+                lines.push(`  Levadura seca de panadero: ${round(recipe.yeast, 1)}g`);
+                lines.push(`  Huevos grandes: ${round(recipe.eggs, 1)}`);
+                lines.push(`  Azúcar (para activar): ${round(recipe.sugar, 1)}g`);
+                lines.push(`  Sal: ${round(recipe.salt, 1)}g`);
+                lines.push(`  Extracto de vainilla: ${round(recipe.vanilla, 1)}g`);
+                lines.push(`  Mantequilla a t.a.: ${round(recipe.butter, 0)}g`);
+                lines.push(`  Perlas de azúcar: ${round(recipe.pearls, 0)}g`);
+                lines.push('\nPROCESO:');
+                GOFRES_PROCESS.forEach(p => {
+                    const desc = p.dynamic ? `${formatHours(coldHours)} en nevera. Desarrolla sabor y facilita el manejo.`
+                              : p.dynamic2 ? `Divide en ${units} porciones de ~${GOFRE_WEIGHT}g y bolea con cuidado.`
+                              : p.desc;
+                    lines.push(`  ${p.step}. ${p.name} (${p.time}): ${desc}`);
+                });
+                lines.push('\nCOCCIÓN: Gofrera precalentada, 3-5 min/tanda hasta dorado y caramelizado.');
+                return lines.join('\n');
+            };
+
+            const copyAll = () => {
+                navigator.clipboard?.writeText(buildText()).then(() => showToast('Receta copiada ✓'));
+            };
+            const downloadAll = () => {
+                const blob = new Blob([buildText()], { type: 'text/plain;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `gofres-lieja-${units}u.txt`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                showToast('Receta descargada ✓');
+            };
+
+            return (
+                <div>
+                    <div className="tabs">
+                        <button className={`tab ${activeTab === 'recipe' ? 'active' : ''}`} onClick={() => setActiveTab('recipe')}>📋 Receta</button>
+                        <button className={`tab ${activeTab === 'process' ? 'active' : ''}`} onClick={() => setActiveTab('process')}>📜 Proceso</button>
+                        <button className={`tab ${activeTab === 'schedule' ? 'active' : ''}`} onClick={() => setActiveTab('schedule')}>⏱ Cronograma</button>
+                        <button className={`tab ${activeTab === 'tips' ? 'active' : ''}`} onClick={() => setActiveTab('tips')}>💡 Consejos</button>
+                    </div>
+
+                    {/* RECIPE TAB */}
+                    {activeTab === 'recipe' && (
+                        <div className="animate-in">
+                            <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.5rem'}}>
+                                <div style={{fontSize: '0.83rem', color: 'var(--text-soft)'}}>
+                                    <strong style={{color: 'var(--text)'}}>{units} gofres</strong> · ~{Math.round(GOFRE_WEIGHT * units)}g de masa total · {Math.ceil(units / 2)} personas
+                                </div>
+                                <div style={{display: 'flex', gap: '0.4rem'}}>
+                                    <button className="icon-btn" onClick={copyAll}><Icon name="copy" size={14}/> Copiar</button>
+                                    <button className="icon-btn" onClick={downloadAll}><Icon name="download" size={14}/></button>
+                                </div>
+                            </div>
+
+                            <table className="recipe-table">
+                                <thead>
+                                    <tr><th>Ingrediente</th><th style={{textAlign: 'right'}}>Cantidad</th></tr>
+                                </thead>
+                                <tbody>
+                                    <tr><td>Harina de fuerza</td><td className="qty">{round(recipe.flour, 0)}g</td></tr>
+                                    <tr><td>Leche entera tibia <span style={{fontSize: '0.7rem', color: 'var(--text-muted)'}}>(35°C)</span></td><td className="qty">{round(recipe.milk, 0)}ml</td></tr>
+                                    <tr><td>Levadura seca de panadero</td><td className="qty">{round(recipe.yeast, 1)}g</td></tr>
+                                    <tr><td>Huevos grandes</td><td className="qty">{round(recipe.eggs, 1)} ud</td></tr>
+                                    <tr><td>Azúcar <span style={{fontSize: '0.7rem', color: 'var(--text-muted)'}}>(para activar levadura)</span></td><td className="qty">{round(recipe.sugar, 1)}g</td></tr>
+                                    <tr><td>Sal</td><td className="qty">{round(recipe.salt, 1)}g</td></tr>
+                                    <tr><td>Extracto de vainilla</td><td className="qty">{round(recipe.vanilla, 1)}g</td></tr>
+                                    <tr><td>Mantequilla <span style={{fontSize: '0.7rem', color: 'var(--text-muted)'}}>(a temperatura ambiente)</span></td><td className="qty">{round(recipe.butter, 0)}g</td></tr>
+                                    <tr className="subtotal"><td>🍬 Perlas de azúcar belga</td><td className="qty">{round(recipe.pearls, 0)}g</td></tr>
+                                </tbody>
+                            </table>
+
+                            <div className="warn-box">
+                                <Icon name="alert" />
+                                <span><strong>El azúcar perlado es imprescindible.</strong> No se puede sustituir por azúcar normal: se disolvería en la masa en lugar de caramelizar. Las perlas grandes (tipo belga) dan mejor crujiente.</span>
+                            </div>
+
+                            <div className="info-note">
+                                <strong>Mantequilla:</strong> debe estar realmente a temperatura ambiente (blanda al tacto pero no derretida). Sácala 1-2h antes.
+                                <br/><strong>Leche tibia:</strong> 35°C, ni fría ni caliente. Si quema al dedo, está muy caliente y matará la levadura.
+                            </div>
+                        </div>
+                    )}
+
+                    {/* PROCESS TAB */}
+                    {activeTab === 'process' && (
+                        <div className="animate-in">
+                            <div style={{display: 'flex', flexDirection: 'column', gap: '0.5rem'}}>
+                                {GOFRES_PROCESS.map((p, i) => {
+                                    const desc = p.dynamic ? `${formatHours(coldHours)} en nevera. Desarrolla sabor y facilita el manejo de la masa (que de otra forma sería demasiado blanda).`
+                                              : p.dynamic2 ? `Divide la masa en ${units} porciones de ~${GOFRE_WEIGHT}g y bolea con cuidado. Tápalas con un paño.`
+                                              : p.desc;
+                                    return (
+                                        <div key={i} style={{display: 'grid', gridTemplateColumns: '32px 1fr', gap: '0.6rem', padding: '0.7rem 0.85rem', background: 'var(--surface-2)', borderRadius: 'var(--radius-sm)', alignItems: 'flex-start'}}>
+                                            <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center', width: '28px', height: '28px', borderRadius: '50%', background: 'var(--surface)', fontFamily: 'Fraunces, serif', fontWeight: 600, color: 'var(--accent)', fontSize: '0.85rem'}}>
+                                                {p.step}
+                                            </div>
+                                            <div>
+                                                <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem', marginBottom: '0.2rem', flexWrap: 'wrap'}}>
+                                                    <div style={{fontWeight: 600, fontSize: '0.9rem', color: 'var(--text)'}}>
+                                                        {p.icon} {p.name}
+                                                    </div>
+                                                    <span style={{fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 600}}>
+                                                        {p.time}
+                                                    </span>
+                                                </div>
+                                                <div style={{fontSize: '0.82rem', color: 'var(--text-soft)', lineHeight: 1.5}}>
+                                                    {desc}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                            <div className="info-note" style={{marginTop: '1rem'}}>
+                                <strong>Cocción visual:</strong> sabrás que están cuando deje de salir vapor abundante de la gofrera. El caramelo exterior endurece al enfriar — esa es la costra crujiente característica.
+                            </div>
+                        </div>
+                    )}
+
+                    {/* SCHEDULE TAB */}
+                    {activeTab === 'schedule' && (
+                        <div className="animate-in">
+                            <div className="schedule-input">
+                                <label>🧇 ¿A qué hora quieres comerlos?</label>
+                                <input type="time" value={readyTime} onChange={e => setReadyTime(e.target.value)} />
+                            </div>
+                            <div className="schedule">
+                                {schedule.map((ev, i) => (
+                                    <div key={i} className={`schedule-row ${ev.kind}`}>
+                                        <div className="schedule-time">
+                                            {formatClock(ev.time)}
+                                            <div style={{fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: 400, fontFamily: 'Inter'}}>
+                                                {formatDay(ev.time, schedule[schedule.length-1].time)}
+                                            </div>
+                                        </div>
+                                        <div className="schedule-step">
+                                            <div className="name">
+                                                <span className="ic">{ev.icon}</span>
+                                                {ev.name}
+                                            </div>
+                                            <div className="desc">{ev.desc}</div>
+                                        </div>
+                                        <div className="schedule-duration">
+                                            {ev.dur ? formatHours(ev.dur) : ''}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                            <div className="info-note">
+                                <strong>Cronograma calculado hacia atrás</strong> desde tu hora de servir. Si la fermentación fría es larga (12-24h), el inicio cae el día anterior.
+                            </div>
+                        </div>
+                    )}
+
+                    {/* TIPS TAB */}
+                    {activeTab === 'tips' && (
+                        <div className="animate-in">
+                            <div style={{display: 'flex', flexDirection: 'column', gap: '0.6rem'}}>
+                                {GOFRES_TIPS.map((t, i) => (
+                                    <div key={i} className="phase-card" style={{marginBottom: 0}}>
+                                        <div style={{fontFamily: 'Fraunces, serif', fontSize: '0.95rem', fontWeight: 600, color: 'var(--accent)', marginBottom: '0.35rem'}}>
+                                            {t.title}
+                                        </div>
+                                        <div style={{fontSize: '0.85rem', color: 'var(--text-soft)', lineHeight: 1.55}}>
+                                            {t.desc}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+
+                            <div className="bake-card" style={{marginTop: '1rem'}}>
+                                <div className="bake-header">🔥 Cocción en gofrera</div>
+                                <div className="bake-preheat">
+                                    <span>Precalentamiento</span>
+                                    <span><span className="pt">Media-alta</span> · mientras las bolas levan</span>
+                                </div>
+                                <div className="bake-phase">
+                                    <div className="bake-phase-title">Cocción por tandas</div>
+                                    <div className="bake-stats">
+                                        <div className="bake-stat"><div className="v">3-5 min</div><div className="l">Por tanda</div></div>
+                                        <div className="bake-stat"><div className="v">{Math.ceil(units / 4)}</div><div className="l">Tandas estim.</div></div>
+                                        <div className="bake-stat"><div className="v">~{Math.ceil(units / 4) * 4}min</div><div className="l">Total</div></div>
+                                    </div>
+                                    <div className="bake-action">
+                                        Una bola por cavidad. <strong>NO cocines pegados</strong> — el azúcar fundido necesita salir por los bordes. Espera a que deje de salir vapor abundante: ahí están listos.
+                                    </div>
+                                </div>
+                                <div className="bake-note">⚠️ La gofrera se pringará de caramelo. Es normal: limpia con papel húmedo cuando aún esté templada.</div>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        };
 
         // ============================================================
         // FOCACCIA RESULTS COMPONENT
@@ -2264,6 +2558,17 @@
                 try { return localStorage.getItem('focBakeTime') || '13:00'; } catch(e) { return '13:00'; }
             });
 
+            // Gofres state
+            const [gofUnits, setGofUnits]         = useState(() => {
+                try { return parseInt(localStorage.getItem('gofUnits')) || 13; } catch(e) { return 13; }
+            });
+            const [gofColdHours, setGofColdHours] = useState(() => {
+                try { return parseFloat(localStorage.getItem('gofColdHours')) || 4; } catch(e) { return 4; }
+            });
+            const [gofReadyTime, setGofReadyTime] = useState(() => {
+                try { return localStorage.getItem('gofReadyTime') || '17:30'; } catch(e) { return '17:30'; }
+            });
+
             useEffect(() => {
                 try {
                     localStorage.setItem('panMold', panMold);
@@ -2275,8 +2580,11 @@
                     localStorage.setItem('focWeight', String(focWeight));
                     localStorage.setItem('focAmbient', String(focAmbient));
                     localStorage.setItem('focBakeTime', focBakeTime);
+                    localStorage.setItem('gofUnits', String(gofUnits));
+                    localStorage.setItem('gofColdHours', String(gofColdHours));
+                    localStorage.setItem('gofReadyTime', gofReadyTime);
                 } catch(e) {}
-            }, [panMold, panUnits, panLiquidStarter, panChecks, panBakeDay, focStarter, focWeight, focAmbient, focBakeTime]);
+            }, [panMold, panUnits, panLiquidStarter, panChecks, panBakeDay, focStarter, focWeight, focAmbient, focBakeTime, gofUnits, gofColdHours, gofReadyTime]);
 
             const togglePanCheck = (id) => {
                 setPanChecks(prev => ({ ...prev, [id]: !prev[id] }));
@@ -2658,7 +2966,7 @@
                                 title={theme === 'light' ? 'Modo oscuro' : 'Modo claro'}>
                                 <Icon name={theme === 'light' ? 'moon' : 'sun'} />
                             </button>
-                            {doughType !== 'panettone' && doughType !== 'focaccia' && (
+                            {doughType !== 'panettone' && doughType !== 'focaccia' && doughType !== 'gofres' && (
                                 <>
                                     <button className="icon-btn" onClick={copyRecipe} title="Copiar receta">
                                         <Icon name="copy" /> <span>Copiar</span>
@@ -2763,6 +3071,47 @@
                                     </span>
                                 </div>
                             </>
+                        ) : doughType === 'gofres' ? (
+                            <>
+                                {/* HERO STRIP — gofres */}
+                                <div className="hero-strip">
+                                    <div className="hero-stat">
+                                        <div className="label">Gofres</div>
+                                        <div className="value">{gofUnits}</div>
+                                    </div>
+                                    <div className="hero-stat">
+                                        <div className="label">Masa total</div>
+                                        <div className="value">{Math.round(GOFRE_WEIGHT * gofUnits)}<span className="unit">g</span></div>
+                                    </div>
+                                    <div className="hero-stat">
+                                        <div className="label">Frío</div>
+                                        <div className="value">{gofColdHours}<span className="unit">h</span></div>
+                                    </div>
+                                    <div className="hero-stat">
+                                        <div className="label">Personas</div>
+                                        <div className="value">~{Math.ceil(gofUnits / 2)}</div>
+                                    </div>
+                                    <div className="hero-stat">
+                                        <div className="label">Tiempo total</div>
+                                        <div className="value" style={{fontSize: '1.3rem'}}>~{formatHours(gofColdHours + 3)}</div>
+                                    </div>
+                                </div>
+
+                                <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.75rem'}}>
+                                    <div className="difficulty">
+                                        <span>Dificultad:</span>
+                                        <div className="difficulty-bars">
+                                            {[1,2,3,4,5].map(n => (
+                                                <span key={n} className={`db ${n <= 2 ? 'on' : ''}`}></span>
+                                            ))}
+                                        </div>
+                                        <span style={{color: 'var(--text-soft)', fontWeight: 600}}>Fácil</span>
+                                    </div>
+                                    <span style={{fontSize: '0.78rem', color: 'var(--text-soft)', fontStyle: 'italic'}}>
+                                        Masa fermentada · perlas de azúcar
+                                    </span>
+                                </div>
+                            </>
                         ) : (
                             <>
                                 {/* HERO STRIP */}
@@ -2832,22 +3181,27 @@
                                         <button className={`dough-btn ${doughType === 'pan' ? 'active' : ''}`}
                                             onClick={() => setDoughType('pan')}>
                                             <span className="top"><span className="emoji">🍞</span> Pan</span>
-                                            <span className="sub">Hogazas, baguettes, brioche</span>
+                                            <span className="sub">Hogazas y baguettes</span>
                                         </button>
                                         <button className={`dough-btn ${doughType === 'pizza' ? 'active' : ''}`}
                                             onClick={() => setDoughType('pizza')}>
                                             <span className="top"><span className="emoji">🍕</span> Pizza</span>
-                                            <span className="sub">Napolitana, bolas de 260g</span>
+                                            <span className="sub">Napolitana, 260g</span>
                                         </button>
                                         <button className={`dough-btn ${doughType === 'focaccia' ? 'active' : ''}`}
                                             onClick={() => setDoughType('focaccia')}>
                                             <span className="top"><span className="emoji">🫓</span> Focaccia</span>
-                                            <span className="sub">Alta hidratación · 24h frío</span>
+                                            <span className="sub">Alta hidratación · 24h</span>
+                                        </button>
+                                        <button className={`dough-btn ${doughType === 'gofres' ? 'active' : ''}`}
+                                            onClick={() => setDoughType('gofres')}>
+                                            <span className="top"><span className="emoji">🧇</span> Gofres</span>
+                                            <span className="sub">Lieja · perlas azúcar</span>
                                         </button>
                                         <button className={`dough-btn ${doughType === 'panettone' ? 'active' : ''}`}
                                             onClick={() => setDoughType('panettone')}>
                                             <span className="top"><span className="emoji">🎄</span> Panettone</span>
-                                            <span className="sub">Chocolate · proceso 5 días</span>
+                                            <span className="sub">Chocolate · 5 días</span>
                                         </button>
                                     </div>
                                 </div>
@@ -2972,8 +3326,46 @@
                                     </>
                                 )}
 
+                                {/* ═══ GOFRES BRANCH ═══ */}
+                                {doughType === 'gofres' && (
+                                    <>
+                                        {/* Cantidad */}
+                                        <div className="section">
+                                            <div className="section-label"><span className="step-num">2</span> Cantidad</div>
+                                            <Slider label="Número de gofres" icon="🧇" value={gofUnits}
+                                                onChange={setGofUnits} min="4" max="32" step="1"
+                                                unit={gofUnits === 1 ? 'gofre' : 'gofres'}
+                                                hint={`~${Math.round(GOFRE_WEIGHT * gofUnits)}g de masa total · ${Math.ceil(gofUnits / 2)} ${Math.ceil(gofUnits / 2) === 1 ? 'persona' : 'personas'}`} />
+                                        </div>
+
+                                        {/* Fermentación fría */}
+                                        <div className="section">
+                                            <div className="section-label"><span className="step-num">3</span> Fermentación en frío</div>
+                                            <Slider label="Tiempo en nevera" icon="❄️" value={gofColdHours}
+                                                onChange={setGofColdHours} min="4" max="24" step="1" unit="hrs"
+                                                tip="Las 4h son el mínimo viable. Lo ideal son 12-24h: cuanto más larga, más sabor desarrolla la masa."
+                                                hint={gofColdHours <= 4 ? '⏱ Mínimo · mismo día'
+                                                    : gofColdHours <= 8 ? 'Estándar · sabor correcto'
+                                                    : gofColdHours <= 16 ? '✓ Buen sabor · desarrollo medio'
+                                                    : '🌟 Sabor óptimo · máximo desarrollo'} />
+                                        </div>
+
+                                        {/* Hora de servir */}
+                                        <div className="section">
+                                            <div className="section-label"><span className="step-num">4</span> Hora de servir</div>
+                                            <div className="schedule-input">
+                                                <label>🧇 ¿A qué hora quieres comerlos?</label>
+                                                <input type="time" value={gofReadyTime} onChange={e => setGofReadyTime(e.target.value)} />
+                                            </div>
+                                            <div style={{fontSize: '0.78rem', color: 'var(--text-soft)', fontStyle: 'italic', marginTop: '0.5rem'}}>
+                                                El cronograma se calcula hacia atrás. Con 4h de frío empiezas ~3h antes del bulk; con 24h, el día anterior.
+                                            </div>
+                                        </div>
+                                    </>
+                                )}
+
                                 {/* ═══ PAN/PIZZA BRANCH ═══ */}
-                                {doughType !== 'panettone' && doughType !== 'focaccia' && (<>
+                                {doughType !== 'panettone' && doughType !== 'focaccia' && doughType !== 'gofres' && (<>
 
                                 {/* Cantidad e ingredientes */}
                                 <div className="section">
@@ -3106,6 +3498,14 @@
                                         ambientTemp={focAmbient}
                                         bakeTime={focBakeTime}
                                         setBakeTime={setFocBakeTime}
+                                        showToast={showToast}
+                                    />
+                                ) : doughType === 'gofres' ? (
+                                    <GofresResults
+                                        units={gofUnits}
+                                        coldHours={gofColdHours}
+                                        readyTime={gofReadyTime}
+                                        setReadyTime={setGofReadyTime}
                                         showToast={showToast}
                                     />
                                 ) : (
