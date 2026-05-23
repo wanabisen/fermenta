@@ -1287,6 +1287,19 @@
                     { id: 'evoo',        name: 'Aceite EVOO',                g: 4,   unit: 'g', cooked: 'after' },
                 ],
             },
+            cacio_pepe: {
+                name: 'Cacio e pepe con guanciale',
+                emoji: '⚫',
+                desc: 'Sin tomate. Fior di latte + pecorino + guanciale crujiente + mucha pimienta.',
+                ingredients: [
+                    { id: 'fiordilatte', name: 'Fior di latte (escurrida)',     g: 70,  unit: 'g', cooked: 'before' },
+                    { id: 'pecorino',    name: 'Pecorino romano rallado',       g: 15,  unit: 'g', cooked: 'before', note: 'generoso' },
+                    { id: 'guanciale',   name: 'Guanciale',                     g: 30,  unit: 'g', cooked: 'before', note: 'saltear 3-4 min antes hasta crujiente' },
+                    { id: 'pimienta',    name: 'Pimienta negra molida',         g: 0.5, unit: 'g', cooked: 'after',  note: 'abundante, recién molida' },
+                    { id: 'albahaca',    name: 'Albahaca fresca',               g: 2,   unit: 'hojas', cooked: 'after' },
+                    { id: 'evoo',        name: 'Aceite EVOO',                   g: 4,   unit: 'g', cooked: 'after' },
+                ],
+            },
         };
 
         // Mapping from ingredient id → display label + purchase notes
@@ -1296,22 +1309,25 @@
             fiordilatte:   { label: 'Fior di latte',             note: 'Comprar ~28% más por la merma de escurrido (8h)', shrink: 0.78 },
             pepperoni:     { label: 'Pepperoni / salame picante', note: '' },
             speck:         { label: 'Speck',                     note: 'Añadir al salir del horno' },
+            guanciale:     { label: 'Guanciale',                 note: 'Saltear 3-4 min antes de poner sobre la pizza' },
             gorgonzola:    { label: 'Gorgonzola',                note: '' },
             parmesano:     { label: 'Parmesano rallado',         note: 'Comprar cuña, rallar al momento' },
+            pecorino:      { label: 'Pecorino romano',           note: 'Comprar cuña, rallar al momento' },
             pollo:         { label: 'Pollo desmigado',           note: 'Mejor asado con un poco de orégano' },
             maiz:          { label: 'Maíz',                      note: 'Escurrido de lata' },
             albahaca:      { label: 'Albahaca fresca',           note: 'En hojas, no troceada', isCount: true },
             ajo:           { label: 'Ajo',                       note: 'Laminado fino, no picado' },
             oregano:       { label: 'Orégano seco',              note: 'Mejor siciliano' },
+            pimienta:      { label: 'Pimienta negra',            note: 'En grano, moler al momento' },
             evoo:          { label: 'Aceite de oliva virgen extra', note: '' },
         };
 
         // Order in which to display the shopping list
         const TOPPING_ORDER = [
             'sanmarzano', 'salsareducida', 'fiordilatte',
-            'pepperoni', 'speck', 'pollo',
-            'gorgonzola', 'parmesano',
-            'maiz', 'albahaca', 'ajo', 'oregano', 'evoo',
+            'pepperoni', 'speck', 'guanciale', 'pollo',
+            'gorgonzola', 'parmesano', 'pecorino',
+            'maiz', 'albahaca', 'ajo', 'oregano', 'pimienta', 'evoo',
         ];
 
         // ============================================================
@@ -1736,7 +1752,7 @@
                 const weights = {
                     margherita: 3, diavola: 2, speck_gorgonzola: 2,
                     pollo_maiz: 2, marinara: 1, quattro_formaggi: 1,
-                    bianca_speck: 1, capricciosa: 0,
+                    bianca_speck: 1, cacio_pepe: 1, capricciosa: 0,
                 };
                 const totalWeight = Object.values(weights).reduce((s, n) => s + n, 0);
                 const distributed = {};
@@ -3058,6 +3074,7 @@
                     margherita: 3, marinara: 1, diavola: 2,
                     speck_gorgonzola: 2, quattro_formaggi: 1,
                     pollo_maiz: 2, bianca_speck: 1, capricciosa: 0,
+                    cacio_pepe: 0,
                 };
             });
 
