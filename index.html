@@ -1675,8 +1675,11 @@
         // PIZZA TOPPINGS COMPONENT
         // Multi-pizza selector with per-pizza ingredients + shopping list
         // ============================================================
-        const PizzaToppings = ({ counts, setCounts, showToast }) => {
+        const PizzaToppings = ({ counts, setCounts, maxPizzas, showToast }) => {
             const totalPizzas = Object.values(counts).reduce((s, n) => s + n, 0);
+            const remaining = Math.max(0, maxPizzas - totalPizzas);
+            const isAtLimit = totalPizzas >= maxPizzas;
+            const isOverLimit = totalPizzas > maxPizzas;
 
             // Aggregate ingredients across all selected pizzas
             const shoppingList = useMemo(() => {
@@ -1695,11 +1698,29 @@
             }, [counts]);
 
             const setCount = (id, delta) => {
-                setCounts(prev => ({ ...prev, [id]: Math.max(0, (prev[id] || 0) + delta) }));
+                setCounts(prev => {
+                    const currentTotal = Object.values(prev).reduce((s, n) => s + n, 0);
+                    const newValue = Math.max(0, (prev[id] || 0) + delta);
+                    // Block increase if it would exceed maxPizzas
+                    if (delta > 0 && currentTotal >= maxPizzas) {
+                        showToast(`Límite alcanzado: ${maxPizzas} bolas`);
+                        return prev;
+                    }
+                    return { ...prev, [id]: newValue };
+                });
             };
 
             const setCountValue = (id, value) => {
-                setCounts(prev => ({ ...prev, [id]: Math.max(0, Math.min(50, parseInt(value) || 0)) }));
+                setCounts(prev => {
+                    const requested = Math.max(0, parseInt(value) || 0);
+                    const others = Object.entries(prev).reduce((s, [k, n]) => k === id ? s : s + n, 0);
+                    const maxAllowed = Math.max(0, maxPizzas - others);
+                    const finalValue = Math.min(requested, maxAllowed);
+                    if (requested > maxAllowed) {
+                        showToast(`Solo ${maxAllowed} ${maxAllowed === 1 ? 'bola disponible' : 'bolas disponibles'}`);
+                    }
+                    return { ...prev, [id]: finalValue };
+                });
             };
 
             const resetCounts = () => {
@@ -1708,6 +1729,34 @@
                 Object.keys(PIZZA_VARIANTS).forEach(k => zeroed[k] = 0);
                 setCounts(zeroed);
                 showToast('Pizzas reseteadas');
+            };
+
+            const autoDistribute = () => {
+                // Distribute proportionally to the default suggestion: marghe 3, diavola 2, speck 2, pollo 2, marinara 1, quattro 1, bianca 1
+                const weights = {
+                    margherita: 3, diavola: 2, speck_gorgonzola: 2,
+                    pollo_maiz: 2, marinara: 1, quattro_formaggi: 1,
+                    bianca_speck: 1, capricciosa: 0,
+                };
+                const totalWeight = Object.values(weights).reduce((s, n) => s + n, 0);
+                const distributed = {};
+                let assigned = 0;
+                // First pass: round down
+                Object.entries(weights).forEach(([k, w]) => {
+                    const v = Math.floor((w / totalWeight) * maxPizzas);
+                    distributed[k] = v;
+                    assigned += v;
+                });
+                // Distribute remainder to highest weights
+                const sortedKeys = Object.entries(weights).sort((a, b) => b[1] - a[1]).map(e => e[0]);
+                let i = 0;
+                while (assigned < maxPizzas && i < sortedKeys.length * 5) {
+                    distributed[sortedKeys[i % sortedKeys.length]]++;
+                    assigned++;
+                    i++;
+                }
+                setCounts(distributed);
+                showToast(`Reparto sugerido para ${maxPizzas} bolas`);
             };
 
             // Build a text summary for copy
@@ -1769,17 +1818,43 @@
 
             return (
                 <div className="animate-in">
-                    {/* Header */}
-                    <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.5rem'}}>
-                        <div style={{fontSize: '0.9rem', color: 'var(--text)', fontWeight: 600}}>
-                            🍕 <strong>{totalPizzas}</strong> {totalPizzas === 1 ? 'pizza' : 'pizzas'} en total
+                    {/* Header with progress */}
+                    <div style={{
+                        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                        marginBottom: '1rem', flexWrap: 'wrap', gap: '0.5rem',
+                        padding: '0.75rem 0.95rem',
+                        background: isOverLimit ? 'var(--danger-soft)' : isAtLimit ? 'var(--success-soft)' : 'var(--surface-2)',
+                        border: `1px solid ${isOverLimit ? 'var(--danger)' : isAtLimit ? 'var(--success)' : 'var(--border-soft)'}`,
+                        borderRadius: 'var(--radius-sm)',
+                        transition: 'all 0.2s',
+                    }}>
+                        <div>
+                            <div style={{fontSize: '0.78rem', color: 'var(--text-soft)', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 600, marginBottom: '0.2rem'}}>
+                                Asignadas
+                            </div>
+                            <div style={{fontFamily: 'Fraunces, serif', fontSize: '1.35rem', fontWeight: 500, color: 'var(--text)', lineHeight: 1, fontVariantNumeric: 'tabular-nums'}}>
+                                {totalPizzas} <span style={{color: 'var(--text-muted)', fontSize: '1rem'}}>/ {maxPizzas} bolas</span>
+                            </div>
+                            <div style={{fontSize: '0.78rem', marginTop: '0.25rem', color: isOverLimit ? 'var(--danger)' : remaining === 0 ? 'var(--success)' : 'var(--text-soft)', fontWeight: 500}}>
+                                {isOverLimit ? `⚠️ Te pasas por ${totalPizzas - maxPizzas}` : remaining === 0 ? '✓ Todo asignado' : `Quedan ${remaining} por asignar`}
+                            </div>
                         </div>
-                        <div style={{display: 'flex', gap: '0.4rem'}}>
-                            <button className="icon-btn" onClick={copyAll}><Icon name="copy" size={14}/> Copiar</button>
-                            <button className="icon-btn" onClick={downloadAll}><Icon name="download" size={14}/></button>
+                        <div style={{display: 'flex', gap: '0.4rem', flexWrap: 'wrap'}}>
+                            <button className="icon-btn" onClick={autoDistribute} title="Repartir automáticamente según mi sugerencia">
+                                ✨ Auto
+                            </button>
                             <button className="icon-btn" onClick={resetCounts}>↻ Reset</button>
+                            <button className="icon-btn" onClick={copyAll} disabled={totalPizzas === 0}><Icon name="copy" size={14}/></button>
+                            <button className="icon-btn" onClick={downloadAll} disabled={totalPizzas === 0}><Icon name="download" size={14}/></button>
                         </div>
                     </div>
+
+                    {/* Hint when at zero */}
+                    {totalPizzas === 0 && (
+                        <div className="info-note" style={{marginBottom: '1rem'}}>
+                            💡 Pulsa <strong>✨ Auto</strong> para que reparta las {maxPizzas} bolas automáticamente con mi sugerencia, o configura tú mismo cuántas de cada.
+                        </div>
+                    )}
 
                     {/* Variant selector */}
                     <div style={{fontFamily: 'Fraunces, serif', fontSize: '0.95rem', fontWeight: 500, color: 'var(--accent)', marginBottom: '0.6rem'}}>
@@ -1788,6 +1863,7 @@
                     <div style={{display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1.25rem'}}>
                         {Object.entries(PIZZA_VARIANTS).map(([id, v]) => {
                             const count = counts[id] || 0;
+                            const canIncrease = !isAtLimit;
                             return (
                                 <div key={id} style={{
                                     display: 'grid',
@@ -1810,26 +1886,30 @@
                                     </div>
                                     <div style={{display: 'flex', alignItems: 'center', gap: '0.35rem', flexShrink: 0}}>
                                         <button onClick={() => setCount(id, -1)}
+                                            disabled={count === 0}
                                             style={{
                                                 width: '32px', height: '32px',
                                                 border: '1px solid var(--border)',
                                                 borderRadius: '6px',
-                                                background: 'var(--surface)',
-                                                color: 'var(--text)',
-                                                cursor: 'pointer',
+                                                background: count === 0 ? 'var(--surface-2)' : 'var(--surface)',
+                                                color: count === 0 ? 'var(--text-muted)' : 'var(--text)',
+                                                cursor: count === 0 ? 'not-allowed' : 'pointer',
+                                                opacity: count === 0 ? 0.5 : 1,
                                                 fontFamily: 'inherit', fontSize: '1rem', fontWeight: 600,
                                             }}>−</button>
-                                        <input type="number" min="0" max="50" value={count}
+                                        <input type="number" min="0" max={maxPizzas} value={count}
                                             onChange={e => setCountValue(id, e.target.value)}
                                             style={{width: '48px', padding: '0.3rem 0.4rem', fontSize: '0.95rem', fontWeight: 600}} />
                                         <button onClick={() => setCount(id, 1)}
+                                            disabled={!canIncrease}
                                             style={{
                                                 width: '32px', height: '32px',
                                                 border: '1px solid var(--border)',
                                                 borderRadius: '6px',
-                                                background: 'var(--surface)',
-                                                color: 'var(--text)',
-                                                cursor: 'pointer',
+                                                background: !canIncrease ? 'var(--surface-2)' : 'var(--surface)',
+                                                color: !canIncrease ? 'var(--text-muted)' : 'var(--text)',
+                                                cursor: !canIncrease ? 'not-allowed' : 'pointer',
+                                                opacity: !canIncrease ? 0.5 : 1,
                                                 fontFamily: 'inherit', fontSize: '1rem', fontWeight: 600,
                                             }}>+</button>
                                     </div>
@@ -1838,11 +1918,7 @@
                         })}
                     </div>
 
-                    {totalPizzas === 0 ? (
-                        <div className="info-note">
-                            Selecciona al menos una pizza para ver las cantidades y la lista de la compra.
-                        </div>
-                    ) : (
+                    {totalPizzas === 0 ? null : (
                         <>
                             {/* Per-pizza breakdown */}
                             <div style={{fontFamily: 'Fraunces, serif', fontSize: '0.95rem', fontWeight: 500, color: 'var(--accent)', marginBottom: '0.6rem'}}>
@@ -4095,6 +4171,7 @@
                                     <PizzaToppings
                                         counts={pizzaToppingCounts}
                                         setCounts={setPizzaToppingCounts}
+                                        maxPizzas={pizzaBalls}
                                         showToast={showToast}
                                     />
                                 )}
