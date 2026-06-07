@@ -1435,7 +1435,7 @@
             { day: 'Día 1', time: 'levado bulk', step: 4, name: 'Primer levado a temperatura ambiente', desc: '', icon: '🥣', dynamic: true },
             { day: 'Día 1', time: 'tras el bulk', step: 5, name: 'Pliegues en el bol', desc: 'Plegamos en el mismo bol con la mano mojada en agua o aceite. 4 pliegues estilo coil-fold.', icon: '🤲' },
             { day: 'Día 1', time: '+30 min', step: 6, name: 'Reposo tapado', desc: 'Media hora de reposo tapado con film a temperatura ambiente.', icon: '⏱️' },
-            { day: 'Día 1 → Día 2', time: '24h', step: 7, name: 'Frío en nevera', desc: '24 horas en nevera tapado. La masa desarrolla sabor y estructura.', icon: '❄️' },
+            { day: 'Día 1 → Día 2', time: 'variable', step: 7, name: 'Frío en nevera', desc: '', icon: '❄️', dynamicCold: true },
             { day: 'Día 2', time: '~1h antes', step: 8, name: 'Prepara la bandeja', desc: 'Bandeja de aluminio Mercadona de 2,7L (≈32×26×5cm). Úntala bien de aceite de oliva — sin escatimar, va al fondo y por los bordes.', icon: '🛠️' },
             { day: 'Día 2', time: '+1h', step: 9, name: 'Atempera y extiende', desc: 'Atempera la masa (algo más de 1 hora). Vuelca en la bandeja y déjala caer; no manipules mucho — que se extienda sola.', icon: '☀️' },
             { day: 'Día 2', time: 'antes del horno', step: 10, name: 'Aliñar', desc: 'Aceite de oliva por encima, escamas de sal, romero, tomates secos o lo que te apetezca.', icon: '🌿' },
@@ -2283,7 +2283,7 @@
         // ============================================================
         // FOCACCIA RESULTS COMPONENT
         // ============================================================
-        const FocacciaResults = ({ starterType, trays, ambientTemp, bakeTime, setBakeTime, showToast }) => {
+        const FocacciaResults = ({ starterType, trays, ambientTemp, coldHours, bakeTime, setBakeTime, showToast }) => {
             const [activeTab, setActiveTab] = useState('recipe');
 
             // Auto-select thermal mode based on temperature
@@ -2305,24 +2305,32 @@
 
             const levado1Hours = base.levado1;
 
-            // Build schedule (working backwards from bake time on day 2)
+            // Build schedule (working backwards from bake time)
             const schedule = useMemo(() => {
                 const [bh, bm] = bakeTime.split(':').map(Number);
                 const bake = new Date();
                 bake.setHours(bh, bm, 0, 0);
                 if (bake < new Date()) bake.setDate(bake.getDate() + 1);
 
+                // Offsets (in hours, working backwards from bake)
+                const t_temper      = 1.1;                              // 1h atempering + 0.1 (~6 min) for shaping
+                const t_cold_end    = t_temper + coldHours;             // end of fridge = start of atempering
+                const t_rest        = t_cold_end + 0.5;                 // 30 min covered rest after folds
+                const t_bulk_end    = t_rest;                            // bulk ends at rest start
+                const t_bulk_start  = t_bulk_end + levado1Hours;
+                const t_knead       = t_bulk_start + 0.1;                // ~6 min mixing
+
                 const events = [];
                 events.push({ time: new Date(bake.getTime() + 30 * 60000), name: 'Cortar y servir', desc: 'La miga ya ha asentado', icon: '🍽️', kind: 'normal' });
                 events.push({ time: new Date(bake), name: 'Hornear', desc: '220°C con vapor · 30 min', icon: '🔥', kind: 'bake' });
                 events.push({ time: addHours(bake, -0.05), name: 'Aliñar y hoyitos', desc: 'Aceite, sal, romero · presionar con dedos', icon: '👇', kind: 'normal' });
-                events.push({ time: addHours(bake, -1.1), name: 'Sacar de nevera y extender', desc: 'Atempera 1h · vuelca en bandeja sin amasar', icon: '☀️', kind: 'normal', dur: 1 });
-                events.push({ time: addHours(bake, -25.1), name: 'A la nevera (24h)', desc: 'Tapado, fría a 4°C · desarrolla sabor', icon: '❄️', kind: 'cold', dur: 24 });
-                events.push({ time: addHours(bake, -25.6), name: 'Reposo tapado', desc: '30 min a temperatura ambiente', icon: '⏱️', kind: 'normal', dur: 0.5 });
-                events.push({ time: addHours(bake, -25.6 - levado1Hours), name: 'Bulk + pliegues', desc: `Levado ${formatHours(levado1Hours)} a ${ambientTemp}°C, después 4 pliegues`, icon: '🥣', kind: 'normal', dur: levado1Hours });
-                events.push({ time: addHours(bake, -25.7 - levado1Hours), name: 'Empezar amasado', desc: 'Mezcla agua+fermento, harina, sal y aceite al final', icon: '👐', kind: 'start' });
+                events.push({ time: addHours(bake, -t_temper), name: 'Sacar de nevera y extender', desc: 'Atempera 1h · vuelca en bandeja sin amasar', icon: '☀️', kind: 'normal', dur: 1 });
+                events.push({ time: addHours(bake, -t_cold_end), name: `A la nevera (${formatHours(coldHours)})`, desc: 'Tapado, fría a 4°C · desarrolla sabor', icon: '❄️', kind: 'cold', dur: coldHours });
+                events.push({ time: addHours(bake, -t_rest), name: 'Reposo tapado', desc: '30 min a temperatura ambiente', icon: '⏱️', kind: 'normal', dur: 0.5 });
+                events.push({ time: addHours(bake, -t_bulk_start), name: 'Bulk + pliegues', desc: `Levado ${formatHours(levado1Hours)} a ${ambientTemp}°C, después 4 pliegues`, icon: '🥣', kind: 'normal', dur: levado1Hours });
+                events.push({ time: addHours(bake, -t_knead), name: 'Empezar amasado', desc: 'Mezcla agua+fermento, harina, sal y aceite al final', icon: '👐', kind: 'start' });
                 return events.reverse();
-            }, [bakeTime, levado1Hours, ambientTemp]);
+            }, [bakeTime, levado1Hours, ambientTemp, coldHours]);
 
             const buildText = () => {
                 const lines = [];
@@ -2338,7 +2346,9 @@
                 lines.push(`\nHidratación efectiva: ${round(effHydration, 1)}%`);
                 lines.push('\nPROCESO:');
                 FOCACCIA_PROCESS.forEach(p => {
-                    const desc = p.dynamic ? `${formatHours(levado1Hours)} a ${ambientTemp}°C` : p.desc;
+                    const desc = p.dynamic ? `${formatHours(levado1Hours)} a ${ambientTemp}°C`
+                              : p.dynamicCold ? `${formatHours(coldHours)} en nevera tapado. La masa desarrolla sabor y estructura.`
+                              : p.desc;
                     lines.push(`  ${p.step}. ${p.name}: ${desc}`);
                 });
                 lines.push('\nHORNEADO: 220°C con poco vapor · 30 min');
@@ -2443,7 +2453,10 @@
                                 {FOCACCIA_PROCESS.map((p, i) => {
                                     const desc = p.dynamic
                                         ? `Levado de ${formatHours(levado1Hours)} a ${ambientTemp}°C. ${thermalMode === 'calor' ? 'Modo calor: tiempo reducido.' : 'Modo normal.'}`
+                                        : p.dynamicCold
+                                        ? `${formatHours(coldHours)} en nevera tapado. La masa desarrolla sabor y estructura. ${coldHours < 18 ? 'Tiempo justo, sabor más suave.' : coldHours <= 30 ? 'Sabor equilibrado.' : coldHours <= 48 ? 'Sabor complejo, bien desarrollado.' : 'Larga fermentación, vigila al sacar.'}`
                                         : p.desc;
+                                    const time = p.dynamicCold ? formatHours(coldHours) : p.time;
                                     return (
                                         <div key={i} style={{display: 'grid', gridTemplateColumns: '32px 1fr', gap: '0.6rem', padding: '0.7rem 0.85rem', background: 'var(--surface-2)', borderRadius: 'var(--radius-sm)', alignItems: 'flex-start'}}>
                                             <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center', width: '28px', height: '28px', borderRadius: '50%', background: 'var(--surface)', fontFamily: 'Fraunces, serif', fontWeight: 600, color: 'var(--accent)', fontSize: '0.85rem'}}>
@@ -2455,7 +2468,7 @@
                                                         {p.icon} {p.name}
                                                     </div>
                                                     <span style={{fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 600}}>
-                                                        {p.day}
+                                                        {p.day} · {time}
                                                     </span>
                                                 </div>
                                                 <div style={{fontSize: '0.82rem', color: 'var(--text-soft)', lineHeight: 1.5}}>
@@ -2467,7 +2480,7 @@
                                 })}
                             </div>
                             <div className="info-note" style={{marginTop: '1rem'}}>
-                                <strong>Test de masa lista:</strong> tras el levado en bol, debe haber doblado y verse llena de burbujas. En la nevera la fermentación se ralentiza, no se detiene — al sacarla 24h después debería estar muy hinchada y aromática.
+                                <strong>Test de masa lista:</strong> tras el levado en bol, debe haber doblado y verse llena de burbujas. En la nevera la fermentación se ralentiza, no se detiene — al sacarla tras {formatHours(coldHours)} debería estar muy hinchada y aromática.
                             </div>
                         </div>
                     )}
@@ -2502,7 +2515,7 @@
                                 ))}
                             </div>
                             <div className="info-note">
-                                <strong>Cronograma calculado hacia atrás</strong> desde tu hora de horneado. Total: ~25h con la fermentación en frío.
+                                <strong>Cronograma calculado hacia atrás</strong> desde tu hora de horneado. Total: ~{formatHours(coldHours + 4)} con la fermentación en frío de {formatHours(coldHours)}.
                             </div>
                         </div>
                     )}
@@ -3066,6 +3079,9 @@
             const [focAmbient, setFocAmbient]   = useState(() => {
                 try { return parseInt(localStorage.getItem('focAmbient')) || 22; } catch(e) { return 22; }
             });
+            const [focColdHours, setFocColdHours] = useState(() => {
+                try { return parseInt(localStorage.getItem('focColdHours')) || 24; } catch(e) { return 24; }
+            });
             const [focBakeTime, setFocBakeTime] = useState(() => {
                 try { return localStorage.getItem('focBakeTime') || '13:00'; } catch(e) { return '13:00'; }
             });
@@ -3106,13 +3122,14 @@
                     localStorage.setItem('focStarter', focStarter);
                     localStorage.setItem('focTrays', String(focTrays));
                     localStorage.setItem('focAmbient', String(focAmbient));
+                    localStorage.setItem('focColdHours', String(focColdHours));
                     localStorage.setItem('focBakeTime', focBakeTime);
                     localStorage.setItem('gofUnits', String(gofUnits));
                     localStorage.setItem('gofColdHours', String(gofColdHours));
                     localStorage.setItem('gofReadyTime', gofReadyTime);
                     localStorage.setItem('pizzaToppingCounts', JSON.stringify(pizzaToppingCounts));
                 } catch(e) {}
-            }, [panMold, panUnits, panLiquidStarter, panChecks, panBakeDay, focStarter, focTrays, focAmbient, focBakeTime, gofUnits, gofColdHours, gofReadyTime, pizzaToppingCounts]);
+            }, [panMold, panUnits, panLiquidStarter, panChecks, panBakeDay, focStarter, focTrays, focAmbient, focColdHours, focBakeTime, gofUnits, gofColdHours, gofReadyTime, pizzaToppingCounts]);
 
             const togglePanCheck = (id) => {
                 setPanChecks(prev => ({ ...prev, [id]: !prev[id] }));
@@ -3573,13 +3590,13 @@
                                         </div>
                                     </div>
                                     <div className="hero-stat">
-                                        <div className="label">T° ambiente</div>
-                                        <div className="value">{focAmbient}<span className="unit">°C</span></div>
+                                        <div className="label">Frío</div>
+                                        <div className="value">{focColdHours}<span className="unit">h</span></div>
                                     </div>
                                     <div className="hero-stat">
-                                        <div className="label">Modo</div>
+                                        <div className="label">T° / Modo</div>
                                         <div className="value" style={{fontSize: '1.3rem'}}>
-                                            {focAmbient >= 26 ? '🔥 Calor' : '✓ Normal'}
+                                            {focAmbient}°C {focAmbient >= 26 ? '🔥' : '✓'}
                                         </div>
                                     </div>
                                 </div>
@@ -3595,7 +3612,7 @@
                                         <span style={{color: 'var(--text-soft)', fontWeight: 600}}>Fácil</span>
                                     </div>
                                     <span style={{fontSize: '0.78rem', color: 'var(--text-soft)', fontStyle: 'italic'}}>
-                                        24h en frío · alta hidratación
+                                        {formatHours(focColdHours)} en frío · alta hidratación
                                     </span>
                                 </div>
                             </>
@@ -3842,15 +3859,27 @@
                                                 hint={focAmbient >= 26 ? '🔥 Modo calor activado: receta ajustada' : focAmbient < 20 ? '❄️ Cocina fría: bulk un poco más largo' : '✓ Rango estándar'} />
                                         </div>
 
+                                        {/* Tiempo en frío */}
+                                        <div className="section">
+                                            <div className="section-label"><span className="step-num">5</span> Tiempo en nevera</div>
+                                            <Slider label="Fermentación en frío" icon="❄️" value={focColdHours}
+                                                onChange={setFocColdHours} min="12" max="72" step="1" unit="hrs"
+                                                tip="El estándar son 24h pero puedes ajustarlo a tu logística. Menos de 24h: sabor más suave. Más de 24h: sabor más complejo. A partir de 48h vigila signos de sobrefermentación."
+                                                hint={focColdHours < 18 ? '⏱ Tiempo justo · sabor más suave'
+                                                    : focColdHours <= 30 ? '✓ Estándar · sabor equilibrado'
+                                                    : focColdHours <= 48 ? '🌟 Sabor complejo · más desarrollado'
+                                                    : '⚠️ Larga fermentación · vigila al sacar'} />
+                                        </div>
+
                                         {/* Hora de horneado */}
                                         <div className="section">
-                                            <div className="section-label"><span className="step-num">5</span> Hora de horneado</div>
+                                            <div className="section-label"><span className="step-num">6</span> Hora de horneado</div>
                                             <div className="schedule-input">
-                                                <label>🔥 ¿A qué hora del día 2?</label>
+                                                <label>🔥 ¿A qué hora?</label>
                                                 <input type="time" value={focBakeTime} onChange={e => setFocBakeTime(e.target.value)} />
                                             </div>
                                             <div style={{fontSize: '0.78rem', color: 'var(--text-soft)', fontStyle: 'italic', marginTop: '0.5rem'}}>
-                                                Hoy: amasado y bulk corto. Mañana a esta hora: horneado tras 24h en nevera.
+                                                El cronograma calcula hacia atrás: con {focColdHours}h en nevera, empiezas el amasado ~{Math.round(focColdHours + 2)}h antes de hornear.
                                             </div>
                                         </div>
                                     </>
@@ -4026,6 +4055,7 @@
                                         starterType={focStarter}
                                         trays={focTrays}
                                         ambientTemp={focAmbient}
+                                        coldHours={focColdHours}
                                         bakeTime={focBakeTime}
                                         setBakeTime={setFocBakeTime}
                                         showToast={showToast}
