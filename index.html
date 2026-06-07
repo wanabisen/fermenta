@@ -1418,6 +1418,15 @@
 
         const FOCACCIA_BASE_TOTAL = 990; // ~990g sum of base recipe (used for scaling)
 
+        // Mercadona disposable aluminum tray 2.7L — ~32×26×5cm (≈830cm²)
+        // Optimal: 530g flour per tray → ~990g dough → 1.18g/cm² → perfect 2.5-3cm focaccia after fermentation
+        const FOCACCIA_TRAY = {
+            label: 'Bandeja Mercadona 2,7L',
+            dimensions: '≈32×26×5cm',
+            doughPerTray: 990,    // g of dough per tray
+            flourPerTray: 530,    // g of flour reference per tray
+        };
+
         // Process steps (shared between both starter types)
         const FOCACCIA_PROCESS = [
             { day: 'Día 1', time: '~16:00', step: 1, name: 'Mezcla agua + fermento', desc: 'Mezcla la levadura fresca (o la masa madre activa) con el agua hasta disolver.', icon: '💧' },
@@ -1427,7 +1436,7 @@
             { day: 'Día 1', time: 'tras el bulk', step: 5, name: 'Pliegues en el bol', desc: 'Plegamos en el mismo bol con la mano mojada en agua o aceite. 4 pliegues estilo coil-fold.', icon: '🤲' },
             { day: 'Día 1', time: '+30 min', step: 6, name: 'Reposo tapado', desc: 'Media hora de reposo tapado con film a temperatura ambiente.', icon: '⏱️' },
             { day: 'Día 1 → Día 2', time: '24h', step: 7, name: 'Frío en nevera', desc: '24 horas en nevera tapado. La masa desarrolla sabor y estructura.', icon: '❄️' },
-            { day: 'Día 2', time: '~1h antes', step: 8, name: 'Prepara la bandeja', desc: 'Bandeja rectangular de aluminio (las del Mercadona van perfectas). Úntala bien de aceite de oliva.', icon: '🛠️' },
+            { day: 'Día 2', time: '~1h antes', step: 8, name: 'Prepara la bandeja', desc: 'Bandeja de aluminio Mercadona de 2,7L (≈32×26×5cm). Úntala bien de aceite de oliva — sin escatimar, va al fondo y por los bordes.', icon: '🛠️' },
             { day: 'Día 2', time: '+1h', step: 9, name: 'Atempera y extiende', desc: 'Atempera la masa (algo más de 1 hora). Vuelca en la bandeja y déjala caer; no manipules mucho — que se extienda sola.', icon: '☀️' },
             { day: 'Día 2', time: 'antes del horno', step: 10, name: 'Aliñar', desc: 'Aceite de oliva por encima, escamas de sal, romero, tomates secos o lo que te apetezca.', icon: '🌿' },
             { day: 'Día 2', time: 'antes del horno', step: 11, name: 'Hacer los hoyitos', desc: 'Presiona la masa con las yemas de los dedos haciendo los surcos característicos.', icon: '👇' },
@@ -2274,12 +2283,13 @@
         // ============================================================
         // FOCACCIA RESULTS COMPONENT
         // ============================================================
-        const FocacciaResults = ({ starterType, totalWeight, ambientTemp, bakeTime, setBakeTime, showToast }) => {
+        const FocacciaResults = ({ starterType, trays, ambientTemp, bakeTime, setBakeTime, showToast }) => {
             const [activeTab, setActiveTab] = useState('recipe');
 
             // Auto-select thermal mode based on temperature
             const thermalMode = ambientTemp >= 26 ? 'calor' : 'normal';
             const base = FOCACCIA_BASE[thermalMode][starterType];
+            const totalWeight = trays * FOCACCIA_TRAY.doughPerTray;
             const recipe = useMemo(() => scaleFocaccia(base, totalWeight), [base, totalWeight]);
 
             // Calculate effective hydration (counting starter contribution)
@@ -2316,7 +2326,8 @@
 
             const buildText = () => {
                 const lines = [];
-                lines.push(`FOCACCIA — ${Math.round(totalWeight)}g (${starterType === 'masa_madre' ? 'masa madre' : 'levadura fresca'})`);
+                lines.push(`FOCACCIA — ${trays} ${trays === 1 ? 'bandeja' : 'bandejas'} (${FOCACCIA_TRAY.label}, ${FOCACCIA_TRAY.dimensions})`);
+                lines.push(`Masa total: ${Math.round(totalWeight)}g · ${starterType === 'masa_madre' ? 'masa madre' : 'levadura fresca'}`);
                 lines.push('═══════════════════════════════════════');
                 if (thermalMode === 'calor') lines.push('Modo: temperatura ambiente alta (>26°C)');
                 lines.push('\nINGREDIENTES:');
@@ -2343,7 +2354,7 @@
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = `focaccia-${Math.round(totalWeight)}g.txt`;
+                a.download = `focaccia-${trays}b-${Math.round(totalWeight)}g.txt`;
                 document.body.appendChild(a);
                 a.click();
                 document.body.removeChild(a);
@@ -2373,7 +2384,7 @@
                         <div className="animate-in">
                             <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.5rem'}}>
                                 <div style={{fontSize: '0.83rem', color: 'var(--text-soft)'}}>
-                                    Total: <strong style={{color: 'var(--text)'}}>{Math.round(totalWeight)}g</strong> · {starterType === 'masa_madre' ? '🌾 Masa madre' : '🍞 Levadura fresca'}
+                                    <strong style={{color: 'var(--text)'}}>{trays} {trays === 1 ? 'bandeja' : 'bandejas'}</strong> · {Math.round(totalWeight)}g masa · {starterType === 'masa_madre' ? '🌾 Masa madre' : '🍞 Levadura fresca'}
                                 </div>
                                 <div style={{display: 'flex', gap: '0.4rem'}}>
                                     <button className="icon-btn" onClick={copyAll}><Icon name="copy" size={14}/> Copiar</button>
@@ -2420,7 +2431,7 @@
 
                             <div className="info-note">
                                 <strong>Aceite de oliva:</strong> añade un chorrito al final del amasado y otro generoso al aliñar antes del horno (~30g cada uno). El de calidad marca la diferencia.
-                                <br/><strong>Bandeja:</strong> rectangular de aluminio del tipo Mercadona, bien untada de aceite. Para esta cantidad va una de tamaño estándar (~30×40 cm).
+                                <br/><strong>Bandeja:</strong> {trays} {trays === 1 ? 'bandeja' : 'bandejas'} de aluminio Mercadona de 2,7L (≈32×26×5cm). Cada una con {FOCACCIA_TRAY.flourPerTray}g de harina y ~{FOCACCIA_TRAY.doughPerTray}g de masa. Engrasa bien con aceite de oliva.
                             </div>
                         </div>
                     )}
@@ -3042,8 +3053,15 @@
             const [focStarter, setFocStarter]   = useState(() => {
                 try { return localStorage.getItem('focStarter') || 'masa_madre'; } catch(e) { return 'masa_madre'; }
             });
-            const [focWeight, setFocWeight]     = useState(() => {
-                try { return parseInt(localStorage.getItem('focWeight')) || 990; } catch(e) { return 990; }
+            const [focTrays, setFocTrays]       = useState(() => {
+                try {
+                    // Migrate from old focWeight if present
+                    const oldWeight = parseInt(localStorage.getItem('focWeight'));
+                    if (oldWeight && !localStorage.getItem('focTrays')) {
+                        return Math.max(1, Math.round(oldWeight / FOCACCIA_TRAY.doughPerTray));
+                    }
+                    return parseInt(localStorage.getItem('focTrays')) || 1;
+                } catch(e) { return 1; }
             });
             const [focAmbient, setFocAmbient]   = useState(() => {
                 try { return parseInt(localStorage.getItem('focAmbient')) || 22; } catch(e) { return 22; }
@@ -3086,7 +3104,7 @@
                     localStorage.setItem('panChecks', JSON.stringify(panChecks));
                     localStorage.setItem('panBakeDay', panBakeDay);
                     localStorage.setItem('focStarter', focStarter);
-                    localStorage.setItem('focWeight', String(focWeight));
+                    localStorage.setItem('focTrays', String(focTrays));
                     localStorage.setItem('focAmbient', String(focAmbient));
                     localStorage.setItem('focBakeTime', focBakeTime);
                     localStorage.setItem('gofUnits', String(gofUnits));
@@ -3094,7 +3112,7 @@
                     localStorage.setItem('gofReadyTime', gofReadyTime);
                     localStorage.setItem('pizzaToppingCounts', JSON.stringify(pizzaToppingCounts));
                 } catch(e) {}
-            }, [panMold, panUnits, panLiquidStarter, panChecks, panBakeDay, focStarter, focWeight, focAmbient, focBakeTime, gofUnits, gofColdHours, gofReadyTime, pizzaToppingCounts]);
+            }, [panMold, panUnits, panLiquidStarter, panChecks, panBakeDay, focStarter, focTrays, focAmbient, focBakeTime, gofUnits, gofColdHours, gofReadyTime, pizzaToppingCounts]);
 
             const togglePanCheck = (id) => {
                 setPanChecks(prev => ({ ...prev, [id]: !prev[id] }));
@@ -3541,8 +3559,12 @@
                                 {/* HERO STRIP — focaccia */}
                                 <div className="hero-strip">
                                     <div className="hero-stat">
+                                        <div className="label">Bandejas</div>
+                                        <div className="value">{focTrays}<span className="unit"> ({focTrays === 1 ? '2,7L' : 'x 2,7L'})</span></div>
+                                    </div>
+                                    <div className="hero-stat">
                                         <div className="label">Masa total</div>
-                                        <div className="value">{focWeight}<span className="unit">g</span></div>
+                                        <div className="value">{focTrays * FOCACCIA_TRAY.doughPerTray}<span className="unit">g</span></div>
                                     </div>
                                     <div className="hero-stat">
                                         <div className="label">Fermento</div>
@@ -3559,10 +3581,6 @@
                                         <div className="value" style={{fontSize: '1.3rem'}}>
                                             {focAmbient >= 26 ? '🔥 Calor' : '✓ Normal'}
                                         </div>
-                                    </div>
-                                    <div className="hero-stat">
-                                        <div className="label">Tiempo total</div>
-                                        <div className="value" style={{fontSize: '1.3rem'}}>~26h</div>
                                     </div>
                                 </div>
 
@@ -3805,12 +3823,14 @@
                                             </div>
                                         </div>
 
-                                        {/* Peso total */}
+                                        {/* Bandejas */}
                                         <div className="section">
-                                            <div className="section-label"><span className="step-num">3</span> Cantidad</div>
-                                            <Slider label="Masa total" icon="⚖️" value={focWeight}
-                                                onChange={setFocWeight} min="500" max="3000" step="50" unit="g"
-                                                hint={focWeight <= 800 ? 'Bandeja pequeña' : focWeight <= 1200 ? 'Bandeja estándar Mercadona ~30×40cm' : focWeight <= 2000 ? 'Bandeja grande' : 'Dos bandejas'} />
+                                            <div className="section-label"><span className="step-num">3</span> Bandejas</div>
+                                            <Slider label="Número de bandejas" icon="🍞" value={focTrays}
+                                                onChange={setFocTrays} min="1" max="6" step="1"
+                                                unit={focTrays === 1 ? 'bandeja' : 'bandejas'}
+                                                tip={`${FOCACCIA_TRAY.label} (${FOCACCIA_TRAY.dimensions}). Cada bandeja usa ~${FOCACCIA_TRAY.flourPerTray}g de harina y ~${FOCACCIA_TRAY.doughPerTray}g de masa total.`}
+                                                hint={`${focTrays * FOCACCIA_TRAY.flourPerTray}g de harina · ~${focTrays * FOCACCIA_TRAY.doughPerTray}g de masa total · bandeja Mercadona 2,7L (≈32×26×5cm)`} />
                                         </div>
 
                                         {/* Temperatura ambiente */}
@@ -4004,7 +4024,7 @@
                                 ) : doughType === 'focaccia' ? (
                                     <FocacciaResults
                                         starterType={focStarter}
-                                        totalWeight={focWeight}
+                                        trays={focTrays}
                                         ambientTemp={focAmbient}
                                         bakeTime={focBakeTime}
                                         setBakeTime={setFocBakeTime}
