@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test React</title>
+    <style>
+        body { font-family: sans-serif; padding: 2rem; background: #fbf6ed; }
+        .ok { color: green; font-size: 1.5rem; }
+        .err { color: red; font-size: 1.2rem; }
+    </style>
+</head>
+<body>
+    <h1>Test diagnóstico</h1>
+    <p>Si todo funciona, deberías ver "✅ React montado" en grande.</p>
+    <p>Si no, verás un mensaje rojo explicando qué falla.</p>
+
+    <hr>
+
+    <div id="root">
+        <p style="color: orange;">⏳ Esperando carga...</p>
+    </div>
+
+    <hr>
+
+    <div id="diagnostics" style="background: #fff; padding: 1rem; margin-top: 1rem; border-radius: 8px;"></div>
+
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/[email protected]/babel.min.js"></script>
+
+    <script>
+        // Diagnostic: run immediately
+        var diag = document.getElementById('diagnostics');
+        diag.innerHTML =
+            '<strong>Estado de los scripts:</strong><br>' +
+            '• React: ' + (typeof React !== 'undefined' ? '✓ cargado (versión ' + React.version + ')' : '✗ NO cargado') + '<br>' +
+            '• ReactDOM: ' + (typeof ReactDOM !== 'undefined' ? '✓ cargado' : '✗ NO cargado') + '<br>' +
+            '• Babel: ' + (typeof Babel !== 'undefined' ? '✓ cargado (versión ' + Babel.version + ')' : '✗ NO cargado') + '<br>' +
+            '• Hora: ' + new Date().toLocaleTimeString();
+    </script>
+
+    <script type="text/babel">
+        const App = () => {
+            return <div className="ok">✅ React montado correctamente</div>;
+        };
+
+        try {
+            ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+        } catch (e) {
+            document.getElementById('root').innerHTML =
+                '<div class="err">❌ Error al montar React: ' + e.message + '</div>';
+        }
+    </script>
+</body>
+</html>
