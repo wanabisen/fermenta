@@ -3,54 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Test React</title>
+    <title>Test React v2</title>
     <style>
         body { font-family: sans-serif; padding: 2rem; background: #fbf6ed; }
         .ok { color: green; font-size: 1.5rem; }
         .err { color: red; font-size: 1.2rem; }
+        #diagnostics { background: #fff; padding: 1rem; margin-top: 1rem; border-radius: 8px; }
     </style>
 </head>
 <body>
-    <h1>Test diagnóstico</h1>
-    <p>Si todo funciona, deberías ver "✅ React montado" en grande.</p>
-    <p>Si no, verás un mensaje rojo explicando qué falla.</p>
-
+    <h1>Test diagnóstico v2</h1>
+    <p>Esperando carga completa de los scripts...</p>
     <hr>
-
     <div id="root">
         <p style="color: orange;">⏳ Esperando carga...</p>
     </div>
-
     <hr>
-
-    <div id="diagnostics" style="background: #fff; padding: 1rem; margin-top: 1rem; border-radius: 8px;"></div>
+    <div id="diagnostics"></div>
 
     <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
-    <script src="https://unpkg.com/@babel/[email protected]/babel.min.js"></script>
 
     <script>
-        // Diagnostic: run immediately
-        var diag = document.getElementById('diagnostics');
-        diag.innerHTML =
-            '<strong>Estado de los scripts:</strong><br>' +
-            '• React: ' + (typeof React !== 'undefined' ? '✓ cargado (versión ' + React.version + ')' : '✗ NO cargado') + '<br>' +
-            '• ReactDOM: ' + (typeof ReactDOM !== 'undefined' ? '✓ cargado' : '✗ NO cargado') + '<br>' +
-            '• Babel: ' + (typeof Babel !== 'undefined' ? '✓ cargado (versión ' + Babel.version + ')' : '✗ NO cargado') + '<br>' +
-            '• Hora: ' + new Date().toLocaleTimeString();
-    </script>
-
-    <script type="text/babel">
-        const App = () => {
-            return <div className="ok">✅ React montado correctamente</div>;
-        };
-
-        try {
-            ReactDOM.createRoot(document.getElementById('root')).render(<App />);
-        } catch (e) {
-            document.getElementById('root').innerHTML =
-                '<div class="err">❌ Error al montar React: ' + e.message + '</div>';
+        function updateDiagnostics(label) {
+            var diag = document.getElementById('diagnostics');
+            diag.innerHTML =
+                '<strong>Estado (' + label + '):</strong><br>' +
+                '• React: ' + (typeof React !== 'undefined' ? '✓ cargado (v' + React.version + ')' : '✗ NO cargado') + '<br>' +
+                '• ReactDOM: ' + (typeof ReactDOM !== 'undefined' ? '✓ cargado' : '✗ NO cargado') + '<br>' +
+                '• Babel: ' + (typeof Babel !== 'undefined' ? '✓ cargado (v' + Babel.version + ')' : '✗ NO cargado') + '<br>' +
+                '• Hora: ' + new Date().toLocaleTimeString();
         }
+        updateDiagnostics('inicial');
+
+        var script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/@babel/standalone@7/babel.min.js';
+        script.onload = function() {
+            updateDiagnostics('tras cargar Babel');
+            setTimeout(function() {
+                if (typeof Babel === 'undefined') {
+                    document.getElementById('root').innerHTML =
+                        '<div class="err">❌ Babel cargó pero la variable global no existe.</div>';
+                    return;
+                }
+                try {
+                    var App = function() { return React.createElement("div", { className: "ok" }, "✅ React + Babel funcionan"); };
+                    ReactDOM.createRoot(document.getElementById("root")).render(React.createElement(App));
+                    updateDiagnostics('final OK');
+                } catch (e) {
+                    document.getElementById('root').innerHTML =
+                        '<div class="err">❌ Error al montar: ' + e.message + '</div>';
+                }
+            }, 100);
+        };
+        script.onerror = function(e) {
+            document.getElementById('root').innerHTML =
+                '<div class="err">❌ El script de Babel NO se pudo cargar (onerror).<br>URL: ' + script.src + '</div>';
+            updateDiagnostics('ERROR al cargar Babel');
+        };
+        document.head.appendChild(script);
+
+        setTimeout(function() { updateDiagnostics('10s después'); }, 10000);
     </script>
 </body>
 </html>
