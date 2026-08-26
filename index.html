@@ -276,6 +276,7 @@
             .dough-toggle { grid-template-columns: repeat(2, 1fr); }
         }
         .dough-btn {
+            min-height: 52px;
             padding: 0.7rem 0.55rem;
             border: 1.5px solid var(--border);
             border-radius: var(--radius-sm);
@@ -304,6 +305,7 @@
             margin-bottom: 1rem;
         }
         .pan-mold-btn {
+            min-height: 46px;
             padding: 0.6rem 0.5rem;
             border-radius: var(--radius-sm);
             border: 1.5px solid var(--border);
@@ -520,39 +522,150 @@
             background: var(--surface-2); border-radius: 6px;
             font-size: 0.95rem;
         }
-        .slider-value-pill {
-            background: var(--accent); color: var(--bg);
-            font-size: 0.82rem; font-weight: 600;
-            padding: 0.2rem 0.6rem; border-radius: 999px;
-            min-width: 60px; text-align: center;
-            font-variant-numeric: tabular-nums;
+        /* ── Bloques por etapa: deja claro qué controla el prefermento y qué la masa final ── */
+        .stage-block {
+            position: relative;
+            border-left: 3px solid var(--border);
+            border-radius: 0;
+            padding: 1.5rem 0 0.25rem 0.9rem;
+            margin-top: 0.9rem;
+            display: flex; flex-direction: column; gap: 1rem;
         }
-        [data-theme="dark"] .slider-value-pill { background: var(--primary); color: #1a140d; }
-        .slider-value-pill.disabled { background: var(--text-muted); }
+        .stage-block.stage-pref { border-left-color: var(--cold); }
+        .stage-block.stage-final { border-left-color: var(--primary); }
+        .stage-tag {
+            position: absolute; top: 0; left: 0.9rem;
+            font-size: 0.64rem; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 0.1em;
+            padding: 0.15rem 0.5rem; border-radius: 4px;
+        }
+        .stage-pref .stage-tag { background: var(--cold-soft); color: var(--cold); }
+        .stage-final .stage-tag { background: var(--primary-soft); color: var(--primary-dark); }
+        [data-theme="dark"] .stage-final .stage-tag { color: var(--primary); }
 
-        .slider-track { display: flex; align-items: center; gap: 0.6rem; }
-        input[type="range"] {
-            -webkit-appearance: none; appearance: none;
-            flex: 1; height: 4px; border-radius: 4px;
-            background: var(--border); outline: none; cursor: pointer;
+        /* ── Resumen del recorrido de la masa ── */
+        .stage-flow {
+            display: flex; align-items: stretch; flex-wrap: wrap;
+            gap: 0.35rem; margin-bottom: 1.25rem;
         }
-        input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none; appearance: none;
-            width: 18px; height: 18px; border-radius: 50%;
-            background: var(--primary);
-            border: 2px solid var(--surface);
-            box-shadow: var(--shadow-sm);
+        .stage-chip {
+            display: flex; flex-direction: column; gap: 0.1rem;
+            padding: 0.4rem 0.65rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-soft);
+            background: var(--surface-2);
+            min-width: 0;
+        }
+        .stage-chip .n { font-size: 0.76rem; font-weight: 600; color: var(--text); white-space: nowrap; }
+        .stage-chip .d {
+            font-size: 0.68rem; color: var(--text-soft);
+            font-variant-numeric: tabular-nums; white-space: nowrap;
+        }
+        .stage-chip.pref { border-color: var(--cold); background: var(--cold-soft); }
+        .stage-chip.cold { border-color: var(--cold); background: var(--cold-soft); }
+        .stage-chip.final { border-color: var(--primary); background: var(--primary-soft); }
+        .stage-arrow {
+            display: flex; align-items: center;
+            color: var(--text-muted); font-size: 0.9rem;
+        }
+
+        .choice-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(46px, 1fr));
+            gap: 0.4rem;
+        }
+        .choice-btn {
+            min-height: 46px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--surface);
+            color: var(--text);
+            font-family: inherit; font-size: 0.95rem; font-weight: 600;
+            font-variant-numeric: tabular-nums;
             cursor: pointer;
-            transition: transform 0.15s;
+            transition: all 0.12s;
+            touch-action: manipulation;
         }
-        input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.2); }
-        input[type="range"]::-moz-range-thumb {
-            width: 18px; height: 18px; border-radius: 50%;
-            background: var(--primary);
-            border: 2px solid var(--surface);
+        .choice-btn:hover:not(.active) { border-color: var(--primary); background: var(--primary-soft); }
+        .choice-btn:active { transform: scale(0.94); }
+        .choice-btn.active {
+            background: var(--accent); border-color: var(--accent); color: var(--bg);
+        }
+        [data-theme="dark"] .choice-btn.active { background: var(--primary); border-color: var(--primary); color: #1a140d; }
+        .choice-btn:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+
+        /* ── Stepper: sustituye al slider, funciona igual en ratón y táctil ── */
+        .stepper {
+            display: grid;
+            grid-template-columns: 48px 1fr 48px;
+            gap: 0.5rem;
+            align-items: stretch;
+        }
+        .stepper-btn {
+            height: 44px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--surface);
+            color: var(--text);
+            font-family: inherit; font-size: 1.35rem; font-weight: 500;
+            line-height: 1;
             cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: background 0.12s, border-color 0.12s, transform 0.08s;
+            touch-action: manipulation;
+            user-select: none; -webkit-user-select: none;
         }
-        input[type="range"]:disabled { opacity: 0.3; cursor: not-allowed; }
+        .stepper-btn:hover:not(:disabled) { border-color: var(--primary); background: var(--primary-soft); }
+        .stepper-btn:active:not(:disabled) { transform: scale(0.94); background: var(--primary-soft); }
+        .stepper-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+        .stepper-value {
+            height: 44px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--accent); color: var(--bg);
+            font-family: inherit; font-size: 1.05rem; font-weight: 600;
+            font-variant-numeric: tabular-nums;
+            cursor: text;
+            display: flex; align-items: center; justify-content: center; gap: 0.25rem;
+            width: 100%;
+            transition: filter 0.12s;
+            touch-action: manipulation;
+        }
+        [data-theme="dark"] .stepper-value { background: var(--primary); color: #1a140d; border-color: var(--primary); }
+        .stepper-value:hover:not(.disabled):not(.editing) { filter: brightness(1.08); }
+        .stepper-value .u { font-size: 0.8rem; font-weight: 500; opacity: 0.85; }
+        .stepper-value.disabled { background: var(--text-muted); cursor: not-allowed; opacity: 0.6; }
+        .stepper-value.editing {
+            background: var(--surface); color: var(--text);
+            border: 2px solid var(--primary);
+            text-align: center;
+            -moz-appearance: textfield;
+        }
+        .stepper-value.editing::-webkit-outer-spin-button,
+        .stepper-value.editing::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+        /* Barra de posición dentro del rango — informativa, no arrastrable */
+        .range-bar {
+            height: 3px; border-radius: 3px;
+            background: var(--border);
+            overflow: hidden;
+            margin-top: 0.15rem;
+        }
+        .range-fill {
+            height: 100%; border-radius: 3px;
+            background: var(--primary);
+            transition: width 0.15s ease-out;
+        }
+        .range-bar.disabled { opacity: 0.35; }
+        .range-ends {
+            display: flex; justify-content: space-between;
+            font-size: 0.68rem; color: var(--text-muted);
+            font-variant-numeric: tabular-nums;
+            margin-top: -0.1rem;
+        }
+        .range-ends.disabled { opacity: 0.4; }
+
         input[type="number"], input[type="time"], input[type="text"] {
             font-family: inherit; font-size: 0.85rem;
             padding: 0.35rem 0.55rem;
@@ -564,6 +677,7 @@
         }
         input[type="number"] { width: 64px; }
         input[type="number"]:disabled { opacity: 0.4; }
+        input[type="time"] { min-height: 40px; }
 
         .slider-hint {
             font-size: 0.74rem; color: var(--text-soft);
@@ -951,9 +1065,8 @@
             outline: 2px solid var(--primary);
             outline-offset: 2px;
         }
-        input[type="range"]:focus-visible { outline: none; }
-        input[type="range"]:focus-visible::-webkit-slider-thumb {
-            box-shadow: 0 0 0 4px rgba(178, 122, 42, 0.3);
+        .stepper-btn:focus-visible, .stepper-value:focus-visible {
+            outline: 2px solid var(--primary); outline-offset: 2px;
         }
 
         @keyframes fadeIn {
@@ -1715,10 +1828,76 @@
         };
 
         // ============================================================
+        // CHOICE ROW — para rangos cortos (1-10): un toque, sin arrastrar
+        // ============================================================
+        const ChoiceRow = ({ label, icon, value, onChange, min, max, unit, tip, hint }) => {
+            const opts = [];
+            for (let i = min; i <= max; i++) opts.push(i);
+            return (
+                <div className="slider-row">
+                    <div className="slider-label">
+                        <span className="slider-label-left">
+                            {icon && <span className="ic">{icon}</span>}
+                            {label}
+                            {tip && <span className="tooltip-trigger" data-tip={tip}>i</span>}
+                        </span>
+                        {unit && <span style={{fontSize: '0.78rem', color: 'var(--text-soft)'}}>{value} {unit}</span>}
+                    </div>
+                    <div className="choice-row">
+                        {opts.map(n => (
+                            <button key={n} type="button"
+                                className={`choice-btn ${value === n ? 'active' : ''}`}
+                                onClick={() => onChange(n)}>{n}</button>
+                        ))}
+                    </div>
+                    {hint && <div className="slider-hint">{hint}</div>}
+                </div>
+            );
+        };
+
+        // ============================================================
         // SLIDER
         // ============================================================
         const Slider = ({ label, icon, value, onChange, min, max, step, unit, disabled, hint, warning, tip, hidden }) => {
             if (hidden) return null;
+
+            const nMin = parseFloat(min), nMax = parseFloat(max), nStep = parseFloat(step) || 1;
+            const [editing, setEditing] = useState(false);
+            const [draft, setDraft] = useState('');
+            const holdRef = React.useRef(null);
+
+            const clamp = (v) => Math.min(nMax, Math.max(nMin, v));
+            const decimals = (String(nStep).split('.')[1] || '').length;
+            const snap = (v) => parseFloat(clamp(v).toFixed(decimals));
+
+            const bump = (dir) => { if (!disabled) onChange(snap(value + dir * nStep)); };
+            const bumpRef = React.useRef(bump);
+            bumpRef.current = bump;
+
+            // Mantener pulsado acelera: 500ms de espera, luego cada vez más rápido
+            const startHold = (dir) => {
+                if (disabled) return;
+                let delay = 500, ticks = 0;
+                const tick = () => {
+                    ticks++;
+                    if (ticks > 4 && delay > 60) delay = Math.max(60, delay * 0.7);
+                    bumpRef.current(dir);
+                    holdRef.current = setTimeout(tick, delay);
+                };
+                holdRef.current = setTimeout(tick, delay);
+            };
+            const stopHold = () => { if (holdRef.current) { clearTimeout(holdRef.current); holdRef.current = null; } };
+            useEffect(() => stopHold, []);
+
+            const commitDraft = () => {
+                const parsed = parseFloat(String(draft).replace(',', '.'));
+                if (!isNaN(parsed)) onChange(snap(parsed));
+                setEditing(false);
+            };
+
+            const pct = nMax > nMin ? ((clamp(value) - nMin) / (nMax - nMin)) * 100 : 0;
+            const atMin = value <= nMin, atMax = value >= nMax;
+
             return (
             <div className="slider-row">
                 <div className={`slider-label ${disabled ? 'disabled' : ''}`}>
@@ -1727,16 +1906,45 @@
                         {label}
                         {tip && <span className="tooltip-trigger" data-tip={tip}>i</span>}
                     </span>
-                    <span className={`slider-value-pill ${disabled ? 'disabled' : ''}`}>
-                        {value}{unit && ' ' + unit}
-                    </span>
                 </div>
-                <div className="slider-track">
-                    <input type="range" min={min} max={max} step={step} value={value}
-                        onChange={e => onChange(parseFloat(e.target.value))} disabled={disabled} />
-                    <input type="number" value={value} min={min} max={max} step={step}
-                        onChange={e => onChange(parseFloat(e.target.value) || 0)} disabled={disabled} />
+
+                <div className="stepper">
+                    <button type="button" className="stepper-btn" aria-label="Reducir"
+                        disabled={disabled || atMin}
+                        onClick={() => bump(-1)}
+                        onPointerDown={() => startHold(-1)}
+                        onPointerUp={stopHold} onPointerLeave={stopHold} onPointerCancel={stopHold}>−</button>
+
+                    {editing && !disabled ? (
+                        <input className="stepper-value editing" type="number" autoFocus
+                            value={draft} min={min} max={max} step={step}
+                            onChange={e => setDraft(e.target.value)}
+                            onBlur={commitDraft}
+                            onKeyDown={e => { if (e.key === 'Enter') commitDraft(); if (e.key === 'Escape') setEditing(false); }} />
+                    ) : (
+                        <button type="button" className={`stepper-value ${disabled ? 'disabled' : ''}`}
+                            disabled={disabled}
+                            title="Tocar para escribir un valor"
+                            onClick={() => { setDraft(String(value)); setEditing(true); }}>
+                            {value}{unit && <span className="u"> {unit}</span>}
+                        </button>
+                    )}
+
+                    <button type="button" className="stepper-btn" aria-label="Aumentar"
+                        disabled={disabled || atMax}
+                        onClick={() => bump(1)}
+                        onPointerDown={() => startHold(1)}
+                        onPointerUp={stopHold} onPointerLeave={stopHold} onPointerCancel={stopHold}>+</button>
                 </div>
+
+                <div className={`range-bar ${disabled ? 'disabled' : ''}`} aria-hidden="true">
+                    <div className="range-fill" style={{width: pct + '%'}}></div>
+                </div>
+                <div className={`range-ends ${disabled ? 'disabled' : ''}`}>
+                    <span>{min}{unit ? ' ' + unit : ''}</span>
+                    <span>{max}{unit ? ' ' + unit : ''}</span>
+                </div>
+
                 {hint && !disabled && <div className="slider-hint">{hint}</div>}
                 {warning && !disabled && <div className="slider-warning"><Icon name="alert" size={12}/> {warning}</div>}
             </div>
@@ -1884,7 +2092,7 @@
         // PIZZA TOPPINGS COMPONENT
         // Multi-pizza selector with per-pizza ingredients + shopping list
         // ============================================================
-        const PizzaToppings = ({ counts, setCounts, maxPizzas, showToast }) => {
+        const PizzaToppings = ({ counts, setCounts, maxPizzas, view = 'assign', showToast }) => {
             const totalPizzas = Object.values(counts).reduce((s, n) => s + n, 0);
             const remaining = Math.max(0, maxPizzas - totalPizzas);
             const isAtLimit = totalPizzas >= maxPizzas;
@@ -2027,6 +2235,8 @@
 
             return (
                 <div className="animate-in">
+                    {view === 'assign' && (
+                    <>
                     {/* Header with progress */}
                     <div style={{
                         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
@@ -2178,10 +2388,39 @@
                                 })}
                             </div>
 
-                            {/* Shopping list */}
-                            <div style={{fontFamily: 'Fraunces, serif', fontSize: '0.95rem', fontWeight: 500, color: 'var(--accent)', marginBottom: '0.6rem'}}>
-                                🛒 Lista de la compra
+                        </>
+                    )}
+                    </>
+                    )}
+
+                    {view === 'shopping' && (
+                    <>
+                    {totalPizzas === 0 ? (
+                        <div className="info-note">Todavía no has asignado ninguna pizza. Ve a la pestaña <strong>Toppings</strong> y elige cuántas quieres de cada tipo.</div>
+                    ) : (
+                        <>
+                        {remaining > 0 && (
+                            <div className="warn-box" style={{marginBottom: '1rem'}}>
+                                <Icon name="alert" />
+                                <span>Has repartido <strong>{totalPizzas} de {maxPizzas}</strong> bolas. La lista cubre solo esas {totalPizzas}; te {remaining === 1 ? 'queda 1 bola' : `quedan ${remaining} bolas`} por decidir.</span>
                             </div>
+                        )}
+                        {isOverLimit && (
+                            <div className="warn-box" style={{marginBottom: '1rem'}}>
+                                <Icon name="alert" />
+                                <span>Has asignado <strong>{totalPizzas}</strong> pizzas pero solo haces <strong>{maxPizzas}</strong> bolas. Ajusta el reparto o sube el número de bolas.</span>
+                            </div>
+                        )}
+                        <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.85rem', flexWrap: 'wrap', gap: '0.5rem'}}>
+                            <div style={{fontSize: '0.83rem', color: 'var(--text-soft)'}}>
+                                Para <strong style={{color: 'var(--text)'}}>{totalPizzas}</strong> {totalPizzas === 1 ? 'pizza' : 'pizzas'}
+                            </div>
+                            <div style={{display: 'flex', gap: '0.4rem'}}>
+                                <button className="icon-btn" onClick={copyAll}><Icon name="copy" size={14}/> Copiar</button>
+                                <button className="icon-btn" onClick={downloadAll}><Icon name="download" size={14}/></button>
+                            </div>
+                        </div>
+
                             <div className="phase-card" style={{marginBottom: '1rem', padding: '0.5rem 0.85rem'}}>
                                 <table className="recipe-table" style={{marginBottom: 0}}>
                                     <thead>
@@ -2224,6 +2463,8 @@
                             </div>
                         </>
                     )}
+                    </>
+                    )}
                 </div>
             );
         };
@@ -2232,7 +2473,7 @@
         // FOCACCIA TOPPINGS COMPONENT
         // Reparte las bandejas entre variantes y agrega la lista de la compra
         // ============================================================
-        const FocacciaToppings = ({ counts, setCounts, maxTrays, showToast }) => {
+        const FocacciaToppings = ({ counts, setCounts, maxTrays, view = 'assign', showToast }) => {
             const totalAssigned = Object.values(counts).reduce((s, n) => s + n, 0);
             const remaining = Math.max(0, maxTrays - totalAssigned);
             const isAtLimit = totalAssigned >= maxTrays;
@@ -2309,6 +2550,8 @@
 
             return (
                 <div className="animate-in">
+                    {view === 'assign' && (
+                    <>
                     <div style={{
                         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                         marginBottom: '1rem', flexWrap: 'wrap', gap: '0.5rem',
@@ -2420,9 +2663,39 @@
                                 })}
                             </div>
 
-                            <div style={{fontFamily: 'Fraunces, serif', fontSize: '0.95rem', fontWeight: 500, color: 'var(--accent)', marginBottom: '0.6rem'}}>
-                                🛒 Lista de la compra
+                        </>
+                    )}
+                    </>
+                    )}
+
+                    {view === 'shopping' && (
+                    <>
+                    {totalAssigned === 0 ? (
+                        <div className="info-note">Todavía no has elegido aliños. Ve a la pestaña <strong>Aliños</strong> y asigna uno a cada bandeja.</div>
+                    ) : (
+                        <>
+                        {remaining > 0 && (
+                            <div className="warn-box" style={{marginBottom: '1rem'}}>
+                                <Icon name="alert" />
+                                <span>Has asignado <strong>{totalAssigned} de {maxTrays}</strong> bandejas. La lista cubre solo esas; te {remaining === 1 ? 'queda 1 bandeja' : `quedan ${remaining} bandejas`} por decidir.</span>
                             </div>
+                        )}
+                        {isOverLimit && (
+                            <div className="warn-box" style={{marginBottom: '1rem'}}>
+                                <Icon name="alert" />
+                                <span>Has asignado <strong>{totalAssigned}</strong> aliños pero solo haces <strong>{maxTrays}</strong> bandejas.</span>
+                            </div>
+                        )}
+                        <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.85rem', flexWrap: 'wrap', gap: '0.5rem'}}>
+                            <div style={{fontSize: '0.83rem', color: 'var(--text-soft)'}}>
+                                Para <strong style={{color: 'var(--text)'}}>{totalAssigned}</strong> {totalAssigned === 1 ? 'bandeja' : 'bandejas'}
+                            </div>
+                            <div style={{display: 'flex', gap: '0.4rem'}}>
+                                <button className="icon-btn" onClick={copyAll}><Icon name="copy" size={14}/> Copiar</button>
+                                <button className="icon-btn" onClick={downloadAll}><Icon name="download" size={14}/></button>
+                            </div>
+                        </div>
+
                             <div className="phase-card" style={{marginBottom: '1rem', padding: '0.5rem 0.85rem'}}>
                                 <table className="recipe-table" style={{marginBottom: 0}}>
                                     <thead>
@@ -2454,6 +2727,8 @@
                                 <br/><strong>Verduras acuosas</strong> (cherry, calabacín): ponlas boca arriba y sin amontonar, o soltarán agua sobre la masa.
                             </div>
                         </>
+                    )}
+                    </>
                     )}
                 </div>
             );
@@ -2539,7 +2814,8 @@
                         <button className={`tab ${activeTab === 'process' ? 'active' : ''}`} onClick={() => setActiveTab('process')}>📜 Proceso</button>
                         <button className={`tab ${activeTab === 'schedule' ? 'active' : ''}`} onClick={() => setActiveTab('schedule')}>⏱ Cronograma</button>
                         <button className={`tab ${activeTab === 'tips' ? 'active' : ''}`} onClick={() => setActiveTab('tips')}>💡 Consejos</button>
-                        <button className={`tab ${activeTab === 'toppings' ? 'active' : ''}`} onClick={() => setActiveTab('toppings')}>🛒 Aliños</button>
+                        <button className={`tab ${activeTab === 'toppings' ? 'active' : ''}`} onClick={() => setActiveTab('toppings')}>🫒 Aliños</button>
+                        <button className={`tab ${activeTab === 'compra' ? 'active' : ''}`} onClick={() => setActiveTab('compra')}>🛒 Compra</button>
                         <button className={`tab ${activeTab === 'checklist' ? 'active' : ''}`} onClick={() => setActiveTab('checklist')}>✓ Checklist</button>
                     </div>
 
@@ -2997,6 +3273,17 @@
                             counts={toppings}
                             setCounts={setToppings}
                             maxTrays={trays}
+                            view="assign"
+                            showToast={showToast}
+                        />
+                    )}
+
+                    {activeTab === 'compra' && (
+                        <FocacciaToppings
+                            counts={toppings}
+                            setCounts={setToppings}
+                            maxTrays={trays}
+                            view="shopping"
                             showToast={showToast}
                         />
                     )}
@@ -4369,9 +4656,9 @@
                                         {/* Unidades */}
                                         <div className="section">
                                             <div className="section-label"><span className="step-num">3</span> Cantidad</div>
-                                            <Slider label="Número de panettones" icon="🎄"
+                                            <ChoiceRow label="Número de panettones" icon="🎄"
                                                 value={panUnits} onChange={setPanUnits}
-                                                min="1" max="10" step="1" unit={panUnits === 1 ? 'unidad' : 'unidades'}
+                                                min={1} max={10} unit={panUnits === 1 ? 'unidad' : 'unidades'}
                                                 hint={`Total: ${(PANETTONE_MOLDS[panMold].loadCrudo * panUnits).toFixed(0)}g de masa cruda`} />
                                         </div>
 
@@ -4437,8 +4724,8 @@
                                         {/* Bandejas */}
                                         <div className="section">
                                             <div className="section-label"><span className="step-num">3</span> Bandejas</div>
-                                            <Slider label="Número de bandejas" icon="🍞" value={focTrays}
-                                                onChange={setFocTrays} min="1" max="6" step="1"
+                                            <ChoiceRow label="Número de bandejas" icon="🍞" value={focTrays}
+                                                onChange={setFocTrays} min={1} max={6}
                                                 unit={focTrays === 1 ? 'bandeja' : 'bandejas'}
                                                 tip={`${FOCACCIA_TRAY.label} (${FOCACCIA_TRAY.dimensions}). Cada bandeja usa ~${FOCACCIA_TRAY.flourPerTray}g de harina y ~${FOCACCIA_TRAY.doughPerTray}g de masa total.`}
                                                 hint={`${focTrays * FOCACCIA_TRAY.flourPerTray}g de harina · ~${focTrays * FOCACCIA_TRAY.doughPerTray}g de masa total · bandeja Mercadona 2,7L (≈32×26×5cm)`} />
@@ -4533,6 +4820,36 @@
                                 {/* ═══ PAN/PIZZA BRANCH ═══ */}
                                 {doughType !== 'panettone' && doughType !== 'focaccia' && doughType !== 'gofres' && (<>
 
+                                {/* Resumen del recorrido de la masa */}
+                                <div className="stage-flow">
+                                    {prefermentType !== 'none' && (
+                                        <>
+                                            <div className="stage-chip pref">
+                                                <span className="n">{PREFERMENTS[prefermentType].emoji} {PREFERMENTS[prefermentType].name}</span>
+                                                <span className="d">{formatHours(prefermentTime)} · {prefermentTemp}°C</span>
+                                            </div>
+                                            <span className="stage-arrow">→</span>
+                                        </>
+                                    )}
+                                    {useColdProof && (
+                                        <>
+                                            <div className="stage-chip cold">
+                                                <span className="n">❄️ Nevera</span>
+                                                <span className="d">{formatHours(coldProofTime)} · 4°C</span>
+                                            </div>
+                                            <span className="stage-arrow">→</span>
+                                        </>
+                                    )}
+                                    <div className="stage-chip final">
+                                        <span className="n">🥣 Masa final</span>
+                                        <span className="d">{formatHours(useColdProof ? calc.ambientH : totalTime)} · {temperature}°C</span>
+                                    </div>
+                                    <span className="stage-arrow">→</span>
+                                    <div className="stage-chip bake">
+                                        <span className="n">🔥 Horno</span>
+                                    </div>
+                                </div>
+
                                 {/* Tipo de horno (solo pizza) */}
                                 {doughType === 'pizza' && (
                                     <div className="section">
@@ -4606,10 +4923,6 @@
                                                 </div>
                                             </div>
                                         )}
-                                        <Slider label="Temperatura ambiente" icon="🌡️" value={temperature} onChange={setTemperature}
-                                            min="4" max="32" step="1" unit="°C"
-                                            tip="Q10 es la regla biológica que dice que la actividad enzimática se duplica cada 10°C. Para la levadura: a 32°C fermenta el doble que a 22°C."
-                                            hint={`Q10≈2: ${temperature < 22 ? 'fermenta más lento' : temperature > 22 ? 'fermenta más rápido' : 'velocidad de referencia'} que a 22°C`} />
                                     </div>
                                 </div>
 
@@ -4629,10 +4942,13 @@
                                     </div>
                                     <PrefermentInfo type={prefermentType} />
                                     {prefermentType !== 'none' && (
-                                        <div className="indent-group">
-                                            <Slider label="% Harina en prefermento" icon="↳" value={prefermentFlourPercent}
-                                                onChange={setPrefermentFlourPercent} min="20" max="50" step="5" unit="%" />
-                                            <Slider label="Tiempo de levado" icon="⏰" value={prefermentTime}
+                                        <div className="stage-block stage-pref">
+                                            <div className="stage-tag">Solo el prefermento</div>
+                                            <Slider label="% de la harina que va al prefermento" icon="↳" value={prefermentFlourPercent}
+                                                onChange={setPrefermentFlourPercent} min="20" max="50" step="5" unit="%"
+                                                tip="Qué parte del total de harina se usa para hacer el prefermento. El resto se reserva para la masa final."
+                                                hint={`${Math.round(calc.prefFlour)}g al prefermento · ${Math.round(calc.finalFlour)}g a la masa final`} />
+                                            <Slider label="Tiempo de levado del prefermento" icon="⏰" value={prefermentTime}
                                                 onChange={setPrefermentTime} min="4" max="24" step="1" unit="hrs" />
                                             <Slider label="Temperatura del prefermento" icon="🌡️" value={prefermentTemp}
                                                 onChange={setPrefermentTemp} min="4" max="30" step="1" unit="°C" />
@@ -4642,24 +4958,31 @@
 
                                 {/* Fermentación */}
                                 <div className="section">
-                                    <div className="section-label"><span className="step-num">{doughType === 'pizza' ? 5 : 4}</span> Plan de fermentación</div>
-                                    <div className="toggle-row">
-                                        <span className="toggle-label">❄️ Levado en frío (nevera)</span>
-                                        <label className="toggle-switch">
-                                            <input type="checkbox" checked={useColdProof}
-                                                onChange={e => setUseColdProof(e.target.checked)} />
-                                            <span className="toggle-slider"></span>
-                                        </label>
-                                    </div>
-                                    <div style={{marginTop: '0.85rem', display: 'flex', flexDirection: 'column', gap: '1rem'}}>
-                                        {useColdProof && (
-                                            <Slider label="Tiempo en frío" icon="❄️" value={coldProofTime}
-                                                onChange={setColdProofTime} min="8" max="72" step="1" unit="hrs" />
-                                        )}
-                                        <Slider label="Levado a temperatura ambiente" icon="⏰" value={totalTime}
-                                            onChange={setTotalTime} min="1" max="12" step="0.5" unit="hrs"
-                                            disabled={useColdProof}
-                                            hint={useColdProof ? 'El bulk se calcula automáticamente al activar levado en frío' : ''} />
+                                    <div className="section-label"><span className="step-num">{doughType === 'pizza' ? 5 : 4}</span> Fermentación de la masa final</div>
+                                    <div className="stage-block stage-final">
+                                        <div className="stage-tag">Solo la masa final</div>
+                                        <div className="toggle-row" style={{marginBottom: '1rem'}}>
+                                            <span className="toggle-label">❄️ Levado en frío (nevera)</span>
+                                            <label className="toggle-switch">
+                                                <input type="checkbox" checked={useColdProof}
+                                                    onChange={e => setUseColdProof(e.target.checked)} />
+                                                <span className="toggle-slider"></span>
+                                            </label>
+                                        </div>
+                                        <div style={{display: 'flex', flexDirection: 'column', gap: '1rem'}}>
+                                            {useColdProof && (
+                                                <Slider label="Tiempo en frío" icon="❄️" value={coldProofTime}
+                                                    onChange={setColdProofTime} min="8" max="72" step="1" unit="hrs" />
+                                            )}
+                                            <Slider label="Tiempo de levado de la masa final" icon="⏰" value={totalTime}
+                                                onChange={setTotalTime} min="1" max="12" step="0.5" unit="hrs"
+                                                disabled={useColdProof}
+                                                hint={useColdProof ? 'El bulk se calcula automáticamente al activar levado en frío' : ''} />
+                                            <Slider label="Temperatura de la masa final" icon="🌡️" value={temperature} onChange={setTemperature}
+                                                min="4" max="32" step="1" unit="°C"
+                                                tip="Q10 es la regla biológica que dice que la actividad enzimática se duplica cada 10°C. Para la levadura: a 32°C fermenta el doble que a 22°C."
+                                                hint={`Q10≈2: ${temperature < 22 ? 'fermenta más lento' : temperature > 22 ? 'fermenta más rápido' : 'velocidad de referencia'} que a 22°C`} />
+                                        </div>
                                     </div>
                                 </div>
                                 </>)}
@@ -4711,7 +5034,10 @@
                                     <button className={`tab ${activeTab === 'schedule' ? 'active' : ''}`} onClick={() => setActiveTab('schedule')}>⏱ Cronograma</button>
                                     <button className={`tab ${activeTab === 'baking' ? 'active' : ''}`} onClick={() => setActiveTab('baking')}>🔥 Horneado</button>
                                     {doughType === 'pizza' && (
-                                        <button className={`tab ${activeTab === 'toppings' ? 'active' : ''}`} onClick={() => setActiveTab('toppings')}>🛒 Toppings</button>
+                                        <>
+                                            <button className={`tab ${activeTab === 'toppings' ? 'active' : ''}`} onClick={() => setActiveTab('toppings')}>🍕 Toppings</button>
+                                            <button className={`tab ${activeTab === 'compra' ? 'active' : ''}`} onClick={() => setActiveTab('compra')}>🛒 Compra</button>
+                                        </>
                                     )}
                                 </div>
 
@@ -4875,6 +5201,17 @@
                                         counts={pizzaToppingCounts}
                                         setCounts={setPizzaToppingCounts}
                                         maxPizzas={pizzaBalls}
+                                        view="assign"
+                                        showToast={showToast}
+                                    />
+                                )}
+
+                                {activeTab === 'compra' && doughType === 'pizza' && (
+                                    <PizzaToppings
+                                        counts={pizzaToppingCounts}
+                                        setCounts={setPizzaToppingCounts}
+                                        maxPizzas={pizzaBalls}
+                                        view="shopping"
                                         showToast={showToast}
                                     />
                                 )}
