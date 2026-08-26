@@ -127,6 +127,11 @@
             margin-top: 0.15rem;
         }
         .header-actions { display: flex; gap: 0.5rem; align-items: center; }
+        .wake-btn.on {
+            background: var(--success-soft) !important;
+            border-color: var(--success) !important;
+            color: var(--success) !important;
+        }
         .icon-btn {
             background: transparent;
             border: 1px solid var(--border);
@@ -1301,6 +1306,33 @@
             },
         };
 
+        // ============================================================
+        // PIZZA OVEN TYPES — cambian por completo el plan de horneado
+        // ============================================================
+        const PIZZA_OVENS = {
+            ooni: {
+                label: 'Horno pizzero a gas',
+                sub: 'Ooni, Gozney, Effeuno…',
+                emoji: '🔥',
+                targetTemp: '430-450°C',
+                cookTime: '60-90 s',
+            },
+            acero: {
+                label: 'Doméstico + acero',
+                sub: 'Con plancha de acero',
+                emoji: '⬛',
+                targetTemp: '250-300°C',
+                cookTime: '4-6 min',
+            },
+            domestico: {
+                label: 'Doméstico normal',
+                sub: 'Bandeja o piedra',
+                emoji: '🏠',
+                targetTemp: '250°C máx.',
+                cookTime: '7-10 min',
+            },
+        };
+
         // Mapping from ingredient id → display label + purchase notes
         const TOPPING_PURCHASE_INFO = {
             sanmarzano:    { label: 'Tomate San Marzano',       note: 'Triturar a mano, no batidora' },
@@ -1327,6 +1359,113 @@
             'pepperoni', 'speck', 'guanciale', 'pollo',
             'gorgonzola', 'parmesano', 'pecorino',
             'maiz', 'albahaca', 'ajo', 'oregano', 'pimienta', 'evoo',
+        ];
+
+        // ============================================================
+        // FOCACCIA TOPPINGS — cantidades por bandeja de 2,7L
+        // ============================================================
+        const FOCACCIA_VARIANTS = {
+            clasica: {
+                name: 'Romero, tomate seco y aceitunas',
+                emoji: '🫒',
+                desc: 'Tu clásica. Sencilla y siempre funciona.',
+                ingredients: [
+                    { id: 'evoo',        name: 'Aceite de oliva virgen extra', g: 30, unit: 'g', when: 'before' },
+                    { id: 'sal_escamas', name: 'Sal en escamas',               g: 3,  unit: 'g', when: 'before' },
+                    { id: 'romero',      name: 'Romero fresco',                g: 4,  unit: 'g', when: 'before', note: '2-3 ramitas' },
+                    { id: 'tomate_seco', name: 'Tomate seco en aceite',        g: 60, unit: 'g', when: 'before', note: 'escurrido, en tiras' },
+                    { id: 'aceitunas',   name: 'Aceitunas negras',             g: 70, unit: 'g', when: 'before', note: 'deshuesadas, partidas' },
+                ],
+            },
+            patata_romero: {
+                name: 'Patata y romero',
+                emoji: '🥔',
+                desc: 'La genovese clásica. Patata en láminas finísimas que quedan crujientes.',
+                ingredients: [
+                    { id: 'evoo',        name: 'Aceite de oliva virgen extra', g: 35, unit: 'g', when: 'split', note: 'generoso, antes y al salir' },
+                    { id: 'patata',      name: 'Patata',                       g: 200, unit: 'g', when: 'before', note: 'láminas de 1-2mm con mandolina' },
+                    { id: 'romero',      name: 'Romero fresco',                g: 5,  unit: 'g', when: 'before' },
+                    { id: 'sal_escamas', name: 'Sal en escamas',               g: 4,  unit: 'g', when: 'before' },
+                ],
+            },
+            cebolla_gorgonzola: {
+                name: 'Cebolla caramelizada y gorgonzola',
+                emoji: '🧅',
+                desc: 'Dulce y potente. Con miel y nueces al salir.',
+                ingredients: [
+                    { id: 'cebolla',     name: 'Cebolla roja',                 g: 250, unit: 'g', when: 'before', note: 'caramelizar 20-30 min antes' },
+                    { id: 'evoo',        name: 'Aceite de oliva virgen extra', g: 25, unit: 'g', when: 'before' },
+                    { id: 'gorgonzola',  name: 'Gorgonzola',                   g: 80, unit: 'g', when: 'after',  note: 'en trocitos, al salir del horno' },
+                    { id: 'nueces',      name: 'Nueces',                       g: 40, unit: 'g', when: 'after',  note: 'partidas a mano' },
+                    { id: 'miel',        name: 'Miel',                         g: 15, unit: 'g', when: 'after',  note: 'un hilo por encima' },
+                ],
+            },
+            cherry_ajo: {
+                name: 'Cherry, ajo asado y albahaca',
+                emoji: '🍅',
+                desc: 'Fresca y aromática. Los cherry boca arriba sueltan menos agua.',
+                ingredients: [
+                    { id: 'cherry',      name: 'Tomate cherry',                g: 250, unit: 'g', when: 'before', note: 'partidos, boca arriba' },
+                    { id: 'ajo',         name: 'Ajo',                          g: 15, unit: 'g', when: 'before', note: 'dientes enteros con piel' },
+                    { id: 'evoo',        name: 'Aceite de oliva virgen extra', g: 30, unit: 'g', when: 'split' },
+                    { id: 'sal_escamas', name: 'Sal en escamas',               g: 3,  unit: 'g', when: 'before' },
+                    { id: 'albahaca',    name: 'Albahaca fresca',              g: 8,  unit: 'hojas', when: 'after', note: 'al salir, nunca antes' },
+                ],
+            },
+            anchoas_alcaparras: {
+                name: 'Anchoas, alcaparras y cherry',
+                emoji: '🐟',
+                desc: 'Del sur de Italia. Salada y adictiva.',
+                ingredients: [
+                    { id: 'cherry',      name: 'Tomate cherry',                g: 180, unit: 'g', when: 'before', note: 'partidos por la mitad' },
+                    { id: 'anchoas',     name: 'Anchoas en aceite',            g: 40, unit: 'g', when: 'before', note: '~10 filetes' },
+                    { id: 'alcaparras',  name: 'Alcaparras',                   g: 30, unit: 'g', when: 'before', note: 'escurridas' },
+                    { id: 'evoo',        name: 'Aceite de oliva virgen extra', g: 25, unit: 'g', when: 'split' },
+                    { id: 'oregano',     name: 'Orégano seco',                 g: 2,  unit: 'g', when: 'before' },
+                ],
+            },
+            higos_stracciatella: {
+                name: 'Higos, jamón y stracciatella',
+                emoji: '🍑',
+                desc: 'Dulce-salada de manual. Stracciatella y jamón al salir.',
+                ingredients: [
+                    { id: 'higos',        name: 'Higos frescos',               g: 200, unit: 'g', when: 'before', note: 'partidos en cuartos' },
+                    { id: 'evoo',         name: 'Aceite de oliva virgen extra', g: 25, unit: 'g', when: 'split' },
+                    { id: 'stracciatella',name: 'Stracciatella',               g: 125, unit: 'g', when: 'after',  note: 'repartida al salir' },
+                    { id: 'jamon',        name: 'Jamón crudo',                 g: 60, unit: 'g', when: 'after',  note: 'lonchas finas, al salir' },
+                    { id: 'pimienta',     name: 'Pimienta negra',              g: 0.5, unit: 'g', when: 'after', note: 'recién molida' },
+                ],
+            },
+        };
+
+        const FOCACCIA_TOPPING_INFO = {
+            evoo:          { label: 'Aceite de oliva virgen extra', note: '' },
+            sal_escamas:   { label: 'Sal en escamas',               note: 'Tipo Maldon' },
+            romero:        { label: 'Romero fresco',                note: '' },
+            tomate_seco:   { label: 'Tomate seco en aceite',        note: '' },
+            aceitunas:     { label: 'Aceitunas negras',             note: 'Mejor taggiasche o kalamata' },
+            patata:        { label: 'Patata',                       note: 'Láminas finísimas con mandolina' },
+            cebolla:       { label: 'Cebolla roja',                 note: 'Caramelizar 20-30 min antes' },
+            gorgonzola:    { label: 'Gorgonzola',                   note: 'Añadir al salir del horno' },
+            nueces:        { label: 'Nueces',                       note: '' },
+            miel:          { label: 'Miel',                         note: '' },
+            cherry:        { label: 'Tomate cherry',                note: 'Partidos, boca arriba' },
+            ajo:           { label: 'Ajo',                          note: 'Dientes enteros con piel' },
+            albahaca:      { label: 'Albahaca fresca',              note: 'Al salir, se quema en el horno' },
+            anchoas:       { label: 'Anchoas en aceite',            note: 'Del Cantábrico si puede ser' },
+            alcaparras:    { label: 'Alcaparras',                   note: '' },
+            oregano:       { label: 'Orégano seco',                 note: '' },
+            higos:         { label: 'Higos frescos',                note: '' },
+            stracciatella: { label: 'Stracciatella',                note: 'Al salir del horno' },
+            jamon:         { label: 'Jamón crudo',                  note: 'Al salir del horno' },
+            pimienta:      { label: 'Pimienta negra',               note: 'En grano, moler al momento' },
+        };
+
+        const FOCACCIA_TOPPING_ORDER = [
+            'patata', 'cebolla', 'cherry', 'tomate_seco', 'higos', 'ajo',
+            'anchoas', 'jamon', 'aceitunas', 'alcaparras',
+            'gorgonzola', 'stracciatella', 'nueces',
+            'romero', 'albahaca', 'oregano', 'miel', 'sal_escamas', 'pimienta', 'evoo',
         ];
 
         // ============================================================
@@ -1470,6 +1609,14 @@
             '900_bajo':   { label: '900g bajo',  capacity: 900,  loadCrudo: 1035, diameter: 21,   height: 7,    bakeTemp: 155, bakeMin: 50, bakeMax: 55, note: 'Necesita bandeja grande' },
         };
 
+        // Nombre del día para un offset relativo al día de horneado elegido.
+        // offset 0 = día de horneado, -1 = víspera, etc.
+        const PAN_DAY_NAMES = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+        const panDayName = (bakeDay, offset) => {
+            const bakeIdx = bakeDay === 'sunday' ? 6 : bakeDay === 'saturday' ? 5 : 4;
+            return PAN_DAY_NAMES[(bakeIdx + (offset % 7) + 7) % 7];
+        };
+
         // Reference quantities for 500g mold (main reference in dossier)
         // Other sizes scale linearly by loadCrudo ratio
         const REF_LOAD = 575;
@@ -1557,6 +1704,8 @@
                 refresh: (<><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></>),
                 alert: (<><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4M12 17h.01"/></>),
                 check: <polyline points="20 6 9 17 4 12"/>,
+                eye: (<><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></>),
+                eyeOff: (<><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-6.5 0-10-8-10-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c6.5 0 10 8 10 8a18.5 18.5 0 0 1-2.16 3.19"/><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><line x1="2" y1="2" x2="22" y2="22"/></>),
             };
             return (
                 <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -1694,6 +1843,42 @@
             });
             return { issues, score: clamp(score, 1, 5) };
         }, [params]);
+
+        // ============================================================
+        // CHECKLIST COMPONENT (compartido: focaccia, gofres, panettone)
+        // ============================================================
+        const Checklist = ({ items, checks, onToggle, onReset, note }) => {
+            const done = items.filter(c => checks[c.id]).length;
+            const pct = items.length ? (done / items.length) * 100 : 0;
+            return (
+                <div className="animate-in">
+                    <div className="quality-bar">
+                        <span style={{fontWeight: 600}}>Progreso:</span>
+                        <span style={{color: 'var(--text-soft)', fontSize: '0.85rem', fontVariantNumeric: 'tabular-nums'}}>{done} / {items.length}</span>
+                        <div style={{flex: 1, height: '6px', background: 'var(--border)', borderRadius: '3px', overflow: 'hidden', marginLeft: '0.5rem'}}>
+                            <div style={{width: `${pct}%`, height: '100%', background: 'var(--success)', transition: 'width 0.3s'}}></div>
+                        </div>
+                        {onReset && done > 0 && (
+                            <button className="icon-btn" style={{marginLeft: '0.5rem'}} onClick={onReset}>↻</button>
+                        )}
+                    </div>
+                    <ul className="checklist">
+                        {items.map(c => (
+                            <li key={c.id} className={checks[c.id] ? 'done' : ''} onClick={() => onToggle(c.id)}>
+                                <span className="check-box">
+                                    {checks[c.id] && <Icon name="check" size={12}/>}
+                                </span>
+                                {c.day && <span className="check-day">{c.day}</span>}
+                                <span style={{flex: 1}}>{c.text}</span>
+                            </li>
+                        ))}
+                    </ul>
+                    <div className="info-note" style={{marginTop: '1rem'}}>
+                        {note || 'Marca cada paso a medida que avanzas. El progreso se guarda automáticamente.'}
+                    </div>
+                </div>
+            );
+        };
 
         // ============================================================
         // PIZZA TOPPINGS COMPONENT
@@ -2044,9 +2229,240 @@
         };
 
         // ============================================================
+        // FOCACCIA TOPPINGS COMPONENT
+        // Reparte las bandejas entre variantes y agrega la lista de la compra
+        // ============================================================
+        const FocacciaToppings = ({ counts, setCounts, maxTrays, showToast }) => {
+            const totalAssigned = Object.values(counts).reduce((s, n) => s + n, 0);
+            const remaining = Math.max(0, maxTrays - totalAssigned);
+            const isAtLimit = totalAssigned >= maxTrays;
+            const isOverLimit = totalAssigned > maxTrays;
+
+            const shoppingList = useMemo(() => {
+                const totals = {};
+                Object.entries(counts).forEach(([id, count]) => {
+                    if (count <= 0) return;
+                    FOCACCIA_VARIANTS[id].ingredients.forEach(ing => {
+                        if (!totals[ing.id]) totals[ing.id] = { total: 0, unit: ing.unit };
+                        totals[ing.id].total += ing.g * count;
+                    });
+                });
+                return totals;
+            }, [counts]);
+
+            const setCount = (id, delta) => {
+                setCounts(prev => {
+                    const current = Object.values(prev).reduce((s, n) => s + n, 0);
+                    if (delta > 0 && current >= maxTrays) {
+                        showToast(`Límite alcanzado: ${maxTrays} ${maxTrays === 1 ? 'bandeja' : 'bandejas'}`);
+                        return prev;
+                    }
+                    return { ...prev, [id]: Math.max(0, (prev[id] || 0) + delta) };
+                });
+            };
+
+            const resetCounts = () => {
+                const zeroed = {};
+                Object.keys(FOCACCIA_VARIANTS).forEach(k => zeroed[k] = 0);
+                setCounts(zeroed);
+                showToast('Reparto reiniciado');
+            };
+
+            const buildText = () => {
+                const lines = [];
+                lines.push(`FOCACCIA — ${totalAssigned} ${totalAssigned === 1 ? 'bandeja' : 'bandejas'}`);
+                lines.push('═══════════════════════════════════════');
+                Object.entries(counts).forEach(([id, count]) => {
+                    if (count <= 0) return;
+                    const v = FOCACCIA_VARIANTS[id];
+                    lines.push(`\n${v.emoji} ${v.name} × ${count}`);
+                    v.ingredients.forEach(ing => {
+                        const total = ing.g * count;
+                        const u = ing.unit === 'hojas' ? ' hojas' : 'g';
+                        const w = ing.when === 'after' ? ' [al salir del horno]' : ing.when === 'split' ? ' [antes y al salir]' : '';
+                        lines.push(`  ${ing.name}: ${round(ing.g, 1)}${u}/bandeja × ${count} = ${round(total, 1)}${u}${w}`);
+                    });
+                });
+                lines.push('\n═══════════════════════════════════════');
+                lines.push('LISTA DE LA COMPRA');
+                lines.push('═══════════════════════════════════════');
+                FOCACCIA_TOPPING_ORDER.forEach(id => {
+                    const d = shoppingList[id];
+                    if (!d || d.total <= 0) return;
+                    const info = FOCACCIA_TOPPING_INFO[id];
+                    const val = d.unit === 'hojas' ? `~${Math.round(d.total)} hojas` : `${round(d.total, 1)}g`;
+                    lines.push(`• ${info.label}: ${val}${info.note ? '  (' + info.note + ')' : ''}`);
+                });
+                return lines.join('\n');
+            };
+
+            const copyAll = () => navigator.clipboard?.writeText(buildText()).then(() => showToast('Lista copiada ✓'));
+            const downloadAll = () => {
+                const blob = new Blob([buildText()], { type: 'text/plain;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url; a.download = `focaccia-toppings-${totalAssigned}b.txt`;
+                document.body.appendChild(a); a.click(); document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                showToast('Lista descargada ✓');
+            };
+
+            return (
+                <div className="animate-in">
+                    <div style={{
+                        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                        marginBottom: '1rem', flexWrap: 'wrap', gap: '0.5rem',
+                        padding: '0.75rem 0.95rem',
+                        background: isOverLimit ? 'var(--danger-soft)' : isAtLimit ? 'var(--success-soft)' : 'var(--surface-2)',
+                        border: `1px solid ${isOverLimit ? 'var(--danger)' : isAtLimit ? 'var(--success)' : 'var(--border-soft)'}`,
+                        borderRadius: 'var(--radius-sm)', transition: 'all 0.2s',
+                    }}>
+                        <div>
+                            <div style={{fontSize: '0.78rem', color: 'var(--text-soft)', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 600, marginBottom: '0.2rem'}}>
+                                Asignadas
+                            </div>
+                            <div style={{fontFamily: 'Fraunces, serif', fontSize: '1.35rem', fontWeight: 500, color: 'var(--text)', lineHeight: 1, fontVariantNumeric: 'tabular-nums'}}>
+                                {totalAssigned} <span style={{color: 'var(--text-muted)', fontSize: '1rem'}}>/ {maxTrays} {maxTrays === 1 ? 'bandeja' : 'bandejas'}</span>
+                            </div>
+                            <div style={{fontSize: '0.78rem', marginTop: '0.25rem', color: isOverLimit ? 'var(--danger)' : remaining === 0 ? 'var(--success)' : 'var(--text-soft)', fontWeight: 500}}>
+                                {isOverLimit ? `⚠️ Te pasas por ${totalAssigned - maxTrays}` : remaining === 0 ? '✓ Todo asignado' : `Quedan ${remaining} por asignar`}
+                            </div>
+                        </div>
+                        <div style={{display: 'flex', gap: '0.4rem', flexWrap: 'wrap'}}>
+                            <button className="icon-btn" onClick={resetCounts}>↻ Reset</button>
+                            <button className="icon-btn" onClick={copyAll} disabled={totalAssigned === 0}><Icon name="copy" size={14}/></button>
+                            <button className="icon-btn" onClick={downloadAll} disabled={totalAssigned === 0}><Icon name="download" size={14}/></button>
+                        </div>
+                    </div>
+
+                    <div style={{fontFamily: 'Fraunces, serif', fontSize: '0.95rem', fontWeight: 500, color: 'var(--accent)', marginBottom: '0.6rem'}}>
+                        Elige el aliño de cada bandeja
+                    </div>
+                    <div style={{display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1.25rem'}}>
+                        {Object.entries(FOCACCIA_VARIANTS).map(([id, v]) => {
+                            const count = counts[id] || 0;
+                            return (
+                                <div key={id} style={{
+                                    display: 'grid', gridTemplateColumns: '1fr auto', gap: '0.7rem', alignItems: 'center',
+                                    padding: '0.7rem 0.85rem',
+                                    background: count > 0 ? 'var(--primary-soft)' : 'var(--surface-2)',
+                                    border: `1px solid ${count > 0 ? 'var(--primary)' : 'var(--border-soft)'}`,
+                                    borderRadius: 'var(--radius-sm)', transition: 'all 0.15s',
+                                }}>
+                                    <div style={{minWidth: 0}}>
+                                        <div style={{fontWeight: 600, fontSize: '0.92rem', color: 'var(--text)', marginBottom: '0.15rem'}}>
+                                            {v.emoji} {v.name}
+                                        </div>
+                                        <div style={{fontSize: '0.76rem', color: 'var(--text-soft)', lineHeight: 1.4}}>{v.desc}</div>
+                                    </div>
+                                    <div style={{display: 'flex', alignItems: 'center', gap: '0.35rem', flexShrink: 0}}>
+                                        <button onClick={() => setCount(id, -1)} disabled={count === 0}
+                                            style={{width: '32px', height: '32px', border: '1px solid var(--border)', borderRadius: '6px',
+                                                background: count === 0 ? 'var(--surface-2)' : 'var(--surface)',
+                                                color: count === 0 ? 'var(--text-muted)' : 'var(--text)',
+                                                cursor: count === 0 ? 'not-allowed' : 'pointer', opacity: count === 0 ? 0.5 : 1,
+                                                fontFamily: 'inherit', fontSize: '1rem', fontWeight: 600}}>−</button>
+                                        <span style={{minWidth: '24px', textAlign: 'center', fontWeight: 600, fontVariantNumeric: 'tabular-nums'}}>{count}</span>
+                                        <button onClick={() => setCount(id, 1)} disabled={isAtLimit}
+                                            style={{width: '32px', height: '32px', border: '1px solid var(--border)', borderRadius: '6px',
+                                                background: isAtLimit ? 'var(--surface-2)' : 'var(--surface)',
+                                                color: isAtLimit ? 'var(--text-muted)' : 'var(--text)',
+                                                cursor: isAtLimit ? 'not-allowed' : 'pointer', opacity: isAtLimit ? 0.5 : 1,
+                                                fontFamily: 'inherit', fontSize: '1rem', fontWeight: 600}}>+</button>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+
+                    {totalAssigned > 0 && (
+                        <>
+                            <div style={{fontFamily: 'Fraunces, serif', fontSize: '0.95rem', fontWeight: 500, color: 'var(--accent)', marginBottom: '0.6rem'}}>
+                                🫓 Cantidades por bandeja
+                            </div>
+                            <div style={{display: 'flex', flexDirection: 'column', gap: '0.85rem', marginBottom: '1.5rem'}}>
+                                {Object.entries(counts).map(([id, count]) => {
+                                    if (count <= 0) return null;
+                                    const v = FOCACCIA_VARIANTS[id];
+                                    return (
+                                        <div key={id} className="phase-card" style={{marginBottom: 0, padding: '0.85rem 1rem'}}>
+                                            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem', gap: '0.5rem', flexWrap: 'wrap'}}>
+                                                <div style={{fontWeight: 600, fontSize: '0.92rem', color: 'var(--text)'}}>{v.emoji} {v.name}</div>
+                                                <span style={{fontSize: '0.72rem', color: 'var(--text-soft)', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 700, background: 'var(--surface-2)', padding: '0.15rem 0.55rem', borderRadius: '999px'}}>× {count}</span>
+                                            </div>
+                                            <table className="recipe-table" style={{marginBottom: 0}}>
+                                                <thead>
+                                                    <tr>
+                                                        <th>Ingrediente</th>
+                                                        <th style={{textAlign: 'right'}}>Por bandeja</th>
+                                                        <th style={{textAlign: 'right'}}>Total ({count})</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {v.ingredients.map(ing => {
+                                                        const u = ing.unit === 'hojas' ? ' hojas' : 'g';
+                                                        return (
+                                                            <tr key={ing.id}>
+                                                                <td>
+                                                                    {ing.name}
+                                                                    {ing.when === 'after' && <span style={{fontSize: '0.68rem', color: 'var(--cold)', fontWeight: 700, marginLeft: '0.35rem'}}>AL SALIR</span>}
+                                                                    {ing.note && <div className="note">{ing.note}</div>}
+                                                                </td>
+                                                                <td className="qty" style={{whiteSpace: 'nowrap'}}>{round(ing.g, 1)}{u}</td>
+                                                                <td className="qty" style={{whiteSpace: 'nowrap'}}>{round(ing.g * count, 1)}{u}</td>
+                                                            </tr>
+                                                        );
+                                                    })}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+
+                            <div style={{fontFamily: 'Fraunces, serif', fontSize: '0.95rem', fontWeight: 500, color: 'var(--accent)', marginBottom: '0.6rem'}}>
+                                🛒 Lista de la compra
+                            </div>
+                            <div className="phase-card" style={{marginBottom: '1rem', padding: '0.5rem 0.85rem'}}>
+                                <table className="recipe-table" style={{marginBottom: 0}}>
+                                    <thead>
+                                        <tr><th>Ingrediente</th><th style={{textAlign: 'right'}}>Cantidad</th></tr>
+                                    </thead>
+                                    <tbody>
+                                        {FOCACCIA_TOPPING_ORDER.map(id => {
+                                            const d = shoppingList[id];
+                                            if (!d || d.total <= 0) return null;
+                                            const info = FOCACCIA_TOPPING_INFO[id];
+                                            return (
+                                                <tr key={id}>
+                                                    <td>
+                                                        {info.label}
+                                                        {info.note && <div className="note">{info.note}</div>}
+                                                    </td>
+                                                    <td className="qty" style={{whiteSpace: 'nowrap'}}>
+                                                        {d.unit === 'hojas' ? `~${Math.round(d.total)} hojas` : `${round(d.total, 1)}g`}
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })}
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div className="info-note">
+                                <strong>Lo que va al salir del horno</strong> (marcado arriba) no se hornea: quesos frescos, jamón, albahaca y miel se queman o se estropean a 220°C.
+                                <br/><strong>Verduras acuosas</strong> (cherry, calabacín): ponlas boca arriba y sin amontonar, o soltarán agua sobre la masa.
+                            </div>
+                        </>
+                    )}
+                </div>
+            );
+        };
+
+        // ============================================================
         // GOFRES RESULTS COMPONENT
         // ============================================================
-        const GofresResults = ({ units, coldHours, readyTime, setReadyTime, showToast }) => {
+        const GofresResults = ({ units, coldHours, readyTime, setReadyTime, checks, onToggleCheck, onResetChecks, showToast }) => {
             const [activeTab, setActiveTab] = useState('recipe');
             const recipe = useMemo(() => scaleGofres(units), [units]);
 
@@ -2123,6 +2539,8 @@
                         <button className={`tab ${activeTab === 'process' ? 'active' : ''}`} onClick={() => setActiveTab('process')}>📜 Proceso</button>
                         <button className={`tab ${activeTab === 'schedule' ? 'active' : ''}`} onClick={() => setActiveTab('schedule')}>⏱ Cronograma</button>
                         <button className={`tab ${activeTab === 'tips' ? 'active' : ''}`} onClick={() => setActiveTab('tips')}>💡 Consejos</button>
+                        <button className={`tab ${activeTab === 'toppings' ? 'active' : ''}`} onClick={() => setActiveTab('toppings')}>🛒 Aliños</button>
+                        <button className={`tab ${activeTab === 'checklist' ? 'active' : ''}`} onClick={() => setActiveTab('checklist')}>✓ Checklist</button>
                     </div>
 
                     {/* RECIPE TAB */}
@@ -2275,6 +2693,28 @@
                             </div>
                         </div>
                     )}
+
+                    {/* CHECKLIST TAB */}
+                    {activeTab === 'checklist' && (
+                        <Checklist
+                            items={[
+                                { id: 'gof_levadura', text: 'Levadura activada en leche tibia · ha espumado' },
+                                { id: 'gof_masa',     text: 'Masa base amasada 5 min · cohesionada' },
+                                { id: 'gof_mantequilla', text: 'Mantequilla incorporada poco a poco · masa lisa y elástica' },
+                                { id: 'gof_bulk',     text: 'Primera fermentación 90 min · ha doblado' },
+                                { id: 'gof_frio',     text: `Fermentación en frío · ${formatHours(coldHours)}` },
+                                { id: 'gof_perlas',   text: 'Perlas de azúcar repartidas plegando suave · 15 min de reposo' },
+                                { id: 'gof_bolas',    text: `${units} bolas de ~${GOFRE_WEIGHT}g formadas y tapadas` },
+                                { id: 'gof_ultima',   text: 'Última fermentación 30 min · gofrera precalentando' },
+                                { id: 'gof_coccion',  text: `Cocción por tandas · ${Math.ceil(units / 4)} ${Math.ceil(units / 4) === 1 ? 'tanda' : 'tandas'} sin pegarlos` },
+                                { id: 'gof_reposo',   text: 'Reposo de 2 min sobre rejilla · caramelo endurecido' },
+                            ]}
+                            checks={checks}
+                            onToggle={onToggleCheck}
+                            onReset={onResetChecks}
+                            note="El progreso se guarda solo. Útil si haces la fermentación larga y retomas al día siguiente."
+                        />
+                    )}
                 </div>
             );
         };
@@ -2282,7 +2722,7 @@
         // ============================================================
         // FOCACCIA RESULTS COMPONENT
         // ============================================================
-        const FocacciaResults = ({ starterType, trays, ambientTemp, coldHours, bakeTime, setBakeTime, showToast }) => {
+        const FocacciaResults = ({ starterType, trays, ambientTemp, coldHours, bakeTime, setBakeTime, checks, onToggleCheck, onResetChecks, toppings, setToppings, showToast }) => {
             const [activeTab, setActiveTab] = useState('recipe');
 
             // Auto-select thermal mode based on temperature
@@ -2378,6 +2818,7 @@
                         <button className={`tab ${activeTab === 'process' ? 'active' : ''}`} onClick={() => setActiveTab('process')}>📜 Proceso</button>
                         <button className={`tab ${activeTab === 'schedule' ? 'active' : ''}`} onClick={() => setActiveTab('schedule')}>⏱ Cronograma</button>
                         <button className={`tab ${activeTab === 'baking' ? 'active' : ''}`} onClick={() => setActiveTab('baking')}>🔥 Horneado</button>
+                        <button className={`tab ${activeTab === 'checklist' ? 'active' : ''}`} onClick={() => setActiveTab('checklist')}>✓ Checklist</button>
                     </div>
 
                     {/* Thermal mode indicator */}
@@ -2549,6 +2990,39 @@
                             </div>
                         </div>
                     )}
+
+                    {/* TOPPINGS TAB */}
+                    {activeTab === 'toppings' && (
+                        <FocacciaToppings
+                            counts={toppings}
+                            setCounts={setToppings}
+                            maxTrays={trays}
+                            showToast={showToast}
+                        />
+                    )}
+
+                    {/* CHECKLIST TAB */}
+                    {activeTab === 'checklist' && (
+                        <Checklist
+                            items={[
+                                { id: 'foc_mezcla',   day: 'Día 1', text: 'Agua + fermento disueltos · harina amasada' },
+                                { id: 'foc_sal',      day: 'Día 1', text: 'Sal y chorrito de aceite incorporados al final' },
+                                { id: 'foc_bulk',     day: 'Día 1', text: `Bulk de ${formatHours(levado1Hours)} a ${ambientTemp}°C completado` },
+                                { id: 'foc_pliegues', day: 'Día 1', text: 'Pliegues hechos con la mano mojada · 30 min de reposo' },
+                                { id: 'foc_nevera',   day: 'Día 1', text: `A la nevera tapada · ${formatHours(coldHours)}` },
+                                { id: 'foc_bandeja',  day: 'Día 2', text: `${trays} ${trays === 1 ? 'bandeja engrasada' : 'bandejas engrasadas'} con aceite de oliva` },
+                                { id: 'foc_atempera', day: 'Día 2', text: 'Masa atemperada ~1h y volcada sin manipular' },
+                                { id: 'foc_alino',    day: 'Día 2', text: 'Aliñada: aceite, escamas de sal y toppings' },
+                                { id: 'foc_hoyitos',  day: 'Día 2', text: 'Hoyitos marcados con las yemas de los dedos' },
+                                { id: 'foc_horno',    day: 'Día 2', text: 'Horneada a 220°C con vapor · 30 min' },
+                                { id: 'foc_reposo',   day: 'Día 2', text: 'Reposo de 30 min antes de cortar' },
+                            ]}
+                            checks={checks}
+                            onToggle={onToggleCheck}
+                            onReset={onResetChecks}
+                            note="Marca cada paso a medida que avanzas. El progreso se guarda aunque cierres la página."
+                        />
+                    )}
                 </div>
             );
         };
@@ -2556,7 +3030,7 @@
         // ============================================================
         // PANETTONE RESULTS COMPONENT
         // ============================================================
-        const PanettoneResults = ({ mold, units, liquidStarter, bakeDay, checks, onToggleCheck, showToast }) => {
+        const PanettoneResults = ({ mold, units, liquidStarter, bakeDay, checks, onToggleCheck, onResetChecks, showToast }) => {
             const [activeTab, setActiveTab] = useState('process');
             const moldData = PANETTONE_MOLDS[mold];
             const totalLoad = moldData.loadCrudo * units;
@@ -2568,23 +3042,9 @@
             const impasto1Total = impasto1.reduce((s, i) => s + i.g, 0);
             const impasto2Total = impasto2.reduce((s, i) => s + i.g, 0);
 
-            // Build a 5-day schedule based on bake day
-            const days = useMemo(() => {
-                const dayNames = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
-                const bakeDayIndex = bakeDay === 'sunday' ? 6 : bakeDay === 'saturday' ? 5 : 4;
-                const sequence = [];
-                // Day -4: prep
-                sequence.push({ offset: -4, name: dayNames[(bakeDayIndex - 4 + 7) % 7], phase: 'prep' });
-                // Day -3: liquid->solid step 1 (if applicable)
-                sequence.push({ offset: -3, name: dayNames[(bakeDayIndex - 3 + 7) % 7], phase: 'conversion' });
-                // Day -2: refresh activation
-                sequence.push({ offset: -2, name: dayNames[(bakeDayIndex - 2 + 7) % 7], phase: 'awakening' });
-                // Day -1: bagnetto + 1st impasto
-                sequence.push({ offset: -1, name: dayNames[(bakeDayIndex - 1 + 7) % 7], phase: 'madre_impasto1' });
-                // Day 0: 2nd impasto + bake
-                sequence.push({ offset: 0, name: dayNames[bakeDayIndex], phase: 'final' });
-                return sequence;
-            }, [bakeDay]);
+            // Nombre del día para un offset relativo al día de horneado.
+            // offset 0 = día de horneado, -1 = víspera, etc.
+            const dayName = useCallback((offset) => panDayName(bakeDay, offset), [bakeDay]);
 
             // Build full recipe text for copy
             const buildText = () => {
@@ -2594,21 +3054,21 @@
                 lines.push('\nReceta: Víctor Molina Pitarch · V2.0');
                 lines.push(`Harina Manitoba El Amasadero W415\n`);
 
-                lines.push('━━━ FASE 0 · PREPARACIÓN PREVIA (JUEVES) ━━━');
+                lines.push(`━━━ FASE 0 · PREPARACIÓN PREVIA (${dayName(-3).toUpperCase()}) ━━━`);
                 PANETTONE_PREP.forEach(p => {
                     lines.push(`\n• ${p.name}`);
                     lines.push(`  ${p.desc}`);
                     if (p.warn) lines.push(`  ⚠️ ${p.warn}`);
                 });
 
-                lines.push('\n━━━ FASE 3 · PRIMER IMPASTO (SÁBADO NOCHE) ━━━');
+                lines.push(`\n━━━ FASE 3 · PRIMER IMPASTO (${dayName(-1).toUpperCase()} NOCHE) ━━━`);
                 impasto1.forEach(i => {
                     lines.push(`  ${i.name}: ${round(i.g, 1)}g${i.note ? ' (' + i.note + ')' : ''}`);
                 });
                 lines.push(`  Total: ${round(impasto1Total, 0)}g`);
                 lines.push('  Fermentación: 25-26°C · 12-14h · debe TRIPLICAR · pH ideal 5.2-5.4');
 
-                lines.push('\n━━━ FASE 4 · SEGUNDO IMPASTO (DOMINGO MAÑANA) ━━━');
+                lines.push(`\n━━━ FASE 4 · SEGUNDO IMPASTO (${dayName(0).toUpperCase()} MAÑANA) ━━━`);
                 impasto2.forEach(i => {
                     lines.push(`  ${i.name}: ${round(i.g, 1)}g${i.note ? ' (' + i.note + ')' : ''}`);
                 });
@@ -2643,23 +3103,22 @@
 
             // Checklist items
             const allChecks = [
-                { id: 'prep_naranja',   day: 'Jueves',  text: 'Naranja confitada hecha y secando en rejilla' },
-                { id: 'prep_choco',     day: 'Jueves',  text: 'Chocolate troceado en el congelador' },
-                { id: 'prep_aux',       day: 'Jueves',  text: 'Pasta de naranja, crema pastelera y glassa en nevera' },
-                ...(liquidStarter ? [{ id: 'conversion', day: 'Mié-Jue', text: 'Conversión líquida → sólida completada' }] : []),
-                { id: 'fri_refresh',    day: 'Viernes', text: 'Refresco de activación. Madre dura en nevera' },
-                { id: 'sat_bagnetto',   day: 'Sábado',  text: 'Bagnetto + 3 refrescos completos · pH 4.1' },
-                { id: 'sat_impasto1',   day: 'Sáb. noche', text: '1er impasto amasado y en fermentación 25-26°C' },
-                { id: 'sun_triplica',   day: 'Domingo', text: '1er impasto triplicado · pH > 5.2 · OK para continuar' },
-                { id: 'sun_impasto2',   day: 'Domingo', text: '2º impasto OK · T 24-26°C · membrana translúcida' },
-                { id: 'sun_choco',      day: 'Domingo', text: 'Chocolate aún congelado al incorporarlo' },
-                { id: 'sun_pirlado',    day: 'Domingo', text: 'Pirlado doble · cargado en molde' },
-                { id: 'sun_ferm_final', day: 'Domingo', text: 'Fermentación final: cuerpo a 1 dedo del borde · pH 5.1-5.2' },
-                { id: 'sun_glassa',     day: 'Domingo', text: 'Piel secada 10 min · glassa aplicada · almendras + perlado' },
-                { id: 'sun_horno',      day: 'Domingo', text: `Horneado ${moldData.bakeTemp}°C · sonda lista para 92°C` },
-                { id: 'sun_volteo',     day: 'Domingo', text: 'VOLTEO inmediato · enfriar 12h boca abajo' },
+                { id: 'prep_naranja',   day: dayName(-3),  text: 'Naranja confitada hecha y secando en rejilla' },
+                { id: 'prep_choco',     day: dayName(-3),  text: 'Chocolate troceado en el congelador' },
+                { id: 'prep_aux',       day: dayName(-3),  text: 'Pasta de naranja, crema pastelera y glassa en nevera' },
+                ...(liquidStarter ? [{ id: 'conversion', day: dayName(-4) + '-' + dayName(-3), text: 'Conversión líquida → sólida completada' }] : []),
+                { id: 'fri_refresh',    day: dayName(-2), text: 'Refresco de activación. Madre dura en nevera' },
+                { id: 'sat_bagnetto',   day: dayName(-1),  text: 'Bagnetto + 3 refrescos completos · pH 4.1' },
+                { id: 'sat_impasto1',   day: dayName(-1) + ' noche', text: '1er impasto amasado y en fermentación 25-26°C' },
+                { id: 'sun_triplica',   day: dayName(0), text: '1er impasto triplicado · pH > 5.2 · OK para continuar' },
+                { id: 'sun_impasto2',   day: dayName(0), text: '2º impasto OK · T 24-26°C · membrana translúcida' },
+                { id: 'sun_choco',      day: dayName(0), text: 'Chocolate aún congelado al incorporarlo' },
+                { id: 'sun_pirlado',    day: dayName(0), text: 'Pirlado doble · cargado en molde' },
+                { id: 'sun_ferm_final', day: dayName(0), text: 'Fermentación final: cuerpo a 1 dedo del borde · pH 5.1-5.2' },
+                { id: 'sun_glassa',     day: dayName(0), text: 'Piel secada 10 min · glassa aplicada · almendras + perlado' },
+                { id: 'sun_horno',      day: dayName(0), text: `Horneado ${moldData.bakeTemp}°C · sonda lista para 92°C` },
+                { id: 'sun_volteo',     day: dayName(0), text: 'VOLTEO inmediato · enfriar 12h boca abajo' },
             ];
-            const doneCount = allChecks.filter(c => checks[c.id]).length;
 
             return (
                 <div>
@@ -2677,7 +3136,7 @@
                             <div className="phase-card">
                                 <div className="phase-card-header">
                                     <div className="phase-card-title">🍊 Fase 0 · Preparación previa</div>
-                                    <span className="phase-day">Jueves</span>
+                                    <span className="phase-day">{dayName(-3)}</span>
                                 </div>
                                 {PANETTONE_PREP.map((p, i) => (
                                     <div key={i} style={{marginBottom: i < PANETTONE_PREP.length - 1 ? '0.85rem' : 0, paddingBottom: i < PANETTONE_PREP.length - 1 ? '0.85rem' : 0, borderBottom: i < PANETTONE_PREP.length - 1 ? '1px solid var(--border-soft)' : 'none'}}>
@@ -2696,7 +3155,7 @@
                             <div className="phase-card">
                                 <div className="phase-card-header">
                                     <div className="phase-card-title">🌙 Fase 1 · El despertar</div>
-                                    <span className="phase-day">Viernes noche</span>
+                                    <span className="phase-day">{dayName(-2)} noche</span>
                                 </div>
                                 <table className="recipe-table" style={{marginBottom: '0.5rem'}}>
                                     <tbody>
@@ -2710,7 +3169,7 @@
                             <div className="phase-card">
                                 <div className="phase-card-header">
                                     <div className="phase-card-title">🌾 Fase 2 · Día de la masa madre</div>
-                                    <span className="phase-day">Sábado mañana</span>
+                                    <span className="phase-day">{dayName(-1)} mañana</span>
                                 </div>
                                 <div style={{fontSize: '0.85rem', color: 'var(--text-soft)', marginBottom: '0.6rem', lineHeight: 1.55}}>
                                     <strong style={{color: 'var(--text)'}}>Objetivo:</strong> <span className="ph-pill ok">pH 4.1</span> y fuerza bruta.
@@ -2730,7 +3189,7 @@
                             <div className="phase-card">
                                 <div className="phase-card-header">
                                     <div className="phase-card-title">🍳 Fase 3 · Primer impasto</div>
-                                    <span className="phase-day">Sábado noche</span>
+                                    <span className="phase-day">{dayName(-1)} noche</span>
                                 </div>
                                 <div style={{fontSize: '0.83rem', color: 'var(--text-soft)', marginBottom: '0.5rem', lineHeight: 1.55}}>
                                     <strong style={{color: 'var(--text)'}}>Fermentación:</strong> 25-26°C · 12-14h. Debe <strong>TRIPLICAR</strong> volumen.
@@ -2747,7 +3206,7 @@
                             <div className="phase-card">
                                 <div className="phase-card-header">
                                     <div className="phase-card-title">🥄 Fase 4 · Segundo impasto</div>
-                                    <span className="phase-day">Domingo mañana</span>
+                                    <span className="phase-day">{dayName(0)} mañana</span>
                                 </div>
                                 <div style={{fontSize: '0.83rem', color: 'var(--text-soft)', marginBottom: '0.6rem', lineHeight: 1.55}}>
                                     Amasado intensivo. Controla la temperatura de la masa en todo momento — <strong>no debe superar 26°C.</strong>
@@ -2772,7 +3231,7 @@
                             <div className="phase-card">
                                 <div className="phase-card-header">
                                     <div className="phase-card-title">🎯 Fase 5 · Formado y carga</div>
-                                    <span className="phase-day">Domingo</span>
+                                    <span className="phase-day">{dayName(0)}</span>
                                 </div>
                                 <table className="recipe-table" style={{marginBottom: '0.5rem'}}>
                                     <tbody>
@@ -2794,7 +3253,7 @@
                             <div className="phase-card">
                                 <div className="phase-card-header">
                                     <div className="phase-card-title">🔥 Fase 6 · Decoración y horneado</div>
-                                    <span className="phase-day">Domingo</span>
+                                    <span className="phase-day">{dayName(0)}</span>
                                 </div>
                                 <div style={{fontSize: '0.82rem', color: 'var(--text)', lineHeight: 1.65, marginBottom: '0.6rem'}}>
                                     <ol style={{paddingLeft: '1.2rem', display: 'flex', flexDirection: 'column', gap: '0.3rem'}}>
@@ -2917,29 +3376,13 @@
 
                     {/* CHECKLIST TAB */}
                     {activeTab === 'checklist' && (
-                        <div className="animate-in">
-                            <div className="quality-bar">
-                                <span style={{fontWeight: 600}}>Progreso:</span>
-                                <span style={{color: 'var(--text-soft)', fontSize: '0.85rem', fontVariantNumeric: 'tabular-nums'}}>{doneCount} / {allChecks.length}</span>
-                                <div style={{flex: 1, height: '6px', background: 'var(--border)', borderRadius: '3px', overflow: 'hidden', marginLeft: '0.5rem'}}>
-                                    <div style={{width: `${(doneCount / allChecks.length) * 100}%`, height: '100%', background: 'var(--success)', transition: 'width 0.3s'}}></div>
-                                </div>
-                            </div>
-                            <ul className="checklist">
-                                {allChecks.map(c => (
-                                    <li key={c.id} className={checks[c.id] ? 'done' : ''} onClick={() => onToggleCheck(c.id)}>
-                                        <span className="check-box">
-                                            {checks[c.id] && <Icon name="check" size={12}/>}
-                                        </span>
-                                        <span className="check-day">{c.day}</span>
-                                        <span style={{flex: 1}}>{c.text}</span>
-                                    </li>
-                                ))}
-                            </ul>
-                            <div className="info-note" style={{marginTop: '1rem'}}>
-                                Marca cada paso a medida que avanzas. El progreso se guarda automáticamente.
-                            </div>
-                        </div>
+                        <Checklist
+                            items={allChecks}
+                            checks={checks}
+                            onToggle={onToggleCheck}
+                            onReset={onResetChecks}
+                            note="Proceso de 5 días: marca cada paso según avanzas. El progreso se guarda aunque cierres la página."
+                        />
                     )}
 
                     {/* BAKING TAB */}
@@ -3021,10 +3464,14 @@
                 if (typeof localStorage !== 'undefined') localStorage.setItem('theme', theme);
             }, [theme]);
 
+
             const initial = loadSaved();
             const [doughType, setDoughType]                   = useState(initial.doughType);
             const [flour, setFlour]                           = useState(initial.flour);
             const [pizzaBalls, setPizzaBalls]                 = useState(initial.pizzaBalls);
+            const [pizzaOven, setPizzaOven] = useState(() => {
+                try { return localStorage.getItem('pizzaOven') || 'ooni'; } catch(e) { return 'ooni'; }
+            });
             const [hydration, setHydration]                   = useState(initial.hydration);
             const [saltPercent, setSaltPercent]               = useState(initial.saltPercent);
             const [totalTime, setTotalTime]                   = useState(initial.totalTime);
@@ -3085,6 +3532,19 @@
                 try { return localStorage.getItem('focBakeTime') || '13:00'; } catch(e) { return '13:00'; }
             });
 
+            const [focToppings, setFocToppings] = useState(() => {
+                try {
+                    const saved = localStorage.getItem('focToppings');
+                    if (saved) return JSON.parse(saved);
+                } catch(e) {}
+                return { clasica: 1, patata_romero: 0, cebolla_gorgonzola: 0, cherry_ajo: 0, anchoas_alcaparras: 0, higos_stracciatella: 0 };
+            });
+
+            const [focChecks, setFocChecks] = useState(() => {
+                try { return JSON.parse(localStorage.getItem('focChecks') || '{}'); } catch(e) { return {}; }
+            });
+            const toggleFocCheck = (id) => setFocChecks(prev => ({ ...prev, [id]: !prev[id] }));
+
             // Gofres state
             const [gofUnits, setGofUnits]         = useState(() => {
                 try { return parseInt(localStorage.getItem('gofUnits')) || 13; } catch(e) { return 13; }
@@ -3095,6 +3555,11 @@
             const [gofReadyTime, setGofReadyTime] = useState(() => {
                 try { return localStorage.getItem('gofReadyTime') || '17:30'; } catch(e) { return '17:30'; }
             });
+
+            const [gofChecks, setGofChecks] = useState(() => {
+                try { return JSON.parse(localStorage.getItem('gofChecks') || '{}'); } catch(e) { return {}; }
+            });
+            const toggleGofCheck = (id) => setGofChecks(prev => ({ ...prev, [id]: !prev[id] }));
 
             // Pizza topping counts (per variant)
             const [pizzaToppingCounts, setPizzaToppingCounts] = useState(() => {
@@ -3127,8 +3592,12 @@
                     localStorage.setItem('gofColdHours', String(gofColdHours));
                     localStorage.setItem('gofReadyTime', gofReadyTime);
                     localStorage.setItem('pizzaToppingCounts', JSON.stringify(pizzaToppingCounts));
+                    localStorage.setItem('pizzaOven', pizzaOven);
+                    localStorage.setItem('focChecks', JSON.stringify(focChecks));
+                    localStorage.setItem('focToppings', JSON.stringify(focToppings));
+                    localStorage.setItem('gofChecks', JSON.stringify(gofChecks));
                 } catch(e) {}
-            }, [panMold, panUnits, panLiquidStarter, panChecks, panBakeDay, focStarter, focTrays, focAmbient, focColdHours, focBakeTime, gofUnits, gofColdHours, gofReadyTime, pizzaToppingCounts]);
+            }, [panMold, panUnits, panLiquidStarter, panChecks, panBakeDay, focStarter, focTrays, focAmbient, focColdHours, focBakeTime, gofUnits, gofColdHours, gofReadyTime, pizzaToppingCounts, pizzaOven, focChecks, gofChecks, focToppings]);
 
             const togglePanCheck = (id) => {
                 setPanChecks(prev => ({ ...prev, [id]: !prev[id] }));
@@ -3139,6 +3608,65 @@
                 setToast(msg);
                 setTimeout(() => setToast(null), 2200);
             }, []);
+
+            // Con levadura comercial el máximo razonable de frío es 48h
+            useEffect(() => {
+                if (focStarter === 'levadura' && focColdHours > 48) setFocColdHours(48);
+            }, [focStarter, focColdHours]);
+
+            // ── Wake Lock: mantener la pantalla encendida mientras cocinas ──
+            // wakeWanted = intención del usuario (persiste aunque el sistema
+            // libere el bloqueo al minimizar). wakeRef = bloqueo real activo.
+            const wakeSupported = typeof navigator !== 'undefined' && 'wakeLock' in navigator;
+            const [wakeWanted, setWakeWanted] = useState(false);
+            const wakeRef = React.useRef(null);
+
+            const acquireWake = useCallback(async () => {
+                if (!wakeSupported) return false;
+                try {
+                    const lock = await navigator.wakeLock.request('screen');
+                    wakeRef.current = lock;
+                    lock.addEventListener('release', () => { wakeRef.current = null; });
+                    return true;
+                } catch (e) {
+                    wakeRef.current = null;
+                    return false;
+                }
+            }, [wakeSupported]);
+
+            const toggleWake = useCallback(async () => {
+                if (!wakeSupported) {
+                    showToast('Tu navegador no permite mantener la pantalla encendida');
+                    return;
+                }
+                if (wakeWanted) {
+                    try { await wakeRef.current?.release(); } catch (e) {}
+                    wakeRef.current = null;
+                    setWakeWanted(false);
+                    showToast('Pantalla liberada');
+                } else {
+                    const ok = await acquireWake();
+                    if (ok) {
+                        setWakeWanted(true);
+                        showToast('Pantalla siempre encendida ☕');
+                    } else {
+                        showToast('No se pudo activar el bloqueo de pantalla');
+                    }
+                }
+            }, [wakeWanted, wakeSupported, acquireWake, showToast]);
+
+            // El sistema libera el bloqueo al minimizar o cambiar de pestaña:
+            // lo recuperamos al volver si el usuario lo dejó activado.
+            useEffect(() => {
+                if (!wakeSupported) return;
+                const onVisible = () => {
+                    if (wakeWanted && document.visibilityState === 'visible' && !wakeRef.current) {
+                        acquireWake();
+                    }
+                };
+                document.addEventListener('visibilitychange', onVisible);
+                return () => document.removeEventListener('visibilitychange', onVisible);
+            }, [wakeWanted, wakeSupported, acquireWake]);
 
             // Persist state to localStorage
             useEffect(() => {
@@ -3221,7 +3749,7 @@
                     }
                 }
             // eslint-disable-next-line
-            }, [flour, pizzaBalls, hydration, saltPercent, totalTime, temperature, useColdProof, coldProofTime, prefermentType, prefermentFlourPercent, prefermentTime, prefermentTemp, doughType]);
+            }, [flour, pizzaBalls, hydration, saltPercent, totalTime, temperature, useColdProof, coldProofTime, prefermentType, prefermentFlourPercent, prefermentTime, prefermentTemp, doughType, pizzaOven]);
 
             useEffect(() => {
                 if (doughType === 'pizza' && hydration > 70) setHydration(62);
@@ -3285,15 +3813,75 @@
                 const finalProofTime = (1.5 / rateFactor(temperature)) * (useColdProof ? 1.2 : 1);
 
                 const bakingPlan = (() => {
-                    if (doughType === 'pizza') return {
-                        preheat: { temp: 'Máxima (250-300°C)', time: '45-60 min', notes: 'Imprescindible piedra o acero refractario dentro del horno desde el inicio.' },
-                        phases: [{
-                            name: 'Cocción rápida',
-                            temp: 'Máx.', time: '5-8 min', mode: 'Grill + suelo',
-                            action: 'Pizza directa sobre la piedra ardiendo. La cocción es muy rápida: vigila el burbujeo y el dorado del cornicione.'
-                        }],
-                        cooling: 'Servir al instante para mantener la masa elástica y los bordes crujientes.'
-                    };
+                    if (doughType === 'pizza') {
+                        if (pizzaOven === 'ooni') return {
+                            preheat: {
+                                temp: '430-450°C en la piedra',
+                                time: '20-30 min a llama máxima',
+                                notes: 'No basta con que la piedra marque 430°C: el techo tiene que estar incandescente. Mide también la cúpula (~500°C). El cornicione sube por el calor radiante de arriba, no por el suelo.'
+                            },
+                            phases: [
+                                {
+                                    name: 'Entrada y asentado',
+                                    temp: 'Llama al máximo', time: '0-30 s', mode: 'Sin tocar',
+                                    action: 'Introduce la pizza dejando el borde exterior a unos 2 cm de la boca. NO bajes la llama: si la bajas, la cúpula se enfría y pierdes el cornicione. Los primeros 20-30 s déjala quieta para que la base agarre.'
+                                },
+                                {
+                                    name: 'Giros',
+                                    temp: 'Llama al máximo', time: '30-60 s', mode: 'Pala perforada',
+                                    action: 'Gira 90° cada 15-20 s con la pala. No la lleves hacia el fondo al girar: el fondo es para recuperar la piedra entre pizzas, no para cocinar. Si un lado se te dora demasiado rápido, gira antes.'
+                                },
+                                {
+                                    name: 'Doming (leoparding)',
+                                    temp: 'Llama al máximo', time: '15-20 s finales', mode: 'Pizza elevada',
+                                    action: 'Cuando la base ya esté hecha, levanta la pizza con la pala 5-15 cm hacia el techo. Ese golpe de calor radiante es lo que hincha el cornicione y crea las manchas oscuras. Si el borde se te quema, baja la altura del doming antes que bajar la llama.'
+                                }
+                            ],
+                            cooling: 'Fuera a los 60-90 s totales. Si tardas más, el precalentamiento se quedó corto. Aceite EVOO en crudo al salir y a la mesa.'
+                        };
+
+                        if (pizzaOven === 'acero') return {
+                            preheat: {
+                                temp: '250-300°C (máxima)',
+                                time: '45-60 min con el acero dentro',
+                                notes: 'El acero conduce mucho más calor que la piedra. Colócalo en la parte alta del horno, a 15-20 cm del grill.'
+                            },
+                            phases: [
+                                {
+                                    name: 'Base sobre el acero',
+                                    temp: 'Máxima', time: '3-4 min', mode: 'Calor arriba/abajo',
+                                    action: 'Pizza directa sobre el acero ardiendo. El acero hace la base rápido mientras el resto se cocina.'
+                                },
+                                {
+                                    name: 'Grill para el cornicione',
+                                    temp: 'Grill al máximo', time: '1-2 min', mode: 'Solo grill',
+                                    action: 'Enciende el grill los últimos minutos. Es la única forma de conseguir algo de leoparding en un horno doméstico. Vigila sin separarte: pasa de dorado a quemado en segundos.'
+                                }
+                            ],
+                            cooling: 'Servir al instante. Aceite EVOO en crudo al salir.'
+                        };
+
+                        return {
+                            preheat: {
+                                temp: '250°C (máxima)',
+                                time: '45-60 min con la piedra o bandeja dentro',
+                                notes: 'Sin acero el calor sube más despacio. Precalienta la superficie de cocción desde el principio; nunca metas la pizza en una bandeja fría.'
+                            },
+                            phases: [
+                                {
+                                    name: 'Cocción',
+                                    temp: '250°C', time: '7-10 min', mode: 'Calor abajo + ventilador si tienes',
+                                    action: 'Coloca la pizza en la parte baja los primeros minutos para hacer la base, y súbela después. Con estas temperaturas la masa se seca más, así que no te pases de tiempo.'
+                                },
+                                {
+                                    name: 'Golpe de grill',
+                                    temp: 'Grill', time: '1-2 min', mode: 'Solo grill arriba',
+                                    action: 'Grill al final para dar color al cornicione y fundir bien el queso. Sin este paso la pizza queda pálida.'
+                                }
+                            ],
+                            cooling: 'Servir al instante. Con horno doméstico no esperes leoparding: busca una pizza bien cocida y sabrosa, no la estética napolitana.'
+                        };
+                    }
 
                     const tf = 1 + ((currentFlour - 500) / 500) * 0.25;
 
@@ -3506,6 +4094,13 @@
                             </div>
                         </div>
                         <div className="header-actions">
+                            {wakeSupported && (
+                                <button className={`icon-btn wake-btn ${wakeWanted ? 'on' : ''}`} onClick={toggleWake}
+                                    title={wakeWanted ? 'Pantalla encendida — pulsa para liberar' : 'Mantener la pantalla encendida'}>
+                                    <Icon name={wakeWanted ? 'eye' : 'eyeOff'} />
+                                    <span>{wakeWanted ? 'Pantalla ON' : 'Pantalla'}</span>
+                                </button>
+                            )}
                             <button className="icon-btn" onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
                                 title={theme === 'light' ? 'Modo oscuro' : 'Modo claro'}>
                                 <Icon name={theme === 'light' ? 'moon' : 'sun'} />
@@ -3794,8 +4389,8 @@
                                             {panLiquidStarter && (
                                                 <div style={{marginTop: '0.85rem', padding: '0.85rem 1rem', background: 'var(--cold-soft)', border: '1px solid var(--cold)', borderRadius: 'var(--radius-sm)', fontSize: '0.82rem', color: 'var(--text)', lineHeight: 1.55}}>
                                                     <div style={{fontWeight: 700, color: 'var(--cold)', marginBottom: '0.3rem'}}>Fase 0-bis · Conversión líquida → sólida</div>
-                                                    <strong>Miércoles:</strong> 20g madre líquida + 40g harina Manitoba + 15g agua tibia. Amasa fuerte (bola dura), 28°C hasta doblar, después nevera.
-                                                    <br/><strong>Jueves:</strong> Saca el centro (50g), refresca con 50g harina + 22g agua. Forma rulo apretado, deja endurecer a t.a., nevera.
+                                                    <strong>{panDayName(panBakeDay, -4)}:</strong> 20g madre líquida + 40g harina Manitoba + 15g agua tibia. Amasa fuerte (bola dura), 28°C hasta doblar, después nevera.
+                                                    <br/><strong>{panDayName(panBakeDay, -3)}:</strong> Saca el centro (50g), refresca con 50g harina + 22g agua. Forma rulo apretado, deja endurecer a t.a., nevera.
                                                 </div>
                                             )}
                                         </div>
@@ -3813,7 +4408,7 @@
                                                 </select>
                                             </div>
                                             <div style={{fontSize: '0.78rem', color: 'var(--text-soft)', fontStyle: 'italic', marginTop: '0.5rem'}}>
-                                                El proceso completo dura 5 días. La preparación previa empieza 4 días antes del horneado.
+                                                Proceso de 5 días: empiezas el {panDayName(panBakeDay, -4)} y horneas el {panDayName(panBakeDay, 0)}. Todas las fases y el checklist se ajustan a este día.
                                             </div>
                                         </div>
                                     </>
@@ -3847,6 +4442,12 @@
                                                 unit={focTrays === 1 ? 'bandeja' : 'bandejas'}
                                                 tip={`${FOCACCIA_TRAY.label} (${FOCACCIA_TRAY.dimensions}). Cada bandeja usa ~${FOCACCIA_TRAY.flourPerTray}g de harina y ~${FOCACCIA_TRAY.doughPerTray}g de masa total.`}
                                                 hint={`${focTrays * FOCACCIA_TRAY.flourPerTray}g de harina · ~${focTrays * FOCACCIA_TRAY.doughPerTray}g de masa total · bandeja Mercadona 2,7L (≈32×26×5cm)`} />
+                                            {focTrays > 1 && (
+                                                <div className="info-note" style={{marginTop: '0.75rem'}}>
+                                                    <strong>Con {focTrays} bandejas:</strong> lo más limpio es hacer <strong>{focTrays} masas separadas</strong> desde el principio, cada una con su harina, fermento, agua y sal. La focaccia casi no se manipula al pasarla a la bandeja, y cortar una masa grande ya fermentada la desinfla.
+                                                    <br/>Si vas justo de espacio en la nevera: haz una sola masa y divídela en {focTrays} boles <em>después de los pliegues</em>, justo antes de meterla en frío. Nunca al sacarla.
+                                                </div>
+                                            )}
                                         </div>
 
                                         {/* Temperatura ambiente */}
@@ -3862,12 +4463,19 @@
                                         <div className="section">
                                             <div className="section-label"><span className="step-num">5</span> Tiempo en nevera</div>
                                             <Slider label="Fermentación en frío" icon="❄️" value={focColdHours}
-                                                onChange={setFocColdHours} min="12" max="72" step="1" unit="hrs"
-                                                tip="El estándar son 24h pero puedes ajustarlo a tu logística. Menos de 24h: sabor más suave. Más de 24h: sabor más complejo. A partir de 48h vigila signos de sobrefermentación."
-                                                hint={focColdHours < 18 ? '⏱ Tiempo justo · sabor más suave'
-                                                    : focColdHours <= 30 ? '✓ Estándar · sabor equilibrado'
-                                                    : focColdHours <= 48 ? '🌟 Sabor complejo · más desarrollado'
-                                                    : '⚠️ Larga fermentación · vigila al sacar'} />
+                                                onChange={setFocColdHours} min="12" max={focStarter === 'masa_madre' ? 72 : 48} step="1" unit="hrs"
+                                                tip={focStarter === 'masa_madre'
+                                                    ? 'Con masa madre el ácido láctico protege el gluten, así que aguanta mucho frío: 24h está bien, 30-48h es la zona óptima y hasta 72h es viable si tu madre es fuerte.'
+                                                    : 'La levadura comercial trabaja más rápido y no protege el gluten como la masa madre. 12-24h es el rango bueno; a partir de 24h el riesgo de sobrefermentación sube y por encima de 48h no compensa.'}
+                                                hint={focStarter === 'masa_madre'
+                                                    ? (focColdHours < 18 ? '⏱ Tiempo justo · sabor más suave'
+                                                        : focColdHours <= 30 ? '✓ Estándar · sabor equilibrado'
+                                                        : focColdHours <= 48 ? '🌟 Zona óptima · sabor complejo'
+                                                        : '🌟 Muy desarrollado · requiere madre fuerte')
+                                                    : (focColdHours < 18 ? '⏱ Tiempo justo · sabor más suave'
+                                                        : focColdHours <= 24 ? '✓ Estándar · sabor equilibrado'
+                                                        : focColdHours <= 36 ? '⚠️ Al límite para levadura comercial'
+                                                        : '🚫 Demasiado con levadura · mejor masa madre')} />
                                         </div>
 
                                         {/* Hora de horneado */}
@@ -3925,9 +4533,29 @@
                                 {/* ═══ PAN/PIZZA BRANCH ═══ */}
                                 {doughType !== 'panettone' && doughType !== 'focaccia' && doughType !== 'gofres' && (<>
 
+                                {/* Tipo de horno (solo pizza) */}
+                                {doughType === 'pizza' && (
+                                    <div className="section">
+                                        <div className="section-label"><span className="step-num">2</span> Tu horno</div>
+                                        <div className="pan-grid">
+                                            {Object.entries(PIZZA_OVENS).map(([k, o]) => (
+                                                <button key={k}
+                                                    className={`pan-mold-btn ${pizzaOven === k ? 'active' : ''}`}
+                                                    onClick={() => setPizzaOven(k)}>
+                                                    <span style={{fontWeight: 600}}>{o.emoji} {o.label}</span>
+                                                    <span className="ms">{o.sub}</span>
+                                                </button>
+                                            ))}
+                                        </div>
+                                        <div style={{fontSize: '0.78rem', color: 'var(--text-soft)', fontStyle: 'italic', marginTop: '0.5rem'}}>
+                                            {PIZZA_OVENS[pizzaOven].targetTemp} · cocción en {PIZZA_OVENS[pizzaOven].cookTime}. El plan de horneado se adapta a tu equipo.
+                                        </div>
+                                    </div>
+                                )}
+
                                 {/* Cantidad e ingredientes */}
                                 <div className="section">
-                                    <div className="section-label"><span className="step-num">2</span> Cantidad e ingredientes</div>
+                                    <div className="section-label"><span className="step-num">{doughType === 'pizza' ? 3 : 2}</span> Cantidad e ingredientes</div>
                                     <div className="slider-group">
                                         {doughType === 'pan' ? (
                                             <Slider label="Harina total" icon="🌾" value={flour} onChange={setFlour}
@@ -3987,7 +4615,7 @@
 
                                 {/* Prefermento */}
                                 <div className="section">
-                                    <div className="section-label"><span className="step-num">3</span> Prefermento (opcional)</div>
+                                    <div className="section-label"><span className="step-num">{doughType === 'pizza' ? 4 : 3}</span> Prefermento (opcional)</div>
                                     <div className="pref-grid">
                                         {Object.entries(PREFERMENTS).map(([key, p]) => (
                                             <button key={key}
@@ -4014,7 +4642,7 @@
 
                                 {/* Fermentación */}
                                 <div className="section">
-                                    <div className="section-label"><span className="step-num">4</span> Plan de fermentación</div>
+                                    <div className="section-label"><span className="step-num">{doughType === 'pizza' ? 5 : 4}</span> Plan de fermentación</div>
                                     <div className="toggle-row">
                                         <span className="toggle-label">❄️ Levado en frío (nevera)</span>
                                         <label className="toggle-switch">
@@ -4047,6 +4675,7 @@
                                         bakeDay={panBakeDay}
                                         checks={panChecks}
                                         onToggleCheck={togglePanCheck}
+                                        onResetChecks={() => { setPanChecks({}); showToast('Checklist reiniciado'); }}
                                         showToast={showToast}
                                     />
                                 ) : doughType === 'focaccia' ? (
@@ -4057,6 +4686,11 @@
                                         coldHours={focColdHours}
                                         bakeTime={focBakeTime}
                                         setBakeTime={setFocBakeTime}
+                                        checks={focChecks}
+                                        onToggleCheck={toggleFocCheck}
+                                        onResetChecks={() => { setFocChecks({}); showToast('Checklist reiniciado'); }}
+                                        toppings={focToppings}
+                                        setToppings={setFocToppings}
                                         showToast={showToast}
                                     />
                                 ) : doughType === 'gofres' ? (
@@ -4065,6 +4699,9 @@
                                         coldHours={gofColdHours}
                                         readyTime={gofReadyTime}
                                         setReadyTime={setGofReadyTime}
+                                        checks={gofChecks}
+                                        onToggleCheck={toggleGofCheck}
+                                        onResetChecks={() => { setGofChecks({}); showToast('Checklist reiniciado'); }}
                                         showToast={showToast}
                                     />
                                 ) : (
@@ -4258,7 +4895,6 @@
         };
 
         ReactDOM.createRoot(document.getElementById('root')).render(<App />);
-        window.__appLoaded = true;
     </script>
 
     <script>
