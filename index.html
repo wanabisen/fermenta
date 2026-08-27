@@ -14,75 +14,78 @@
     <title>Calculadora de Fermentación · Panadería Artesanal</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
         :root {
-            --bg:           #fbf6ed;
-            --bg-pattern:   rgba(180, 130, 60, 0.04);
+            --bg:           #f4f4f2;
+            --bg-pattern:   rgba(20, 22, 26, 0.03);
             --surface:      #ffffff;
-            --surface-2:    #f7efe0;
-            --surface-3:    #f1e6d0;
-            --border:       #e6d5b0;
-            --border-soft:  #efe2c5;
-            --text:         #2a1a08;
-            --text-soft:    #5a3e22;
-            --text-muted:   #7a6040;
-            --primary:      #b27a2a;
-            --primary-dark: #8a5a18;
-            --primary-soft: #fdf3df;
-            --accent:       #4a2c0a;
-            --cold:         #1f5a96;
-            --cold-soft:    #dce9f5;
-            --warm:         #b83225;
-            --warm-soft:    #fbe8e3;
-            --success:      #3a6848;
-            --success-soft: #d8ede0;
-            --warning:      #a8660e;
-            --warning-soft: #fcefd7;
-            --danger:       #9e3333;
-            --danger-soft:  #fbe5e3;
-            --shadow-sm:    0 1px 2px rgba(74,44,10,0.06);
-            --shadow-md:    0 4px 16px rgba(74,44,10,0.10);
-            --shadow-lg:    0 8px 32px rgba(74,44,10,0.14);
-            --radius:       14px;
-            --radius-sm:    8px;
+            --surface-2:    #ececea;
+            --surface-3:    #e0e0dd;
+            --border:       #cfcfcb;
+            --border-soft:  #e2e2df;
+            --text:         #14161a;
+            --text-soft:    #4a4f57;
+            --text-muted:   #71767f;
+            --primary:      #14161a;
+            --primary-dark: #000000;
+            --primary-soft: #e6e6e3;
+            --accent:       #14161a;
+            --cold:         #0a6c8a;
+            --cold-soft:    #dcedf3;
+            --warm:         #b4530e;
+            --warm-soft:    #fbe9d8;
+            --success:      #1d6b46;
+            --success-soft: #daeee4;
+            --warning:      #8a5a00;
+            --warning-soft: #fbeed2;
+            --danger:       #b3261e;
+            --danger-soft:  #fbe3e1;
+            --shadow-sm:    0 1px 2px rgba(20,22,26,0.06);
+            --shadow-md:    0 2px 10px rgba(20,22,26,0.08);
+            --shadow-lg:    0 6px 28px rgba(20,22,26,0.12);
+            --radius:       10px;
+            --radius-sm:    7px;
+            --font-ui:      'IBM Plex Sans', system-ui, sans-serif;
+            --font-label:   'IBM Plex Sans Condensed', 'IBM Plex Sans', sans-serif;
+            --font-data:    'IBM Plex Mono', ui-monospace, monospace;
         }
 
         [data-theme="dark"] {
-            --bg:           #1a140d;
-            --bg-pattern:   rgba(255, 200, 100, 0.03);
-            --surface:      #241c12;
-            --surface-2:    #2d2418;
-            --surface-3:    #3a2e1f;
-            --border:       #5a4530;
-            --border-soft:  #4a3828;
-            --text:         #f5e6c8;
-            --text-soft:    #d4b988;
-            --text-muted:   #a8926a;
-            --primary:      #e0a85a;
-            --primary-dark: #b27a2a;
-            --primary-soft: #3a2e1a;
-            --accent:       #f5e6c8;
-            --cold:         #7ab4e0;
-            --cold-soft:    #1a2a3d;
-            --warm:         #e8786a;
-            --warm-soft:    #3a1e18;
-            --success:      #8fca9e;
-            --success-soft: #172718;
-            --warning:      #e8b060;
-            --warning-soft: #322410;
-            --danger:       #e87c76;
-            --danger-soft:  #361616;
-            --shadow-sm:    0 1px 2px rgba(0,0,0,0.3);
-            --shadow-md:    0 4px 16px rgba(0,0,0,0.35);
-            --shadow-lg:    0 8px 32px rgba(0,0,0,0.5);
+            --bg:           #101216;
+            --bg-pattern:   rgba(255, 255, 255, 0.025);
+            --surface:      #191c21;
+            --surface-2:    #22262c;
+            --surface-3:    #2c3138;
+            --border:       #3a4048;
+            --border-soft:  #2b3037;
+            --text:         #eceef1;
+            --text-soft:    #a8b0ba;
+            --text-muted:   #7d858f;
+            --primary:      #eceef1;
+            --primary-dark: #ffffff;
+            --primary-soft: #262b32;
+            --accent:       #eceef1;
+            --cold:         #5cc0e0;
+            --cold-soft:    #10303c;
+            --warm:         #f0a05c;
+            --warm-soft:    #3a2410;
+            --success:      #6fd39c;
+            --success-soft: #123023;
+            --warning:      #e8b356;
+            --warning-soft: #33280d;
+            --danger:       #f08a82;
+            --danger-soft:  #3a1614;
+            --shadow-sm:    0 1px 2px rgba(0,0,0,0.4);
+            --shadow-md:    0 2px 10px rgba(0,0,0,0.45);
+            --shadow-lg:    0 6px 28px rgba(0,0,0,0.6);
         }
 
         body {
             background: var(--bg);
-            font-family: 'Inter', sans-serif;
+            font-family: var(--font-ui);
             color: var(--text);
             min-height: 100vh;
             background-image:
@@ -93,7 +96,7 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        .serif { font-family: 'Fraunces', serif; }
+        .serif { font-family: var(--font-label); }
 
         .app-header {
             border-bottom: 1px solid var(--border);
@@ -112,12 +115,12 @@
             color: var(--bg);
             border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
-            font-family: 'Fraunces', serif;
+            font-family: var(--font-label);
             font-weight: 700; font-size: 1.25rem; font-style: italic;
         }
         [data-theme="dark"] .brand-mark { background: var(--primary); color: #1a140d; }
         .brand-text h1 {
-            font-family: 'Fraunces', serif;
+            font-family: var(--font-label);
             font-size: 1.35rem; font-weight: 500;
             letter-spacing: -0.01em; line-height: 1.1;
         }
@@ -175,19 +178,25 @@
         }
         .hero-stat { position: relative; z-index: 1; }
         .hero-stat .label {
-            font-size: 0.7rem; text-transform: uppercase;
-            letter-spacing: 0.12em;
-            color: rgba(255,255,255,0.75);
-            margin-bottom: 0.25rem;
+            font-family: var(--font-label);
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-soft);
+            margin-bottom: 0.3rem;
         }
         [data-theme="dark"] .hero-strip .hero-stat .label {
             color: var(--text-muted);
         }
         .hero-stat .value {
-            font-family: 'Fraunces', serif;
-            font-size: 1.6rem; font-weight: 500;
-            letter-spacing: -0.02em; line-height: 1;
-            color: #fff;
+            font-family: var(--font-data);
+            font-size: 1.7rem;
+            font-weight: 500;
+            line-height: 1.05;
+            color: var(--text);
+            font-variant-numeric: tabular-nums;
+            letter-spacing: -0.02em;
         }
         [data-theme="dark"] .hero-strip .hero-stat .value {
             color: var(--text);
@@ -244,19 +253,23 @@
 
         .card {
             background: var(--surface);
-            border: 1px solid var(--border);
+            border: 1px solid var(--border-soft);
             border-radius: var(--radius);
-            padding: 1.5rem;
+            padding: 1.35rem;
             box-shadow: var(--shadow-sm);
         }
 
         .section { margin-bottom: 1.75rem; }
         .section:last-child { margin-bottom: 0; }
         .section-label {
-            font-size: 0.72rem; text-transform: uppercase;
-            letter-spacing: 0.1em; color: var(--text-soft);
-            font-weight: 700; margin-bottom: 0.85rem;
-            display: flex; align-items: center; gap: 0.4rem;
+            font-family: var(--font-label);
+            font-size: 0.82rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.09em;
+            color: var(--text-soft);
+            margin-bottom: 0.85rem;
+            display: flex; align-items: center; gap: 0.55rem;
         }
         .step-num {
             display: inline-flex; align-items: center; justify-content: center;
@@ -264,7 +277,7 @@
             background: var(--primary-soft); color: var(--primary-dark);
             border-radius: 50%;
             font-size: 0.75rem; font-weight: 700;
-            font-family: 'Inter', sans-serif;
+            font-family: var(--font-ui);
         }
 
         .dough-toggle {
@@ -352,7 +365,8 @@
             border-bottom: 1px solid var(--border-soft);
         }
         .recipe-table th {
-            font-size: 0.68rem;
+            font-family: var(--font-label);
+            font-size: 0.7rem;
             text-transform: uppercase;
             letter-spacing: 0.08em;
             color: var(--text-soft);
@@ -364,8 +378,9 @@
         }
         .recipe-table td.qty {
             text-align: right;
+            font-family: var(--font-data);
             font-variant-numeric: tabular-nums;
-            font-weight: 600;
+            font-weight: 500;
             color: var(--accent);
             white-space: nowrap;
         }
@@ -398,7 +413,7 @@
             border-bottom: 1px solid var(--border-soft);
         }
         .phase-card-title {
-            font-family: 'Fraunces', serif;
+            font-family: var(--font-label);
             font-size: 1rem;
             font-weight: 600;
             color: var(--text);
@@ -543,31 +558,67 @@
         .stage-final .stage-tag { background: var(--primary-soft); color: var(--primary-dark); }
         [data-theme="dark"] .stage-final .stage-tag { color: var(--primary); }
 
-        /* ── Resumen del recorrido de la masa ── */
-        .stage-flow {
-            display: flex; align-items: stretch; flex-wrap: wrap;
-            gap: 0.35rem; margin-bottom: 1.25rem;
+        /* ── Línea de tiempo: ancho = duración real, color = etapa ── */
+        .timeline { margin-bottom: 1.4rem; }
+        .timeline-head {
+            display: flex; align-items: baseline; justify-content: space-between;
+            font-family: var(--font-label);
+            font-size: 0.72rem; font-weight: 600;
+            text-transform: uppercase; letter-spacing: 0.1em;
+            color: var(--text-soft);
+            margin-bottom: 0.45rem;
         }
-        .stage-chip {
-            display: flex; flex-direction: column; gap: 0.1rem;
-            padding: 0.4rem 0.65rem;
-            border-radius: 8px;
-            border: 1px solid var(--border-soft);
-            background: var(--surface-2);
-            min-width: 0;
+        .timeline-total {
+            font-family: var(--font-data);
+            font-size: 0.8rem; letter-spacing: 0;
+            text-transform: none; color: var(--text);
+            font-variant-numeric: tabular-nums;
         }
-        .stage-chip .n { font-size: 0.76rem; font-weight: 600; color: var(--text); white-space: nowrap; }
-        .stage-chip .d {
-            font-size: 0.68rem; color: var(--text-soft);
-            font-variant-numeric: tabular-nums; white-space: nowrap;
+        .timeline-track {
+            display: flex; gap: 3px;
+            border-radius: var(--radius-sm);
+            overflow: hidden;
         }
-        .stage-chip.pref { border-color: var(--cold); background: var(--cold-soft); }
-        .stage-chip.cold { border-color: var(--cold); background: var(--cold-soft); }
-        .stage-chip.final { border-color: var(--primary); background: var(--primary-soft); }
-        .stage-arrow {
-            display: flex; align-items: center;
-            color: var(--text-muted); font-size: 0.9rem;
+        .leg {
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            gap: 1px;
+            padding: 0.5rem 0.3rem;
+            min-width: 0; overflow: hidden;
+            transition: flex-grow 0.25s ease-out;
         }
+        .leg-name {
+            font-family: var(--font-label);
+            font-size: 0.7rem; font-weight: 600;
+            letter-spacing: 0.04em;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+            max-width: 100%;
+        }
+        .leg-h {
+            font-family: var(--font-data);
+            font-size: 0.95rem; font-weight: 500;
+            font-variant-numeric: tabular-nums;
+            line-height: 1.15;
+            white-space: nowrap;
+        }
+        .leg-t {
+            font-family: var(--font-data);
+            font-size: 0.66rem;
+            font-variant-numeric: tabular-nums;
+            opacity: 0.75;
+            white-space: nowrap;
+        }
+        .leg-pref  { background: #d8ecdf; color: #14532c; }
+        .leg-cold  { background: #d4e9f2; color: #0a4d63; }
+        .leg-final { background: #fae0c8; color: #8a3c05; }
+        .leg-bake  {
+            background: #f8d9d5; color: #8a1a14;
+            flex: 0 0 42px; font-size: 1.05rem;
+        }
+        [data-theme="dark"] .leg-pref  { background: #163a26; color: #8fd9ab; }
+        [data-theme="dark"] .leg-cold  { background: #10333f; color: #7fcde6; }
+        [data-theme="dark"] .leg-final { background: #3d2712; color: #f2ab6b; }
+        [data-theme="dark"] .leg-bake  { background: #3d1815; color: #f29b93; }
 
         .choice-row {
             display: grid;
@@ -621,10 +672,11 @@
 
         .stepper-value {
             height: 44px;
+            font-family: var(--font-data);
             border: 1px solid var(--border);
             border-radius: 8px;
             background: var(--accent); color: var(--bg);
-            font-family: inherit; font-size: 1.05rem; font-weight: 600;
+            font-size: 1.05rem; font-weight: 500;
             font-variant-numeric: tabular-nums;
             cursor: text;
             display: flex; align-items: center; justify-content: center; gap: 0.25rem;
@@ -734,7 +786,7 @@
             display: flex; justify-content: space-between;
             margin-bottom: 0.4rem;
             font-weight: 600; color: var(--accent);
-            font-family: 'Fraunces', serif; font-size: 0.95rem;
+            font-family: var(--font-label); font-size: 0.95rem;
         }
         [data-theme="dark"] .pref-info-title { color: var(--primary); }
         .pref-info-meta {
@@ -800,14 +852,17 @@
             margin-bottom: 1.25rem;
         }
         .tab {
-            background: transparent; border: none;
-            padding: 0.6rem 1rem;
-            cursor: pointer; font-family: inherit;
-            font-size: 0.88rem; font-weight: 500;
-            color: var(--text-soft);
+            font-family: var(--font-label);
+            padding: 0.6rem 0.9rem;
+            border: none;
             border-bottom: 2px solid transparent;
-            margin-bottom: -1px;
-            transition: all 0.15s;
+            background: none;
+            color: var(--text-soft);
+            font-size: 0.85rem; font-weight: 600;
+            letter-spacing: 0.02em;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: color 0.15s, border-color 0.15s;
         }
         .tab:hover { color: var(--text); }
         .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
@@ -830,7 +885,8 @@
             margin-bottom: 0.35rem; font-weight: 600;
         }
         .ing-card .v {
-            font-family: 'Fraunces', serif;
+            font-family: var(--font-data);
+            font-family: var(--font-label);
             font-size: 1.65rem; font-weight: 500;
             color: var(--text); line-height: 1;
             font-variant-numeric: tabular-nums;
@@ -854,7 +910,7 @@
             margin-bottom: 0.3rem;
         }
         .yeast-card .v {
-            font-family: 'Fraunces', serif;
+            font-family: var(--font-label);
             font-size: 2.2rem; font-weight: 500;
             color: var(--text); line-height: 1;
             font-variant-numeric: tabular-nums;
@@ -898,7 +954,7 @@
         .schedule-row + .schedule-row { margin-top: 0.2rem; }
         .schedule-row:hover { background: var(--surface); }
         .schedule-time {
-            font-family: 'Fraunces', serif;
+            font-family: var(--font-label);
             font-size: 1.05rem; font-weight: 500;
             color: var(--accent);
             font-variant-numeric: tabular-nums;
@@ -959,7 +1015,7 @@
             font-size: 0.85rem;
         }
         .bake-preheat .pt {
-            font-family: 'Fraunces', serif;
+            font-family: var(--font-label);
             font-weight: 500; font-size: 1rem;
             color: var(--warm);
         }
@@ -989,7 +1045,8 @@
             border-radius: 6px; background: var(--surface);
         }
         .bake-stat .v {
-            font-family: 'Fraunces', serif;
+            font-family: var(--font-data);
+            font-family: var(--font-label);
             font-weight: 600; font-size: 0.95rem;
             color: var(--text);
         }
@@ -1130,7 +1187,7 @@
             font-size: 0.7rem; font-weight: 700;
             cursor: help;
             margin-left: 0.3rem;
-            font-family: 'Fraunces', serif;
+            font-family: var(--font-label);
             font-style: italic;
             user-select: none;
             position: relative;
@@ -1148,7 +1205,7 @@
             border-radius: 6px;
             font-size: 0.74rem;
             font-weight: 400;
-            font-family: 'Inter', sans-serif;
+            font-family: var(--font-ui);
             font-style: normal;
             white-space: normal;
             width: 220px;
@@ -2251,7 +2308,7 @@
                             <div style={{fontSize: '0.78rem', color: 'var(--text-soft)', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 600, marginBottom: '0.2rem'}}>
                                 Asignadas
                             </div>
-                            <div style={{fontFamily: 'Fraunces, serif', fontSize: '1.35rem', fontWeight: 500, color: 'var(--text)', lineHeight: 1, fontVariantNumeric: 'tabular-nums'}}>
+                            <div style={{fontFamily: 'var(--font-label)', fontSize: '1.35rem', fontWeight: 500, color: 'var(--text)', lineHeight: 1, fontVariantNumeric: 'tabular-nums'}}>
                                 {totalPizzas} <span style={{color: 'var(--text-muted)', fontSize: '1rem'}}>/ {maxPizzas} bolas</span>
                             </div>
                             <div style={{fontSize: '0.78rem', marginTop: '0.25rem', color: isOverLimit ? 'var(--danger)' : remaining === 0 ? 'var(--success)' : 'var(--text-soft)', fontWeight: 500}}>
@@ -2276,7 +2333,7 @@
                     )}
 
                     {/* Variant selector */}
-                    <div style={{fontFamily: 'Fraunces, serif', fontSize: '0.95rem', fontWeight: 500, color: 'var(--accent)', marginBottom: '0.6rem'}}>
+                    <div style={{fontFamily: 'var(--font-label)', fontSize: '0.95rem', fontWeight: 500, color: 'var(--accent)', marginBottom: '0.6rem'}}>
                         Elige cuántas de cada
                     </div>
                     <div style={{display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1.25rem'}}>
@@ -2340,7 +2397,7 @@
                     {totalPizzas === 0 ? null : (
                         <>
                             {/* Per-pizza breakdown */}
-                            <div style={{fontFamily: 'Fraunces, serif', fontSize: '0.95rem', fontWeight: 500, color: 'var(--accent)', marginBottom: '0.6rem'}}>
+                            <div style={{fontFamily: 'var(--font-label)', fontSize: '0.95rem', fontWeight: 500, color: 'var(--accent)', marginBottom: '0.6rem'}}>
                                 🍕 Cantidades por pizza
                             </div>
                             <div style={{display: 'flex', flexDirection: 'column', gap: '0.85rem', marginBottom: '1.5rem'}}>
@@ -2564,7 +2621,7 @@
                             <div style={{fontSize: '0.78rem', color: 'var(--text-soft)', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 600, marginBottom: '0.2rem'}}>
                                 Asignadas
                             </div>
-                            <div style={{fontFamily: 'Fraunces, serif', fontSize: '1.35rem', fontWeight: 500, color: 'var(--text)', lineHeight: 1, fontVariantNumeric: 'tabular-nums'}}>
+                            <div style={{fontFamily: 'var(--font-label)', fontSize: '1.35rem', fontWeight: 500, color: 'var(--text)', lineHeight: 1, fontVariantNumeric: 'tabular-nums'}}>
                                 {totalAssigned} <span style={{color: 'var(--text-muted)', fontSize: '1rem'}}>/ {maxTrays} {maxTrays === 1 ? 'bandeja' : 'bandejas'}</span>
                             </div>
                             <div style={{fontSize: '0.78rem', marginTop: '0.25rem', color: isOverLimit ? 'var(--danger)' : remaining === 0 ? 'var(--success)' : 'var(--text-soft)', fontWeight: 500}}>
@@ -2578,7 +2635,7 @@
                         </div>
                     </div>
 
-                    <div style={{fontFamily: 'Fraunces, serif', fontSize: '0.95rem', fontWeight: 500, color: 'var(--accent)', marginBottom: '0.6rem'}}>
+                    <div style={{fontFamily: 'var(--font-label)', fontSize: '0.95rem', fontWeight: 500, color: 'var(--accent)', marginBottom: '0.6rem'}}>
                         Elige el aliño de cada bandeja
                     </div>
                     <div style={{display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1.25rem'}}>
@@ -2620,7 +2677,7 @@
 
                     {totalAssigned > 0 && (
                         <>
-                            <div style={{fontFamily: 'Fraunces, serif', fontSize: '0.95rem', fontWeight: 500, color: 'var(--accent)', marginBottom: '0.6rem'}}>
+                            <div style={{fontFamily: 'var(--font-label)', fontSize: '0.95rem', fontWeight: 500, color: 'var(--accent)', marginBottom: '0.6rem'}}>
                                 🫓 Cantidades por bandeja
                             </div>
                             <div style={{display: 'flex', flexDirection: 'column', gap: '0.85rem', marginBottom: '1.5rem'}}>
@@ -2871,7 +2928,7 @@
                                               : p.desc;
                                     return (
                                         <div key={i} style={{display: 'grid', gridTemplateColumns: '32px 1fr', gap: '0.6rem', padding: '0.7rem 0.85rem', background: 'var(--surface-2)', borderRadius: 'var(--radius-sm)', alignItems: 'flex-start'}}>
-                                            <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center', width: '28px', height: '28px', borderRadius: '50%', background: 'var(--surface)', fontFamily: 'Fraunces, serif', fontWeight: 600, color: 'var(--accent)', fontSize: '0.85rem'}}>
+                                            <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center', width: '28px', height: '28px', borderRadius: '50%', background: 'var(--surface)', fontFamily: 'var(--font-label)', fontWeight: 600, color: 'var(--accent)', fontSize: '0.85rem'}}>
                                                 {p.step}
                                             </div>
                                             <div>
@@ -2909,7 +2966,7 @@
                                     <div key={i} className={`schedule-row ${ev.kind}`}>
                                         <div className="schedule-time">
                                             {formatClock(ev.time)}
-                                            <div style={{fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: 400, fontFamily: 'Inter'}}>
+                                            <div style={{fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: 400, fontFamily: 'var(--font-ui)'}}>
                                                 {formatDay(ev.time, schedule[schedule.length-1].time)}
                                             </div>
                                         </div>
@@ -2938,7 +2995,7 @@
                             <div style={{display: 'flex', flexDirection: 'column', gap: '0.6rem'}}>
                                 {GOFRES_TIPS.map((t, i) => (
                                     <div key={i} className="phase-card" style={{marginBottom: 0}}>
-                                        <div style={{fontFamily: 'Fraunces, serif', fontSize: '0.95rem', fontWeight: 600, color: 'var(--accent)', marginBottom: '0.35rem'}}>
+                                        <div style={{fontFamily: 'var(--font-label)', fontSize: '0.95rem', fontWeight: 600, color: 'var(--accent)', marginBottom: '0.35rem'}}>
                                             {t.title}
                                         </div>
                                         <div style={{fontSize: '0.85rem', color: 'var(--text-soft)', lineHeight: 1.55}}>
@@ -3145,7 +3202,7 @@
                                 <div style={{fontSize: '0.72rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--success)', fontWeight: 700, marginBottom: '0.3rem'}}>
                                     💧 Hidratación efectiva
                                 </div>
-                                <div style={{fontFamily: 'Fraunces, serif', fontSize: '2rem', fontWeight: 500, color: 'var(--text)', lineHeight: 1, fontVariantNumeric: 'tabular-nums'}}>
+                                <div style={{fontFamily: 'var(--font-label)', fontSize: '2rem', fontWeight: 500, color: 'var(--text)', lineHeight: 1, fontVariantNumeric: 'tabular-nums'}}>
                                     {round(effHydration, 1)}%
                                 </div>
                                 <div style={{fontSize: '0.75rem', color: 'var(--text-soft)', marginTop: '0.25rem'}}>
@@ -3175,7 +3232,7 @@
                                     const time = p.dynamicCold ? formatHours(coldHours) : p.time;
                                     return (
                                         <div key={i} style={{display: 'grid', gridTemplateColumns: '32px 1fr', gap: '0.6rem', padding: '0.7rem 0.85rem', background: 'var(--surface-2)', borderRadius: 'var(--radius-sm)', alignItems: 'flex-start'}}>
-                                            <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center', width: '28px', height: '28px', borderRadius: '50%', background: 'var(--surface)', fontFamily: 'Fraunces, serif', fontWeight: 600, color: 'var(--accent)', fontSize: '0.85rem'}}>
+                                            <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center', width: '28px', height: '28px', borderRadius: '50%', background: 'var(--surface)', fontFamily: 'var(--font-label)', fontWeight: 600, color: 'var(--accent)', fontSize: '0.85rem'}}>
                                                 {p.step}
                                             </div>
                                             <div>
@@ -3213,7 +3270,7 @@
                                     <div key={i} className={`schedule-row ${ev.kind}`}>
                                         <div className="schedule-time">
                                             {formatClock(ev.time)}
-                                            <div style={{fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: 400, fontFamily: 'Inter'}}>
+                                            <div style={{fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: 400, fontFamily: 'var(--font-ui)'}}>
                                                 {formatDay(ev.time, schedule[schedule.length-1].time)}
                                             </div>
                                         </div>
@@ -3605,8 +3662,8 @@
                             </div>
 
                             {/* Impasto 1 */}
-                            <div style={{fontFamily: 'Fraunces, serif', fontSize: '1rem', fontWeight: 500, marginBottom: '0.5rem', color: 'var(--accent)'}}>
-                                🍳 Primer impasto <span style={{fontSize: '0.78rem', color: 'var(--text-soft)', fontWeight: 400, fontFamily: 'Inter'}}>· sábado noche</span>
+                            <div style={{fontFamily: 'var(--font-label)', fontSize: '1rem', fontWeight: 500, marginBottom: '0.5rem', color: 'var(--accent)'}}>
+                                🍳 Primer impasto <span style={{fontSize: '0.78rem', color: 'var(--text-soft)', fontWeight: 400, fontFamily: 'var(--font-ui)'}}>· sábado noche</span>
                             </div>
                             <table className="recipe-table">
                                 <thead>
@@ -3630,8 +3687,8 @@
                             </table>
 
                             {/* Impasto 2 */}
-                            <div style={{fontFamily: 'Fraunces, serif', fontSize: '1rem', fontWeight: 500, marginBottom: '0.5rem', marginTop: '1rem', color: 'var(--accent)'}}>
-                                🥄 Segundo impasto <span style={{fontSize: '0.78rem', color: 'var(--text-soft)', fontWeight: 400, fontFamily: 'Inter'}}>· domingo mañana</span>
+                            <div style={{fontFamily: 'var(--font-label)', fontSize: '1rem', fontWeight: 500, marginBottom: '0.5rem', marginTop: '1rem', color: 'var(--accent)'}}>
+                                🥄 Segundo impasto <span style={{fontSize: '0.78rem', color: 'var(--text-soft)', fontWeight: 400, fontFamily: 'var(--font-ui)'}}>· domingo mañana</span>
                             </div>
                             <table className="recipe-table">
                                 <thead>
@@ -3697,7 +3754,7 @@
                             </div>
 
                             <div style={{marginTop: '1rem'}}>
-                                <div style={{fontFamily: 'Fraunces, serif', fontSize: '0.95rem', fontWeight: 500, marginBottom: '0.6rem', color: 'var(--accent)'}}>
+                                <div style={{fontFamily: 'var(--font-label)', fontSize: '0.95rem', fontWeight: 500, marginBottom: '0.6rem', color: 'var(--accent)'}}>
                                     📐 Datos del molde
                                 </div>
                                 <table className="recipe-table">
@@ -4820,35 +4877,52 @@
                                 {/* ═══ PAN/PIZZA BRANCH ═══ */}
                                 {doughType !== 'panettone' && doughType !== 'focaccia' && doughType !== 'gofres' && (<>
 
-                                {/* Resumen del recorrido de la masa */}
-                                <div className="stage-flow">
-                                    {prefermentType !== 'none' && (
-                                        <>
-                                            <div className="stage-chip pref">
-                                                <span className="n">{PREFERMENTS[prefermentType].emoji} {PREFERMENTS[prefermentType].name}</span>
-                                                <span className="d">{formatHours(prefermentTime)} · {prefermentTemp}°C</span>
+                                {/* Línea de tiempo proporcional: el ancho es la duración real */}
+                                {(() => {
+                                    const legs = [];
+                                    if (prefermentType !== 'none') legs.push({
+                                        key: 'pref', cls: 'leg-pref',
+                                        name: PREFERMENTS[prefermentType].name,
+                                        h: prefermentTime, t: prefermentTemp
+                                    });
+                                    if (useColdProof) legs.push({
+                                        key: 'cold', cls: 'leg-cold',
+                                        name: 'Nevera', h: coldProofTime, t: 4
+                                    });
+                                    legs.push({
+                                        key: 'final', cls: 'leg-final',
+                                        name: 'Masa final',
+                                        h: useColdProof ? calc.ambientH : totalTime,
+                                        t: temperature
+                                    });
+                                    const total = legs.reduce((a, l) => a + l.h, 0) || 1;
+                                    const floor = 0.13;
+                                    const grow = legs.map(l => Math.max(l.h / total, floor));
+                                    const growSum = grow.reduce((a, b) => a + b, 0);
+                                    return (
+                                        <div className="timeline">
+                                            <div className="timeline-head">
+                                                <span>De la mezcla al horno</span>
+                                                <span className="timeline-total">{formatHours(total)}</span>
                                             </div>
-                                            <span className="stage-arrow">→</span>
-                                        </>
-                                    )}
-                                    {useColdProof && (
-                                        <>
-                                            <div className="stage-chip cold">
-                                                <span className="n">❄️ Nevera</span>
-                                                <span className="d">{formatHours(coldProofTime)} · 4°C</span>
+                                            <div className="timeline-track">
+                                                {legs.map((l, idx) => {
+                                                    const share = grow[idx] / growSum;
+                                                    return (
+                                                        <div key={l.key} className={`leg ${l.cls}`}
+                                                            style={{flexGrow: grow[idx]}}
+                                                            title={`${l.name} · ${formatHours(l.h)} · ${l.t}°C`}>
+                                                            {share > 0.19 && <span className="leg-name">{l.name}</span>}
+                                                            <span className="leg-h">{formatHours(l.h)}</span>
+                                                            {share > 0.19 && <span className="leg-t">{l.t}°C</span>}
+                                                        </div>
+                                                    );
+                                                })}
+                                                <div className="leg leg-bake" title="Horno">🔥</div>
                                             </div>
-                                            <span className="stage-arrow">→</span>
-                                        </>
-                                    )}
-                                    <div className="stage-chip final">
-                                        <span className="n">🥣 Masa final</span>
-                                        <span className="d">{formatHours(useColdProof ? calc.ambientH : totalTime)} · {temperature}°C</span>
-                                    </div>
-                                    <span className="stage-arrow">→</span>
-                                    <div className="stage-chip bake">
-                                        <span className="n">🔥 Horno</span>
-                                    </div>
-                                </div>
+                                        </div>
+                                    );
+                                })()}
 
                                 {/* Tipo de horno (solo pizza) */}
                                 {doughType === 'pizza' && (
@@ -4911,11 +4985,11 @@
                                                 <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.4rem'}}>
                                                     <div style={{background: 'var(--surface)', borderRadius: '6px', padding: '0.4rem 0.6rem', textAlign: 'center'}}>
                                                         <div style={{fontSize: '0.66rem', textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--text-soft)', marginBottom: '0.15rem'}}>Hidratación</div>
-                                                        <div style={{fontFamily: 'Fraunces, serif', fontWeight: 500, fontSize: '1.25rem', color: 'var(--text)'}}>{PIZZA_HYDRATION}%</div>
+                                                        <div style={{fontFamily: 'var(--font-label)', fontWeight: 500, fontSize: '1.25rem', color: 'var(--text)'}}>{PIZZA_HYDRATION}%</div>
                                                     </div>
                                                     <div style={{background: 'var(--surface)', borderRadius: '6px', padding: '0.4rem 0.6rem', textAlign: 'center'}}>
                                                         <div style={{fontSize: '0.66rem', textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--text-soft)', marginBottom: '0.15rem'}}>Sal</div>
-                                                        <div style={{fontFamily: 'Fraunces, serif', fontWeight: 500, fontSize: '1.25rem', color: 'var(--text)'}}>{PIZZA_SALT}%</div>
+                                                        <div style={{fontFamily: 'var(--font-label)', fontWeight: 500, fontSize: '1.25rem', color: 'var(--text)'}}>{PIZZA_SALT}%</div>
                                                     </div>
                                                 </div>
                                                 <div style={{marginTop: '0.5rem', fontSize: '0.75rem', color: 'var(--text-soft)', fontStyle: 'italic'}}>
@@ -5084,7 +5158,7 @@
                                             </div>
                                         )}
 
-                                        <div style={{fontFamily: 'Fraunces, serif', fontSize: '0.95rem', fontWeight: 500, marginBottom: '0.6rem', color: 'var(--accent)'}}>
+                                        <div style={{fontFamily: 'var(--font-label)', fontSize: '0.95rem', fontWeight: 500, marginBottom: '0.6rem', color: 'var(--accent)'}}>
                                             {prefermentType !== 'none' ? '🍞 Masa final (resto)' : '🍞 Masa'}
                                         </div>
                                         <div className="ing-grid">
@@ -5110,7 +5184,7 @@
 
                                         {/* Visual indicators */}
                                         <div style={{marginTop: '1rem'}}>
-                                            <div style={{fontFamily: 'Fraunces, serif', fontSize: '0.95rem', fontWeight: 500, marginBottom: '0.6rem', color: 'var(--accent)'}}>
+                                            <div style={{fontFamily: 'var(--font-label)', fontSize: '0.95rem', fontWeight: 500, marginBottom: '0.6rem', color: 'var(--accent)'}}>
                                                 👁️ Cómo saber si está lista
                                             </div>
                                             <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '0.5rem'}}>
@@ -5159,7 +5233,7 @@
                                                 <div key={i} className={`schedule-row ${ev.kind}`}>
                                                     <div className="schedule-time">
                                                         {formatClock(ev.time)}
-                                                        <div style={{fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: 400, fontFamily: 'Inter'}}>
+                                                        <div style={{fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: 400, fontFamily: 'var(--font-ui)'}}>
                                                             {formatDay(ev.time, schedule[schedule.length-1].time)}
                                                         </div>
                                                     </div>
