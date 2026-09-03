@@ -1477,6 +1477,125 @@
         };
 
         // ============================================================
+        // HARINAS DE PIZZA
+        // La hidratación óptima no es universal: depende de cuánta agua
+        // absorbe la harina. Nuvola a 67% ≈ Pizzeria a 65% en consistencia.
+        // ============================================================
+        const PIZZA_FLOURS = {
+            pizzeria: {
+                label: 'Caputo Pizzeria',
+                sub: 'Bolsa azul · W 260-280',
+                absorption: 59,
+                hydLo: 60, hydHi: 65, hydDefault: 63,
+                fermLo: 8, fermHi: 24,
+                note: 'La clásica napolitana. Equilibrio entre fuerza y manejabilidad, pensada para fermentaciones de 8 a 24h y hornos muy calientes.',
+            },
+            cuoco: {
+                label: 'Caputo Cuoco',
+                sub: 'Bolsa roja · W 300-320',
+                absorption: 60,
+                hydLo: 62, hydHi: 72, hydDefault: 66,
+                fermLo: 24, fermHi: 72,
+                note: 'La fuerte. Aguanta fermentaciones largas de 24 a 72h sin degradarse. Si haces frío largo, es la que mejor resiste.',
+            },
+            nuvola: {
+                label: 'Caputo Nuvola',
+                sub: 'Tipo 0 · W 260-280',
+                absorption: 61,
+                hydLo: 65, hydHi: 72, hydDefault: 68,
+                fermLo: 8, fermHi: 48,
+                note: 'Diseñada para cornicione alto y aireado (estilo canotto). Absorbe más agua que la Pizzeria: a 67% tiene la consistencia que la Pizzeria a 65%.',
+            },
+            nuvola_super: {
+                label: 'Caputo Nuvola Super',
+                sub: 'W 300-320',
+                absorption: 62,
+                hydLo: 70, hydHi: 80, hydDefault: 73,
+                fermLo: 24, fermHi: 72,
+                note: 'Para alveolado extremo: pizza en pala, teglia y pinsa. Pide hidrataciones muy altas.',
+            },
+            otra: {
+                label: 'Otra harina',
+                sub: 'Genérica de fuerza',
+                absorption: 58,
+                hydLo: 58, hydHi: 70, hydDefault: 62,
+                fermLo: 8, fermHi: 48,
+                note: 'Sin datos del fabricante, empieza bajo y sube de 2 en 2% hasta encontrar el punto de tu harina.',
+            },
+        };
+
+        // Hidratación de esta harina que iguala la consistencia de otra
+        const equivalentHydration = (fromKey, toKey, hyd) => {
+            const a = PIZZA_FLOURS[fromKey].absorption;
+            const b = PIZZA_FLOURS[toKey].absorption;
+            return b * (hyd / a);
+        };
+
+        // ============================================================
+        // MALTA DIASTÁSICA (enzimática)
+        // Aporta alfa-amilasa: rompe almidón en azúcares. Alimenta la
+        // levadura y da color de corteza. Pasarse deja miga gomosa.
+        // La dosis buena depende del horno (cuánto color necesitas) y
+        // del tiempo de fermentación (cuánto trabajan las enzimas).
+        // ============================================================
+        const maltAdvice = (doughType, oven, fermentHours) => {
+            let lo, hi, why;
+            if (doughType === 'pan') {
+                lo = 0.5; hi = 1.0;
+                why = 'En pan se usa más dosis que en pizza: el horno es más suave y la corteza necesita ayuda para dorar.';
+            } else if (oven === 'ooni') {
+                lo = 0.0; hi = 0.2;
+                why = 'Tu horno pasa de 400°C y dora en 60-90 s. La malta casi nunca hace falta y de más te oscurece el cornicione antes de que la base esté hecha.';
+            } else if (oven === 'acero') {
+                lo = 0.2; hi = 0.4;
+                why = 'Con acero llegas a 300°C: algo de malta ayuda al color sin pasarte.';
+            } else {
+                lo = 0.3; hi = 0.5;
+                why = 'En horno doméstico a 250°C cuesta conseguir color. Aquí es donde más se nota la malta.';
+            }
+            // Fermentaciones muy largas: las enzimas tienen más tiempo de actuar
+            if (fermentHours >= 48) { hi = Math.max(lo, hi - 0.1); }
+            return { lo, hi, why };
+        };
+
+        // ============================================================
+        // DESCONGELADO DE BOLAS DE PIZZA
+        // Curvas ajustadas a una bola de ~260g (Ø ~8cm).
+        // El tiempo cae al subir la temperatura, pero no linealmente:
+        // manda la conducción de calor hacia el centro de la bola.
+        // ============================================================
+        const thawPlan = (route, ambientT) => {
+            const T = Math.max(8, Math.min(34, ambientT));
+            if (route === 'nevera') {
+                const fridge = 12;                                  // 4°C, toda la noche
+                const temper = Math.max(1, Math.min(4, 2.0 * Math.pow(22 / T, 1.2)));
+                return {
+                    route: 'nevera',
+                    steps: [
+                        { name: 'Del congelador a la nevera', h: fridge, temp: '4°C', icon: '❄️',
+                          desc: 'Descongelado lento y uniforme. La fermentación sigue casi parada, así que no se te pasan.' },
+                        { name: 'Atemperar en la encimera', h: temper, temp: ambientT + '°C', icon: '☀️',
+                          desc: 'Hasta que la bola esté blanda y ceda al tacto. Si la estiras fría, el gluten se rompe.' },
+                    ],
+                    total: fridge + temper,
+                    warn: null,
+                };
+            }
+            const thaw = Math.max(1.5, Math.min(6, 3.0 * Math.pow(20 / T, 1.5)));
+            return {
+                route: 'ambiente',
+                steps: [
+                    { name: 'Descongelar en la encimera', h: thaw, temp: ambientT + '°C', icon: '☀️',
+                      desc: 'Tapadas y separadas. Listas cuando el centro deja de estar frío al tacto.' },
+                ],
+                total: thaw,
+                warn: T >= 26
+                    ? `A ${ambientT}°C la superficie fermenta de más antes de que el centro se descongele. Mejor la ruta de nevera.`
+                    : null,
+            };
+        };
+
+        // ============================================================
         // PIZZA OVEN TYPES — cambian por completo el plan de horneado
         // ============================================================
         const PIZZA_OVENS = {
@@ -3816,6 +3935,26 @@
             const [pizzaOven, setPizzaOven] = useState(() => {
                 try { return localStorage.getItem('pizzaOven') || 'ooni'; } catch(e) { return 'ooni'; }
             });
+            const [pizzaFlour, setPizzaFlour] = useState(() => {
+                try { return localStorage.getItem('pizzaFlour') || 'nuvola'; } catch(e) { return 'nuvola'; }
+            });
+            const [pizzaHyd, setPizzaHyd] = useState(() => {
+                try { return parseFloat(localStorage.getItem('pizzaHyd')) || 68; } catch(e) { return 68; }
+            });
+
+            const [useMalt, setUseMalt] = useState(() => {
+                try { return localStorage.getItem('useMalt') === 'true'; } catch(e) { return false; }
+            });
+            const [maltPercent, setMaltPercent] = useState(() => {
+                try { return parseFloat(localStorage.getItem('maltPercent')) || 0.3; } catch(e) { return 0.3; }
+            });
+
+            const [pizzaFreeze, setPizzaFreeze] = useState(() => {
+                try { return localStorage.getItem('pizzaFreeze') === 'true'; } catch(e) { return false; }
+            });
+            const [pizzaThawRoute, setPizzaThawRoute] = useState(() => {
+                try { return localStorage.getItem('pizzaThawRoute') || 'nevera'; } catch(e) { return 'nevera'; }
+            });
             const [hydration, setHydration]                   = useState(initial.hydration);
             const [saltPercent, setSaltPercent]               = useState(initial.saltPercent);
             const [totalTime, setTotalTime]                   = useState(initial.totalTime);
@@ -3937,11 +4076,17 @@
                     localStorage.setItem('gofReadyTime', gofReadyTime);
                     localStorage.setItem('pizzaToppingCounts', JSON.stringify(pizzaToppingCounts));
                     localStorage.setItem('pizzaOven', pizzaOven);
+                    localStorage.setItem('pizzaFlour', pizzaFlour);
+                    localStorage.setItem('pizzaHyd', String(pizzaHyd));
+                    localStorage.setItem('useMalt', String(useMalt));
+                    localStorage.setItem('maltPercent', String(maltPercent));
+                    localStorage.setItem('pizzaFreeze', String(pizzaFreeze));
+                    localStorage.setItem('pizzaThawRoute', pizzaThawRoute);
                     localStorage.setItem('focChecks', JSON.stringify(focChecks));
                     localStorage.setItem('focToppings', JSON.stringify(focToppings));
                     localStorage.setItem('gofChecks', JSON.stringify(gofChecks));
                 } catch(e) {}
-            }, [panMold, panUnits, panLiquidStarter, panChecks, panBakeDay, focStarter, focTrays, focAmbient, focColdHours, focBakeTime, gofUnits, gofColdHours, gofReadyTime, pizzaToppingCounts, pizzaOven, focChecks, gofChecks, focToppings]);
+            }, [panMold, panUnits, panLiquidStarter, panChecks, panBakeDay, focStarter, focTrays, focAmbient, focColdHours, focBakeTime, gofUnits, gofColdHours, gofReadyTime, pizzaToppingCounts, pizzaOven, focChecks, gofChecks, focToppings, pizzaFreeze, pizzaThawRoute, useMalt, maltPercent, pizzaFlour, pizzaHyd]);
 
             const togglePanCheck = (id) => {
                 setPanChecks(prev => ({ ...prev, [id]: !prev[id] }));
@@ -4044,7 +4189,6 @@
 
             const DOUGHBALL_WEIGHT = 260;
             // AVPN standard values — not exposed as sliders for pizza
-            const PIZZA_HYDRATION = 65;
             const PIZZA_SALT = 2.8;
 
             const applyPreset = useCallback((preset) => {
@@ -4093,7 +4237,7 @@
                     }
                 }
             // eslint-disable-next-line
-            }, [flour, pizzaBalls, hydration, saltPercent, totalTime, temperature, useColdProof, coldProofTime, prefermentType, prefermentFlourPercent, prefermentTime, prefermentTemp, doughType, pizzaOven]);
+            }, [flour, pizzaBalls, hydration, saltPercent, totalTime, temperature, useColdProof, coldProofTime, prefermentType, prefermentFlourPercent, prefermentTime, prefermentTemp, doughType, pizzaOven, pizzaHyd]);
 
             useEffect(() => {
                 if (doughType === 'pizza' && hydration > 70) setHydration(62);
@@ -4103,7 +4247,7 @@
             // ─── COMPUTATION ─────────────────────────────────────────
             const calc = useMemo(() => {
                 // For pizza, always use canonical AVPN values regardless of slider state
-                const effHydration = doughType === 'pizza' ? PIZZA_HYDRATION : hydration;
+                const effHydration = doughType === 'pizza' ? pizzaHyd : hydration;
                 const effSalt      = doughType === 'pizza' ? PIZZA_SALT      : saltPercent;
 
                 const currentFlour = doughType === 'pan'
@@ -4299,9 +4443,36 @@
                 events.push({ time: new Date(bake), name: 'Hornear', desc: 'El pan entra al horno precalentado', icon: '🔥', kind: 'bake' });
 
                 let cursor = new Date(bake);
+
+                const frozen = doughType === 'pizza' && pizzaFreeze;
+                if (frozen) {
+                    // Día de horneado: sacar del congelador y descongelar
+                    const plan = thawPlan(pizzaThawRoute, temperature);
+                    [...plan.steps].reverse().forEach(st => {
+                        cursor = addHours(cursor, -st.h);
+                        events.push({
+                            time: new Date(cursor), name: st.name, desc: st.desc,
+                            icon: st.icon, kind: st.temp === '4°C' ? 'cold' : 'normal', dur: st.h
+                        });
+                    });
+                    events.push({
+                        time: new Date(cursor), name: '🧊 Sacar del congelador',
+                        desc: 'Aquí empieza el día de horneado. Todo lo anterior lo hiciste el día que preparaste la masa.',
+                        icon: '🧊', kind: 'start'
+                    });
+                }
+
                 // Final proof
                 cursor = addHours(cursor, -calc.finalProofTime);
-                events.push({ time: new Date(cursor), name: 'Levado final', desc: doughType === 'pizza' ? 'Bolea las pizzas y deja reposar' : 'En banneton o molde, hasta ~70% de aumento', icon: '🫓', kind: 'normal', dur: calc.finalProofTime });
+                events.push({ time: new Date(cursor), name: frozen ? 'Levado final antes de congelar' : 'Levado final', desc: doughType === 'pizza' ? 'Bolea las pizzas y deja reposar' : 'En banneton o molde, hasta ~70% de aumento', icon: '🫓', kind: 'normal', dur: calc.finalProofTime });
+
+                if (frozen) {
+                    events.push({
+                        time: new Date(cursor), name: 'Al congelador',
+                        desc: 'Bolas en tuppers individuales o bolsas untadas de aceite. Aguantan hasta 3 meses.',
+                        icon: '🧊', kind: 'cold'
+                    });
+                }
 
                 // Bench rest before final proof (only for pan, not pizza)
                 if (doughType === 'pan') {
@@ -4346,7 +4517,7 @@
                     events.push({ time: new Date(cursor), name: 'Autólisis', desc: 'Mezcla harina + agua, deja reposar 30 min antes de añadir sal y levadura', icon: '💧', kind: 'normal', dur: autolyse });
                 }
 
-                events.push({ time: new Date(cursor), name: 'Empezar aquí', desc: prefermentType !== 'none' ? 'Mezcla la masa final con el prefermento ya activo' : 'Pesa los ingredientes y comienza', icon: '👐', kind: 'start' });
+                events.push({ time: new Date(cursor), name: 'Empezar aquí', desc: (prefermentType !== 'none' ? 'Mezcla la masa final con el prefermento ya activo' : 'Pesa los ingredientes y comienza') + (useMalt ? '. Mezcla la malta en seco con la harina, nunca en el agua con la levadura' : ''), icon: '👐', kind: 'start' });
 
                 if (prefermentType !== 'none') {
                     cursor = addHours(cursor, -prefermentTime);
@@ -4357,7 +4528,7 @@
                 }
 
                 return events.reverse();
-            }, [bakeTime, calc, useColdProof, temperature, prefermentType, prefermentTime, prefermentTemp, doughType, hydration]);
+            }, [bakeTime, calc, useColdProof, temperature, prefermentType, prefermentTime, prefermentTemp, doughType, hydration, pizzaFreeze, pizzaThawRoute, useMalt]);
 
             // ─── RECIPE TEXT ─────────────────────────────────────────
             const recipeText = useMemo(() => {
@@ -4375,8 +4546,10 @@
                 lines.push(`  Harina: ${round(calc.finalFlour)}g`);
                 lines.push(`  Agua: ${round(calc.finalWater)}g`);
                 lines.push(`  Sal: ${round(calc.saltGrams, 1)}g`);
+                if (useMalt) lines.push(`  Malta diastásica: ${round(calc.currentFlour * maltPercent / 100, 1)}g (${maltPercent}%) — mezclar en seco con la harina`);
                 if (calc.yeastGrams > 0) lines.push(`  Levadura seca: ${round(calc.yeastGrams, 2)}g`);
                 lines.push(`\nTotales: ${round(calc.currentFlour)}g harina · ${calc.effHydration}% hidratación · ${calc.effSalt}% sal`);
+                if (doughType === 'pizza') lines.push(`Harina: ${PIZZA_FLOURS[pizzaFlour].label} (${PIZZA_FLOURS[pizzaFlour].sub}) · rango recomendado ${PIZZA_FLOURS[pizzaFlour].hydLo}-${PIZZA_FLOURS[pizzaFlour].hydHi}%`);
                 lines.push(`\nFermentación:`);
                 if (useColdProof) {
                     lines.push(`  • Bulk corto: ${formatHours(calc.ambientH)} a ${temperature}°C`);
@@ -4386,8 +4559,16 @@
                     lines.push(`  • Bulk: ${formatHours(calc.ambientH)} a ${temperature}°C`);
                 }
                 lines.push(`  • Levado final: ${formatHours(calc.finalProofTime)}`);
+                if (doughType === 'pizza' && pizzaFreeze) {
+                    const plan = thawPlan(pizzaThawRoute, temperature);
+                    lines.push(`\nCONGELADO Y DESCONGELADO:`);
+                    lines.push(`  • Congelar tras el levado final. Aguantan hasta 3 meses.`);
+                    plan.steps.forEach(st => lines.push(`  • ${st.name}: ${formatHours(st.h)} a ${st.temp}`));
+                    lines.push(`  • Total desde el congelador: ${formatHours(plan.total)}`);
+                    if (plan.warn) lines.push(`  ! ${plan.warn}`);
+                }
                 return lines.join('\n');
-            }, [calc, doughType, prefermentType, prefermentTime, prefermentTemp, hydration, saltPercent, useColdProof, temperature]);
+            }, [calc, doughType, prefermentType, prefermentTime, prefermentTemp, hydration, saltPercent, useColdProof, temperature, pizzaFreeze, pizzaThawRoute, useMalt, maltPercent, pizzaFlour, pizzaHyd]);
 
             const copyRecipe = () => {
                 if (navigator.clipboard) {
@@ -4970,33 +5151,109 @@
                                             tip="Sobre el peso de la harina total. La sal controla la fermentación y aporta sabor. Menos de 1.5% acelera demasiado; más de 3% inhibe la levadura."
                                             hint="Estándar: 1.8-2.2% · pizza napolitana: 2.5-3%"
                                             hidden={doughType === 'pizza'} />
-                                        {doughType === 'pizza' && (
-                                            <div style={{
-                                                background: 'var(--warm-soft)',
-                                                border: '1px solid var(--warm)',
-                                                borderRadius: 'var(--radius-sm)',
-                                                padding: '0.75rem 1rem',
-                                                fontSize: '0.82rem',
-                                                lineHeight: 1.55,
-                                            }}>
-                                                <div style={{fontWeight: 700, color: 'var(--warm)', marginBottom: '0.4rem', display: 'flex', alignItems: 'center', gap: '0.4rem'}}>
-                                                    🍕 Estándar AVPN (fijo)
-                                                </div>
-                                                <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.4rem'}}>
-                                                    <div style={{background: 'var(--surface)', borderRadius: '6px', padding: '0.4rem 0.6rem', textAlign: 'center'}}>
-                                                        <div style={{fontSize: '0.66rem', textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--text-soft)', marginBottom: '0.15rem'}}>Hidratación</div>
-                                                        <div style={{fontFamily: 'var(--font-label)', fontWeight: 500, fontSize: '1.25rem', color: 'var(--text)'}}>{PIZZA_HYDRATION}%</div>
-                                                    </div>
-                                                    <div style={{background: 'var(--surface)', borderRadius: '6px', padding: '0.4rem 0.6rem', textAlign: 'center'}}>
-                                                        <div style={{fontSize: '0.66rem', textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--text-soft)', marginBottom: '0.15rem'}}>Sal</div>
-                                                        <div style={{fontFamily: 'var(--font-label)', fontWeight: 500, fontSize: '1.25rem', color: 'var(--text)'}}>{PIZZA_SALT}%</div>
-                                                    </div>
-                                                </div>
-                                                <div style={{marginTop: '0.5rem', fontSize: '0.75rem', color: 'var(--text-soft)', fontStyle: 'italic'}}>
-                                                    Rango moderno (63-65%). El reglamento AVPN clásico marca hasta 62%, pero con harinas W300+ y amasado largo el 65% da mejor extensibilidad.
-                                                </div>
+
+                                        {/* Malta diastásica */}
+                                        <div>
+                                            <div className="toggle-row">
+                                                <span className="toggle-label">🌾 Malta diastásica (enzimática)</span>
+                                                <label className="toggle-switch">
+                                                    <input type="checkbox" checked={useMalt}
+                                                        onChange={e => setUseMalt(e.target.checked)} />
+                                                    <span className="toggle-slider"></span>
+                                                </label>
                                             </div>
-                                        )}
+                                            {useMalt && (() => {
+                                                const fermH = (useColdProof ? calc.coldH + calc.ambientH : totalTime) + (prefermentType !== 'none' ? prefermentTime : 0);
+                                                const adv = maltAdvice(doughType, pizzaOven, fermH);
+                                                const grams = calc.currentFlour * maltPercent / 100;
+                                                const low = maltPercent < adv.lo;
+                                                const high = maltPercent > adv.hi;
+                                                return (
+                                                    <div className="stage-block stage-pref" style={{marginTop: '0.9rem'}}>
+                                                        <div className="stage-tag">Dosis</div>
+                                                        <Slider label="Malta sobre la harina" icon="🌾" value={maltPercent}
+                                                            onChange={setMaltPercent} min="0.1" max="1" step="0.05" unit="%"
+                                                            tip="Porcentaje sobre la harina total. Las amilasas rompen el almidón en azúcares: alimentan la levadura y dan color de corteza. Pasarse deja la masa pegajosa y la miga gomosa."
+                                                            hint={`${round(grams, 1)}g de malta · recomendado ${adv.lo}-${adv.hi}% para tu caso`} />
+                                                        <div style={{fontSize: '0.79rem', color: 'var(--text-soft)', lineHeight: 1.55}}>
+                                                            {adv.why}
+                                                        </div>
+                                                        {high && (
+                                                            <div className="warn-box">
+                                                                <Icon name="alert" />
+                                                                <span>Por encima de <strong>{adv.hi}%</strong> para tu combinación. El exceso de amilasas degrada demasiado el almidón: masa húmeda y pegajosa, y miga densa y gomosa.</span>
+                                                            </div>
+                                                        )}
+                                                        {!high && low && adv.lo > 0 && (
+                                                            <div style={{fontSize: '0.79rem', color: 'var(--text-muted)'}}>
+                                                                Por debajo del rango: notarás poco efecto en el color.
+                                                            </div>
+                                                        )}
+                                                        {fermH >= 48 && maltPercent > 0.3 && (
+                                                            <div className="warn-box">
+                                                                <Icon name="alert" />
+                                                                <span>Con {formatHours(fermH)} de fermentación las enzimas tienen mucho tiempo para trabajar. Baja la dosis o acorta el frío.</span>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                );
+                                            })()}
+                                        </div>
+                                        {doughType === 'pizza' && (() => {
+                                            const f = PIZZA_FLOURS[pizzaFlour];
+                                            const below = pizzaHyd < f.hydLo;
+                                            const above = pizzaHyd > f.hydHi;
+                                            const equivPizzeria = equivalentHydration(pizzaFlour, 'pizzeria', pizzaHyd);
+                                            return (
+                                                <div>
+                                                    <div style={{fontSize: '0.78rem', color: 'var(--text-soft)', textTransform: 'uppercase', letterSpacing: '0.09em', fontWeight: 600, fontFamily: 'var(--font-label)', marginBottom: '0.5rem'}}>
+                                                        Harina
+                                                    </div>
+                                                    <div className="pan-grid">
+                                                        {Object.entries(PIZZA_FLOURS).map(([k, fl]) => (
+                                                            <button key={k}
+                                                                className={`pan-mold-btn ${pizzaFlour === k ? 'active' : ''}`}
+                                                                onClick={() => { setPizzaFlour(k); setPizzaHyd(PIZZA_FLOURS[k].hydDefault); }}>
+                                                                <span style={{fontWeight: 600}}>{fl.label}</span>
+                                                                <span className="ms">{fl.sub}</span>
+                                                            </button>
+                                                        ))}
+                                                    </div>
+
+                                                    <div className="stage-block stage-final" style={{marginTop: '0.9rem'}}>
+                                                        <div className="stage-tag">Hidratación</div>
+                                                        <Slider label="Agua sobre la harina" icon="💧" value={pizzaHyd}
+                                                            onChange={setPizzaHyd} min="55" max="85" step="1" unit="%"
+                                                            tip="Cada harina absorbe distinto. El rango recomendado se ajusta a la que has elegido: fuera de él la masa se vuelve dura o inmanejable."
+                                                            hint={`Recomendado ${f.hydLo}-${f.hydHi}% · equivale a ${round(equivPizzeria, 1)}% con Pizzeria`} />
+                                                        <div style={{fontSize: '0.79rem', color: 'var(--text-soft)', lineHeight: 1.55}}>
+                                                            {f.note}
+                                                        </div>
+                                                        {below && (
+                                                            <div className="warn-box">
+                                                                <Icon name="alert" />
+                                                                <span>Por debajo de {f.hydLo}% esta harina queda tensa: el velo sale grueso y el disco se resiste al estirarlo. Sube de 2 en 2%.</span>
+                                                            </div>
+                                                        )}
+                                                        {above && (
+                                                            <div className="warn-box">
+                                                                <Icon name="alert" />
+                                                                <span>Por encima de {f.hydHi}% la masa se vuelve pegajosa y frágil. Sube la hidratación poco a poco en vez de dar el salto de golpe.</span>
+                                                            </div>
+                                                        )}
+                                                        {pizzaHyd >= 68 && (
+                                                            <div className="info-note">
+                                                                <strong>Bassinage:</strong> reserva el último 3-5% del agua y añádelo en hilo fino al final del amasado, con la masa ya formada. Absorbe mucho mejor que metiéndola toda desde el principio, y es donde vas a ver aparecer el velo.
+                                                            </div>
+                                                        )}
+                                                    </div>
+
+                                                    <div className="info-note" style={{marginTop: '0.9rem'}}>
+                                                        <strong>Sal fija en {PIZZA_SALT}%</strong> (estándar AVPN). Fermentación recomendada para esta harina: {f.fermLo}-{f.fermHi}h.
+                                                    </div>
+                                                </div>
+                                            );
+                                        })()}
                                     </div>
                                 </div>
 
@@ -5059,6 +5316,46 @@
                                         </div>
                                     </div>
                                 </div>
+                                {doughType === 'pizza' && (
+                                    <div className="section">
+                                        <div className="section-label"><span className="step-num">6</span> Congelar las bolas</div>
+                                        <div className="toggle-row">
+                                            <span className="toggle-label">🧊 Voy a congelar las bolas</span>
+                                            <label className="toggle-switch">
+                                                <input type="checkbox" checked={pizzaFreeze}
+                                                    onChange={e => setPizzaFreeze(e.target.checked)} />
+                                                <span className="toggle-slider"></span>
+                                            </label>
+                                        </div>
+                                        {pizzaFreeze && (
+                                            <div className="stage-block stage-pref" style={{marginTop: '0.9rem'}}>
+                                                <div className="stage-tag">Cómo descongelar</div>
+                                                <div className="pan-grid" style={{marginBottom: 0}}>
+                                                    <button className={`pan-mold-btn ${pizzaThawRoute === 'nevera' ? 'active' : ''}`}
+                                                        onClick={() => setPizzaThawRoute('nevera')}>
+                                                        <span style={{fontWeight: 600}}>❄️ Nevera</span>
+                                                        <span className="ms">Lento · recomendado</span>
+                                                    </button>
+                                                    <button className={`pan-mold-btn ${pizzaThawRoute === 'ambiente' ? 'active' : ''}`}
+                                                        onClick={() => setPizzaThawRoute('ambiente')}>
+                                                        <span style={{fontWeight: 600}}>☀️ Encimera</span>
+                                                        <span className="ms">Rápido · mismo día</span>
+                                                    </button>
+                                                </div>
+                                                <div style={{fontSize: '0.78rem', color: 'var(--text-soft)', marginTop: '0.6rem', lineHeight: 1.5}}>
+                                                    A {temperature}°C necesitas <strong style={{color: 'var(--text)'}}>{formatHours(thawPlan(pizzaThawRoute, temperature).total)}</strong> desde que las sacas hasta que puedes estirarlas.
+                                                </div>
+                                                {thawPlan(pizzaThawRoute, temperature).warn && (
+                                                    <div className="warn-box" style={{marginTop: '0.6rem'}}>
+                                                        <Icon name="alert" />
+                                                        <span>{thawPlan(pizzaThawRoute, temperature).warn}</span>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+
                                 </>)}
                             </div>
 
@@ -5165,7 +5462,17 @@
                                             <div className="ing-card"><div className="l">Harina</div><div className="v">{round(calc.finalFlour)}</div><div className="u">gramos</div></div>
                                             <div className="ing-card"><div className="l">Agua</div><div className="v">{round(calc.finalWater)}</div><div className="u">gramos</div></div>
                                             <div className="ing-card"><div className="l">Sal ({saltPercent}%)</div><div className="v">{round(calc.saltGrams, 1)}</div><div className="u">gramos</div></div>
+                                            {useMalt && (
+                                                <div className="ing-card"><div className="l">Malta diastásica ({maltPercent}%)</div><div className="v">{round(calc.currentFlour * maltPercent / 100, 1)}</div><div className="u">gramos</div></div>
+                                            )}
                                         </div>
+
+                                        {useMalt && (
+                                            <div className="info-note" style={{marginTop: '0.75rem'}}>
+                                                <strong>Cómo incorporarla:</strong> mézclala en seco con la harina antes de añadir el agua. Nunca la disuelvas en el agua junto a la levadura.
+                                                <br/><strong>Ojo al ritmo:</strong> al liberar azúcares, la fermentación se acelera. Guíate por el volumen de la masa más que por el reloj — puede ir entre un 10 y un 15% más rápido de lo que marca el cronograma.
+                                            </div>
+                                        )}
 
                                         {calc.yeastGrams > 0 && (
                                             <div className="yeast-card">
@@ -5260,6 +5567,31 @@
                                 {/* BAKING TAB */}
                                 {activeTab === 'baking' && (
                                     <div className="animate-in">
+                                        {doughType === 'pizza' && pizzaFreeze && (() => {
+                                            const plan = thawPlan(pizzaThawRoute, temperature);
+                                            return (
+                                                <div className="bake-card" style={{marginBottom: '1rem'}}>
+                                                    <div className="bake-header">🧊 Del congelador al horno</div>
+                                                    <div className="bake-preheat">
+                                                        <span>Tiempo total desde que las sacas</span>
+                                                        <span><span className="pt">{formatHours(plan.total)}</span> · a {temperature}°C</span>
+                                                    </div>
+                                                    {plan.steps.map((st, i) => (
+                                                        <div className="bake-phase" key={i}>
+                                                            <div className="bake-phase-title">{st.icon} {st.name}</div>
+                                                            <div className="bake-stats">
+                                                                <div className="bake-stat"><div className="v">{formatHours(st.h)}</div><div className="l">Duración</div></div>
+                                                                <div className="bake-stat"><div className="v">{st.temp}</div><div className="l">Temp.</div></div>
+                                                            </div>
+                                                            <div className="bake-action">{st.desc}</div>
+                                                        </div>
+                                                    ))}
+                                                    {plan.warn && <div className="bake-note">⚠️ {plan.warn}</div>}
+                                                    <div className="bake-note">🧪 La congelación se lleva por delante parte de la levadura. Si notas que las bolas suben poco, sube la levadura un 15-20% en la siguiente tanda que vayas a congelar.</div>
+                                                    <div className="bake-note">👐 Estira solo cuando la bola ceda al tacto y no esté fría por dentro. En frío el gluten no se relaja y se te romperá el disco.</div>
+                                                </div>
+                                            );
+                                        })()}
                                         <BakingPlan plan={calc.bakingPlan} />
                                         <div className="info-note">
                                             <strong>Indicador de cocción:</strong> {doughType === 'pizza'
