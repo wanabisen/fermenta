@@ -4237,16 +4237,12 @@
                     }
                 }
             // eslint-disable-next-line
-            }, [flour, pizzaBalls, hydration, saltPercent, totalTime, temperature, useColdProof, coldProofTime, prefermentType, prefermentFlourPercent, prefermentTime, prefermentTemp, doughType, pizzaOven, pizzaHyd]);
+            }, [flour, pizzaBalls, hydration, saltPercent, totalTime, temperature, useColdProof, coldProofTime, prefermentType, prefermentFlourPercent, prefermentTime, prefermentTemp, doughType, pizzaOven]);
 
-            useEffect(() => {
-                if (doughType === 'pizza' && hydration > 70) setHydration(62);
-            // eslint-disable-next-line
-            }, [doughType]);
 
             // ─── COMPUTATION ─────────────────────────────────────────
             const calc = useMemo(() => {
-                // For pizza, always use canonical AVPN values regardless of slider state
+                // En pizza la hidratación viene del selector de harina; la sal sigue fija (AVPN)
                 const effHydration = doughType === 'pizza' ? pizzaHyd : hydration;
                 const effSalt      = doughType === 'pizza' ? PIZZA_SALT      : saltPercent;
 
@@ -4415,7 +4411,7 @@
                     bakingPlan, totalDough,
                     effHydration, effSalt,
                 };
-            }, [doughType, flour, pizzaBalls, hydration, saltPercent, totalTime, temperature, useColdProof, coldProofTime, prefermentType, prefermentFlourPercent, prefermentTime, prefermentTemp]);
+            }, [doughType, flour, pizzaBalls, hydration, saltPercent, totalTime, temperature, useColdProof, coldProofTime, prefermentType, prefermentFlourPercent, prefermentTime, prefermentTemp, pizzaHyd]);
 
             const quality = useQualityCheck({ doughType, hydration, saltPercent, temperature, totalTime, useColdProof, coldProofTime, prefermentType, prefermentTemp });
 
