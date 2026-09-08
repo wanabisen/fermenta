@@ -1847,6 +1847,18 @@
 
         // Mercadona disposable aluminum tray 2.7L — ~32×26×5cm (≈830cm²)
         // Optimal: 530g flour per tray → ~990g dough → 1.18g/cm² → perfect 2.5-3cm focaccia after fermentation
+        // Salamoia: emulsión de agua + aceite + sal que se vierte sobre los
+        // hoyitos antes del horno. Mantiene la superficie flexible mientras
+        // las burbujas se expanden y fríe los cráteres.
+        const SALAMOIA_PER_TRAY = { water: 30, oil: 30, salt: 3 };
+
+        // Levado en bandeja el día 2 (atemperado + fermentación real).
+        // Depende de la temperatura ambiente: en frío tarda bastante más.
+        const trayProofHours = (ambientT) => {
+            const T = Math.max(14, Math.min(32, ambientT));
+            return Math.max(2, Math.min(6, 3.5 * Math.pow(22 / T, 1.3)));
+        };
+
         const FOCACCIA_TRAY = {
             label: 'Bandeja Mercadona 2,7L',
             dimensions: '≈32×26×5cm',
@@ -1856,19 +1868,18 @@
 
         // Process steps (shared between both starter types)
         const FOCACCIA_PROCESS = [
-            { day: 'Día 1', time: '~16:00', step: 1, name: 'Mezcla agua + fermento', desc: 'Mezcla la levadura fresca (o la masa madre activa) con el agua hasta disolver.', icon: '💧' },
-            { day: 'Día 1', time: '+5 min', step: 2, name: 'Amasa con la harina', desc: 'Añade la harina y amasa unos 8 min con máquina o 15 min a mano. Buscas una masa lisa y elástica.', icon: '🌾' },
-            { day: 'Día 1', time: '~3 min antes del fin', step: 3, name: 'Añade sal + chorrito de aceite', desc: 'Incorpora la sal y un chorrito de aceite de oliva hacia el final del amasado.', icon: '🧂' },
-            { day: 'Día 1', time: 'levado bulk', step: 4, name: 'Primer levado a temperatura ambiente', desc: '', icon: '🥣', dynamic: true },
-            { day: 'Día 1', time: 'tras el bulk', step: 5, name: 'Pliegues en el bol', desc: 'Plegamos en el mismo bol con la mano mojada en agua o aceite. 4 pliegues estilo coil-fold.', icon: '🤲' },
-            { day: 'Día 1', time: '+30 min', step: 6, name: 'Reposo tapado', desc: 'Media hora de reposo tapado con film a temperatura ambiente.', icon: '⏱️' },
-            { day: 'Día 1 → Día 2', time: 'variable', step: 7, name: 'Frío en nevera', desc: '', icon: '❄️', dynamicCold: true },
-            { day: 'Día 2', time: '~1h antes', step: 8, name: 'Prepara la bandeja', desc: 'Bandeja de aluminio Mercadona de 2,7L (≈32×26×5cm). Úntala bien de aceite de oliva — sin escatimar, va al fondo y por los bordes.', icon: '🛠️' },
-            { day: 'Día 2', time: '+1h', step: 9, name: 'Atempera y extiende', desc: 'Atempera la masa (algo más de 1 hora). Vuelca en la bandeja y déjala caer; no manipules mucho — que se extienda sola.', icon: '☀️' },
-            { day: 'Día 2', time: 'antes del horno', step: 10, name: 'Aliñar', desc: 'Aceite de oliva por encima, escamas de sal, romero, tomates secos o lo que te apetezca.', icon: '🌿' },
-            { day: 'Día 2', time: 'antes del horno', step: 11, name: 'Hacer los hoyitos', desc: 'Presiona la masa con las yemas de los dedos haciendo los surcos característicos.', icon: '👇' },
-            { day: 'Día 2', time: 'horno caliente', step: 12, name: 'Hornear', desc: 'Cocemos a 220°C con poco vapor durante 30 min. Vigila los últimos minutos para que no se queme la base.', icon: '🔥' },
-            { day: 'Día 2', time: 'tras hornear', step: 13, name: 'Espera antes de cortar', desc: 'Media hora de reposo antes de cortar. La miga termina de asentarse.', icon: '⏳' },
+            { day: 'Día 1', time: '5 min', step: 1, name: 'Mezcla agua + fermento', desc: 'Disuelve la masa madre activa (o la levadura fresca) en el agua. Reserva un poco de agua si la masa te resulta difícil de manejar al principio.', icon: '💧' },
+            { day: 'Día 1', time: '8-15 min', step: 2, name: 'Amasa con la harina', desc: 'Añade la harina y amasa 8 min con máquina o 15 a mano. A esta hidratación la masa estará pegajosa: es lo normal, no añadas harina para corregirlo.', icon: '🌾' },
+            { day: 'Día 1', time: 'al final', step: 3, name: 'Añade sal + chorrito de aceite', desc: 'Incorpora la sal y un chorrito de aceite hacia el final del amasado, cuando la masa ya tenga algo de estructura.', icon: '🧂' },
+            { day: 'Día 1', time: 'levado bulk', step: 4, name: 'Bulk con pliegues cada 30-45 min', desc: '', icon: '🥣', dynamic: true },
+            { day: 'Día 1', time: '30 min', step: 5, name: 'Reposo final del bulk', desc: 'Tras la última tanda de pliegues, media hora tapada sin tocarla. La masa debe verse hinchada y con burbujas en superficie.', icon: '⏱️' },
+            { day: 'Día 1 → Día 2', time: 'variable', step: 6, name: 'Frío en nevera', desc: '', icon: '❄️', dynamicCold: true },
+            { day: 'Día 2', time: 'antes de volcar', step: 7, name: 'Prepara la bandeja', desc: 'Bandeja de aluminio de 2,7L (≈32×26×5cm) generosamente untada de aceite de oliva, fondo y paredes. El aceite del fondo fríe la base y la deja crujiente.', icon: '🛠️' },
+            { day: 'Día 2', time: '3-4 h', step: 8, name: 'Volcar y levar EN la bandeja', desc: '', icon: '☀️', dynamicProof: true },
+            { day: 'Día 2', time: 'al final del levado', step: 9, name: 'Hacer los hoyitos', desc: 'Solo cuando la masa esté completamente levada: agita la bandeja y debe ondular como gelatina. Dedos bien aceitados, presiona hasta tocar el fondo. Si los haces antes, desgasificas justo lo que querías conservar.', icon: '👇' },
+            { day: 'Día 2', time: 'justo antes del horno', step: 10, name: 'Salamoia y aliño', desc: '', icon: '🫗', dynamicBrine: true },
+            { day: 'Día 2', time: '25-30 min', step: 11, name: 'Hornear con calor de suelo', desc: 'A 230-240°C sobre piedra o acero precalentado en la base del horno. El golpe de calor inferior dispara el alveolado en los primeros minutos. Poco vapor los primeros 10 min, luego seco para que dore.', icon: '🔥' },
+            { day: 'Día 2', time: '30 min', step: 12, name: 'Espera antes de cortar', desc: 'Media hora sobre rejilla antes de cortar. La miga termina de asentarse y la base conserva el crujiente.', icon: '⏳' },
         ];
 
         // Scale recipe to a target dough total weight
@@ -3195,6 +3206,12 @@
             const effHydration = (effWater / effFlour) * 100;
 
             const levado1Hours = base.levado1;
+            const trayProof = trayProofHours(ambientTemp);
+            const salamoia = {
+                water: SALAMOIA_PER_TRAY.water * trays,
+                oil:   SALAMOIA_PER_TRAY.oil   * trays,
+                salt:  SALAMOIA_PER_TRAY.salt  * trays,
+            };
 
             // Build schedule (working backwards from bake time)
             const schedule = useMemo(() => {
@@ -3204,8 +3221,8 @@
                 if (bake < new Date()) bake.setDate(bake.getDate() + 1);
 
                 // Offsets (in hours, working backwards from bake)
-                const t_temper      = 1.1;                              // 1h atempering + 0.1 (~6 min) for shaping
-                const t_cold_end    = t_temper + coldHours;             // end of fridge = start of atempering
+                const t_temper      = trayProof + 0.1;                  // levado en bandeja + ~6 min de volcado
+                const t_cold_end    = t_temper + coldHours;             // fin del frío = inicio del levado en bandeja
                 const t_rest        = t_cold_end + 0.5;                 // 30 min covered rest after folds
                 const t_bulk_end    = t_rest;                            // bulk ends at rest start
                 const t_bulk_start  = t_bulk_end + levado1Hours;
@@ -3213,15 +3230,15 @@
 
                 const events = [];
                 events.push({ time: new Date(bake.getTime() + 30 * 60000), name: 'Cortar y servir', desc: 'La miga ya ha asentado', icon: '🍽️', kind: 'normal' });
-                events.push({ time: new Date(bake), name: 'Hornear', desc: '220°C con vapor · 30 min', icon: '🔥', kind: 'bake' });
-                events.push({ time: addHours(bake, -0.05), name: 'Aliñar y hoyitos', desc: 'Aceite, sal, romero · presionar con dedos', icon: '👇', kind: 'normal' });
-                events.push({ time: addHours(bake, -t_temper), name: 'Sacar de nevera y extender', desc: 'Atempera 1h · vuelca en bandeja sin amasar', icon: '☀️', kind: 'normal', dur: 1 });
+                events.push({ time: new Date(bake), name: 'Hornear', desc: '230-240°C sobre piedra precalentada · 25-30 min', icon: '🔥', kind: 'bake' });
+                events.push({ time: addHours(bake, -0.08), name: 'Hoyitos y salamoia', desc: 'Dedos aceitados hasta el fondo · emulsión de agua, aceite y sal por encima', icon: '🫗', kind: 'normal' });
+                events.push({ time: addHours(bake, -t_temper), name: 'Volcar y levar en bandeja', desc: `${formatHours(trayProof)} a ${ambientTemp}°C · aquí se generan las burbujas`, icon: '☀️', kind: 'normal', dur: trayProof });
                 events.push({ time: addHours(bake, -t_cold_end), name: `A la nevera (${formatHours(coldHours)})`, desc: 'Tapado, fría a 4°C · desarrolla sabor', icon: '❄️', kind: 'cold', dur: coldHours });
                 events.push({ time: addHours(bake, -t_rest), name: 'Reposo tapado', desc: '30 min a temperatura ambiente', icon: '⏱️', kind: 'normal', dur: 0.5 });
-                events.push({ time: addHours(bake, -t_bulk_start), name: 'Bulk + pliegues', desc: `Levado ${formatHours(levado1Hours)} a ${ambientTemp}°C, después 4 pliegues`, icon: '🥣', kind: 'normal', dur: levado1Hours });
+                events.push({ time: addHours(bake, -t_bulk_start), name: 'Bulk con pliegues', desc: `${formatHours(levado1Hours)} a ${ambientTemp}°C · 3-4 tandas de pliegues cada 30-45 min`, icon: '🥣', kind: 'normal', dur: levado1Hours });
                 events.push({ time: addHours(bake, -t_knead), name: 'Empezar amasado', desc: 'Mezcla agua+fermento, harina, sal y aceite al final', icon: '👐', kind: 'start' });
                 return events.reverse();
-            }, [bakeTime, levado1Hours, ambientTemp, coldHours]);
+            }, [bakeTime, levado1Hours, ambientTemp, coldHours, trayProof]);
 
             const buildText = () => {
                 const lines = [];
@@ -3242,7 +3259,11 @@
                               : p.desc;
                     lines.push(`  ${p.step}. ${p.name}: ${desc}`);
                 });
-                lines.push('\nHORNEADO: 220°C con poco vapor · 30 min');
+                lines.push(`\nSALAMOIA (justo antes del horno):`);
+                lines.push(`  Agua: ${round(salamoia.water, 0)}g · Aceite: ${round(salamoia.oil, 0)}g · Sal: ${round(salamoia.salt, 1)}g`);
+                lines.push('  Emulsionar con tenedor y verter sobre los hoyitos hasta encharcarlos.');
+                lines.push('\nHORNEADO: 230-240°C sobre piedra precalentada · 25-30 min');
+                lines.push('  Poco vapor los primeros 10 min, luego seco.');
                 lines.push('Reposo final: 30 min antes de cortar');
                 return lines.join('\n');
             };
@@ -3331,6 +3352,18 @@
                                 </div>
                             </div>
 
+                            <div style={{fontFamily: 'var(--font-label)', fontSize: '0.78rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.09em', color: 'var(--text-soft)', marginBottom: '0.5rem', marginTop: '1.25rem'}}>
+                                Salamoia · justo antes del horno
+                            </div>
+                            <div className="ing-grid">
+                                <div className="ing-card"><div className="l">Agua</div><div className="v">{round(salamoia.water, 0)}</div><div className="u">gramos</div></div>
+                                <div className="ing-card"><div className="l">Aceite de oliva</div><div className="v">{round(salamoia.oil, 0)}</div><div className="u">gramos</div></div>
+                                <div className="ing-card"><div className="l">Sal</div><div className="v">{round(salamoia.salt, 1)}</div><div className="u">gramos</div></div>
+                            </div>
+                            <div className="info-note" style={{marginBottom: '1rem'}}>
+                                Emulsiona los tres con un tenedor hasta que quede turbio y viértelo sobre los hoyitos hasta encharcarlos. Mantiene la superficie flexible mientras las burbujas se expanden — sin ella se forma una piel rígida que hace de tapa.
+                            </div>
+
                             <div className="info-note">
                                 <strong>Aceite de oliva:</strong> añade un chorrito al final del amasado y otro generoso al aliñar antes del horno (~30g cada uno). El de calidad marca la diferencia.
                                 <br/><strong>Bandeja:</strong> {trays} {trays === 1 ? 'bandeja' : 'bandejas'} de aluminio Mercadona de 2,7L (≈32×26×5cm). Cada una con {FOCACCIA_TRAY.flourPerTray}g de harina y ~{FOCACCIA_TRAY.doughPerTray}g de masa. Engrasa bien con aceite de oliva.
@@ -3344,11 +3377,15 @@
                             <div style={{display: 'flex', flexDirection: 'column', gap: '0.5rem'}}>
                                 {FOCACCIA_PROCESS.map((p, i) => {
                                     const desc = p.dynamic
-                                        ? `Levado de ${formatHours(levado1Hours)} a ${ambientTemp}°C. ${thermalMode === 'calor' ? 'Modo calor: tiempo reducido.' : 'Modo normal.'}`
+                                        ? `Levado de ${formatHours(levado1Hours)} a ${ambientTemp}°C con 3-4 tandas de pliegues cada 30-45 min. Mano mojada, estilo coil-fold: levanta la masa por el centro y déjala caer sobre sí misma. Construye estructura sin desgasificar. ${thermalMode === 'calor' ? 'Modo calor: tiempo reducido.' : ''}`
                                         : p.dynamicCold
                                         ? `${formatHours(coldHours)} en nevera tapado. La masa desarrolla sabor y estructura. ${coldHours < 18 ? 'Tiempo justo, sabor más suave.' : coldHours <= 30 ? 'Sabor equilibrado.' : coldHours <= 48 ? 'Sabor complejo, bien desarrollado.' : 'Larga fermentación, vigila al sacar.'}`
+                                        : p.dynamicProof
+                                        ? `Vuelca la masa en la bandeja sin manipularla y deja que se extienda sola por su peso. Después ${formatHours(trayProof)} a ${ambientTemp}°C — la primera hora solo atempera, el resto es la fermentación que genera las burbujas. No la hornees antes: es el paso donde más se gana.`
+                                        : p.dynamicBrine
+                                        ? `Emulsiona con tenedor ${round(salamoia.water, 0)}g de agua + ${round(salamoia.oil, 0)}g de aceite + ${round(salamoia.salt, 1)}g de sal hasta que quede turbio, y viértelo sobre los hoyitos hasta encharcarlos. Parece demasiado, pero es lo correcto. Añade después romero, tomate seco o lo que lleve.`
                                         : p.desc;
-                                    const time = p.dynamicCold ? formatHours(coldHours) : p.time;
+                                    const time = p.dynamicCold ? formatHours(coldHours) : p.dynamicProof ? formatHours(trayProof) : p.time;
                                     return (
                                         <div key={i} style={{display: 'grid', gridTemplateColumns: '32px 1fr', gap: '0.6rem', padding: '0.7rem 0.85rem', background: 'var(--surface-2)', borderRadius: 'var(--radius-sm)', alignItems: 'flex-start'}}>
                                             <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center', width: '28px', height: '28px', borderRadius: '50%', background: 'var(--surface)', fontFamily: 'var(--font-label)', fontWeight: 600, color: 'var(--accent)', fontSize: '0.85rem'}}>
@@ -3419,18 +3456,19 @@
                                 <div className="bake-header">🔥 Plan de horneado · Focaccia</div>
                                 <div className="bake-preheat">
                                     <span>Precalentamiento</span>
-                                    <span><span className="pt">220°C</span> · 20 min con bandeja vacía dentro</span>
+                                    <span><span className="pt">240°C</span> · 45 min con piedra o acero dentro</span>
                                 </div>
-                                <div className="bake-note">⚠️ Bandeja de aluminio bien untada de aceite de oliva — la base se fríe ligeramente y queda crujiente.</div>
+                                <div className="bake-note">🔥 La piedra o el acero en la base es la clave del alveolado: el golpe de calor inferior dispara las burbujas en los primeros minutos. Coloca la bandeja directamente encima.</div>
+                                <div className="bake-note">⚠️ Bandeja de aluminio bien untada de aceite — la base se fríe ligeramente y queda crujiente.</div>
                                 <div className="bake-phase">
                                     <div className="bake-phase-title">Cocción única</div>
                                     <div className="bake-stats">
-                                        <div className="bake-stat"><div className="v">220°C</div><div className="l">Temp.</div></div>
-                                        <div className="bake-stat"><div className="v">30 min</div><div className="l">Tiempo</div></div>
-                                        <div className="bake-stat"><div className="v">Poco vapor</div><div className="l">Vapor</div></div>
+                                        <div className="bake-stat"><div className="v">230-240°C</div><div className="l">Temp.</div></div>
+                                        <div className="bake-stat"><div className="v">25-30 min</div><div className="l">Tiempo</div></div>
+                                        <div className="bake-stat"><div className="v">10 min</div><div className="l">Con vapor</div></div>
                                     </div>
                                     <div className="bake-action">
-                                        Hornea con poco vapor durante los primeros 10 min (un vasito de agua en el suelo del horno o spray rápido). Después abre y deja seco para que la corteza se dore. Vigila los últimos 5 min para que no se queme la base.
+                                        Vapor los primeros 10 min (un vasito de agua en el suelo del horno). Después abre para soltarlo y deja seco el resto, que es cuando dora. Vigila los últimos 5 min para que no se queme la base.
                                     </div>
                                 </div>
                                 <div className="bake-note">⏳ <strong>Reposo de 30 min</strong> antes de cortar. La miga sigue cocinándose con el vapor interno.</div>
@@ -3471,13 +3509,15 @@
                                 { id: 'foc_mezcla',   day: 'Día 1', text: 'Agua + fermento disueltos · harina amasada' },
                                 { id: 'foc_sal',      day: 'Día 1', text: 'Sal y chorrito de aceite incorporados al final' },
                                 { id: 'foc_bulk',     day: 'Día 1', text: `Bulk de ${formatHours(levado1Hours)} a ${ambientTemp}°C completado` },
-                                { id: 'foc_pliegues', day: 'Día 1', text: 'Pliegues hechos con la mano mojada · 30 min de reposo' },
+                                { id: 'foc_pliegues', day: 'Día 1', text: '3-4 tandas de pliegues cada 30-45 min · 30 min de reposo final' },
                                 { id: 'foc_nevera',   day: 'Día 1', text: `A la nevera tapada · ${formatHours(coldHours)}` },
+                                { id: 'foc_piedra',   day: 'Día 2', text: 'Piedra o acero precalentando en la base del horno' },
                                 { id: 'foc_bandeja',  day: 'Día 2', text: `${trays} ${trays === 1 ? 'bandeja engrasada' : 'bandejas engrasadas'} con aceite de oliva` },
-                                { id: 'foc_atempera', day: 'Día 2', text: 'Masa atemperada ~1h y volcada sin manipular' },
-                                { id: 'foc_alino',    day: 'Día 2', text: 'Aliñada: aceite, escamas de sal y toppings' },
-                                { id: 'foc_hoyitos',  day: 'Día 2', text: 'Hoyitos marcados con las yemas de los dedos' },
-                                { id: 'foc_horno',    day: 'Día 2', text: 'Horneada a 220°C con vapor · 30 min' },
+                                { id: 'foc_atempera', day: 'Día 2', text: `Volcada sin manipular y levando en bandeja · ${formatHours(trayProof)}` },
+                                { id: 'foc_ondula',   day: 'Día 2', text: 'La masa ondula al agitar la bandeja — lista para los hoyitos' },
+                                { id: 'foc_hoyitos',  day: 'Día 2', text: 'Hoyitos con dedos aceitados hasta tocar el fondo' },
+                                { id: 'foc_salamoia', day: 'Día 2', text: 'Salamoia emulsionada y vertida hasta encharcar · aliño puesto' },
+                                { id: 'foc_horno',    day: 'Día 2', text: 'Horneada a 230-240°C sobre piedra · 25-30 min' },
                                 { id: 'foc_reposo',   day: 'Día 2', text: 'Reposo de 30 min antes de cortar' },
                             ]}
                             checks={checks}
