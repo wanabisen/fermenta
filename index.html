@@ -5532,7 +5532,12 @@
                                         const wantsVelo = doughType !== 'pizza' || pizzaStyle === 'contemporanea';
                                         return (
                                             <>
-                                                <div style={{fontSize: '0.78rem', color: 'var(--text-soft)', textTransform: 'uppercase', letterSpacing: '0.09em', fontWeight: 600, fontFamily: 'var(--font-label)', marginBottom: '0.5rem'}}>
+                                                <Slider label="Temperatura de tu cocina" icon="🏠" value={temperature} onChange={setTemperature}
+                                                    min="4" max="32" step="1" unit="°C"
+                                                    tip="La temperatura ambiente manda en dos cosas: los grados que necesita el agua para que la masa salga a su punto, y la velocidad de la fermentación (regla Q10: la actividad enzimática se duplica cada 10°C)."
+                                                    hint={`Decide el agua del amasado y la velocidad del levado · Q10≈2: ${temperature < 22 ? 'fermenta más lento' : temperature > 22 ? 'fermenta más rápido' : 'velocidad de referencia'} que a 22°C`} />
+
+                                                <div style={{fontSize: '0.78rem', color: 'var(--text-soft)', textTransform: 'uppercase', letterSpacing: '0.09em', fontWeight: 600, fontFamily: 'var(--font-label)', margin: '1.1rem 0 0.5rem'}}>
                                                     Amasadora
                                                 </div>
                                                 <div className="pan-grid">
@@ -5696,10 +5701,10 @@
                                                 onChange={setTotalTime} min="1" max="12" step="0.5" unit="hrs"
                                                 disabled={useColdProof}
                                                 hint={useColdProof ? 'El bulk se calcula automáticamente al activar levado en frío' : ''} />
-                                            <Slider label="Temperatura de la masa final" icon="🌡️" value={temperature} onChange={setTemperature}
-                                                min="4" max="32" step="1" unit="°C"
-                                                tip="Q10 es la regla biológica que dice que la actividad enzimática se duplica cada 10°C. Para la levadura: a 32°C fermenta el doble que a 22°C."
-                                                hint={`Q10≈2: ${temperature < 22 ? 'fermenta más lento' : temperature > 22 ? 'fermenta más rápido' : 'velocidad de referencia'} que a 22°C`} />
+                                            <div style={{fontSize: '0.79rem', color: 'var(--text-soft)', lineHeight: 1.5, paddingTop: '0.2rem'}}>
+                                                Fermenta a <strong style={{color: 'var(--text)', fontFamily: 'var(--font-data)'}}>{temperature}°C</strong>, la temperatura de tu cocina.
+                                                Se ajusta en <strong style={{color: 'var(--text)'}}>{doughType === 'pizza' ? '4' : '3'} · Amasado</strong>, porque también decide la del agua.
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
