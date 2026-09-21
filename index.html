@@ -1497,6 +1497,9 @@
         };
 
         const DOUGH_TEMP_MIN = 22, DOUGH_TEMP_MAX = 26;
+        // Objetivo de temperatura final de masa. No es una preferencia:
+        // 23°C es el punto de la napolitana; en pan se trabaja algo más alto.
+        const DOUGH_TEMP_TARGET = { pizza: 23, pan: 24 };
 
         // Agua de nevera disponible como punto de partida para el hielo
         const CHILLED_WATER = 4;
@@ -4089,9 +4092,6 @@
             const [mixerType, setMixerType] = useState(() => {
                 try { return localStorage.getItem('mixerType') || 'espiral'; } catch(e) { return 'espiral'; }
             });
-            const [doughTarget, setDoughTarget] = useState(() => {
-                try { return parseFloat(localStorage.getItem('doughTarget')) || 23; } catch(e) { return 23; }
-            });
             const [flourAtRoom, setFlourAtRoom] = useState(() => {
                 try { const v = localStorage.getItem('flourAtRoom'); return v === null ? true : v === 'true'; } catch(e) { return true; }
             });
@@ -4247,7 +4247,6 @@
                     localStorage.setItem('pizzaToppingCounts', JSON.stringify(pizzaToppingCounts));
                     localStorage.setItem('pizzaOven', pizzaOven);
                     localStorage.setItem('mixerType', mixerType);
-                    localStorage.setItem('doughTarget', String(doughTarget));
                     localStorage.setItem('flourAtRoom', String(flourAtRoom));
                     localStorage.setItem('flourTemp', String(flourTemp));
                     if (customFriction != null) localStorage.setItem('customFriction', String(customFriction));
@@ -4263,7 +4262,7 @@
                     localStorage.setItem('focToppings', JSON.stringify(focToppings));
                     localStorage.setItem('gofChecks', JSON.stringify(gofChecks));
                 } catch(e) {}
-            }, [panMold, panUnits, panLiquidStarter, panChecks, panBakeDay, focStarter, focTrays, focAmbient, focColdHours, focBakeTime, gofUnits, gofColdHours, gofReadyTime, pizzaToppingCounts, pizzaOven, focChecks, gofChecks, focToppings, pizzaFreeze, pizzaThawRoute, useMalt, maltPercent, pizzaFlour, pizzaHyd, pizzaStyle, mixerType, doughTarget, flourAtRoom, flourTemp, customFriction]);
+            }, [panMold, panUnits, panLiquidStarter, panChecks, panBakeDay, focStarter, focTrays, focAmbient, focColdHours, focBakeTime, gofUnits, gofColdHours, gofReadyTime, pizzaToppingCounts, pizzaOven, focChecks, gofChecks, focToppings, pizzaFreeze, pizzaThawRoute, useMalt, maltPercent, pizzaFlour, pizzaHyd, pizzaStyle, mixerType, flourAtRoom, flourTemp, customFriction]);
 
             const togglePanCheck = (id) => {
                 setPanChecks(prev => ({ ...prev, [id]: !prev[id] }));
@@ -4279,6 +4278,9 @@
             useEffect(() => {
                 if (focStarter === 'levadura' && focColdHours > 48) setFocColdHours(48);
             }, [focStarter, focColdHours]);
+
+            // Objetivo de temperatura de masa: fijo por tipo, no configurable
+            const doughTarget = DOUGH_TEMP_TARGET[doughType] || 23;
 
             // ── Wake Lock: mantener la pantalla encendida mientras cocinas ──
             // wakeWanted = intención del usuario (persiste aunque el sistema
@@ -5554,12 +5556,18 @@
                                                 <div className="stage-block stage-pref" style={{marginTop: '0.9rem'}}>
                                                     <div className="stage-tag">Temperatura del agua</div>
 
-                                                    <Slider label="Temperatura objetivo de la masa" icon="🌡️" value={doughTarget}
-                                                        onChange={setDoughTarget} min="20" max="27" step="0.5" unit="°C"
-                                                        tip="La temperatura de la masa al terminar de amasar. Demasiado caliente y la malla de gluten queda rígida y se rompe; demasiado fría y no llega a formarse."
-                                                        hint={doughTarget < DOUGH_TEMP_MIN ? 'Por debajo del rango: el gluten se forma lento'
-                                                            : doughTarget > DOUGH_TEMP_MAX ? 'Por encima del rango: riesgo de malla rígida'
-                                                            : doughTarget === 23 ? '✓ El ideal para napolitana' : '✓ Dentro del rango 22-26°C'} />
+                                                    <div style={{display: 'flex', alignItems: 'baseline', gap: '0.5rem', flexWrap: 'wrap'}}>
+                                                        <span style={{fontSize: '0.85rem', color: 'var(--text)'}}>🌡️ Objetivo de masa</span>
+                                                        <span style={{fontFamily: 'var(--font-data)', fontSize: '1.05rem', fontWeight: 500, color: 'var(--text)', fontVariantNumeric: 'tabular-nums'}}>
+                                                            {doughTarget} °C
+                                                        </span>
+                                                        <span style={{fontSize: '0.74rem', color: 'var(--text-muted)', fontFamily: 'var(--font-data)'}}>
+                                                            rango {DOUGH_TEMP_MIN}-{DOUGH_TEMP_MAX} °C
+                                                        </span>
+                                                    </div>
+                                                    <div style={{fontSize: '0.78rem', color: 'var(--text-soft)', lineHeight: 1.5, marginTop: '-0.5rem'}}>
+                                                        La temperatura de la masa al terminar de amasar. Por encima del rango la malla queda rígida y se rompe; por debajo no llega a formarse.
+                                                    </div>
 
                                                     <div className="toggle-row">
                                                         <span className="toggle-label">🌾 La harina está a temperatura de la cocina</span>
