@@ -1496,6 +1496,29 @@
             tuffante:   { label: 'Tuffante',    sub: '+3 °C',   friction: 3,   doc: true },
         };
 
+        // ============================================================
+        // AMASADO: cuánto trabajo pide la masa
+        // La malla de gluten se forma por trabajo mecánico Y por tiempo.
+        // Cada máquina mete energía a un ritmo distinto, y el agua retrasa
+        // la unión de las proteínas: más hidratación, más amasado.
+        // En clásica napolitana se amasa menos a propósito: la malla se
+        // termina de ordenar durante la puntata, no en la amasadora.
+        // ============================================================
+        const KNEAD_MINUTES = { espiral: 11, planetaria: 15, forcella: 17, mano: 20, tuffante: 22 };
+        const kneadPlan = ({ mixer, hyd, style }) => {
+            let min = KNEAD_MINUTES[mixer] || 15;
+            if (hyd >= 72) min += 6;
+            else if (hyd >= 66) min += 3;
+            else if (hyd <= 60) min -= 2;
+            if (style === 'classica') min *= 0.8;
+            min = Math.max(8, Math.round(min / 5) * 5);
+            return {
+                min, h: min / 60,
+                bassinage: hyd >= 66,
+                windowpane: style !== 'classica',
+            };
+        };
+
         const DOUGH_TEMP_MIN = 22, DOUGH_TEMP_MAX = 26;
         // Objetivo de temperatura final de masa. No es una preferencia:
         // 23°C es el punto de la napolitana; en pan se trabaja algo más alto.
@@ -1638,33 +1661,6 @@
                 def: Math.round(Math.min(Math.max(wantDef, lo), hi)),
                 mismatch: null,
             };
-        };
-
-        // ============================================================
-        // MALTA DIASTÁSICA (enzimática)
-        // Aporta alfa-amilasa: rompe almidón en azúcares. Alimenta la
-        // levadura y da color de corteza. Pasarse deja miga gomosa.
-        // La dosis buena depende del horno (cuánto color necesitas) y
-        // del tiempo de fermentación (cuánto trabajan las enzimas).
-        // ============================================================
-        const maltAdvice = (doughType, oven, fermentHours) => {
-            let lo, hi, why;
-            if (doughType === 'pan') {
-                lo = 0.5; hi = 1.0;
-                why = 'En pan se usa más dosis que en pizza: el horno es más suave y la corteza necesita ayuda para dorar.';
-            } else if (oven === 'ooni') {
-                lo = 0.0; hi = 0.2;
-                why = 'Tu horno pasa de 400°C y dora en 60-90 s. La malta casi nunca hace falta y de más te oscurece el cornicione antes de que la base esté hecha.';
-            } else if (oven === 'acero') {
-                lo = 0.2; hi = 0.4;
-                why = 'Con acero llegas a 300°C: algo de malta ayuda al color sin pasarte.';
-            } else {
-                lo = 0.3; hi = 0.5;
-                why = 'En horno doméstico a 250°C cuesta conseguir color. Aquí es donde más se nota la malta.';
-            }
-            // Fermentaciones muy largas: las enzimas tienen más tiempo de actuar
-            if (fermentHours >= 48) { hi = Math.max(lo, hi - 0.1); }
-            return { lo, hi, why };
         };
 
         // ============================================================
@@ -4112,12 +4108,6 @@
                 try { return parseFloat(localStorage.getItem('pizzaHyd')) || 68; } catch(e) { return 68; }
             });
 
-            const [useMalt, setUseMalt] = useState(() => {
-                try { return localStorage.getItem('useMalt') === 'true'; } catch(e) { return false; }
-            });
-            const [maltPercent, setMaltPercent] = useState(() => {
-                try { return parseFloat(localStorage.getItem('maltPercent')) || 0.3; } catch(e) { return 0.3; }
-            });
 
             const [pizzaFreeze, setPizzaFreeze] = useState(() => {
                 try { return localStorage.getItem('pizzaFreeze') === 'true'; } catch(e) { return false; }
@@ -4254,15 +4244,13 @@
                     localStorage.setItem('pizzaStyle', pizzaStyle);
                     localStorage.setItem('pizzaFlour', pizzaFlour);
                     localStorage.setItem('pizzaHyd', String(pizzaHyd));
-                    localStorage.setItem('useMalt', String(useMalt));
-                    localStorage.setItem('maltPercent', String(maltPercent));
                     localStorage.setItem('pizzaFreeze', String(pizzaFreeze));
                     localStorage.setItem('pizzaThawRoute', pizzaThawRoute);
                     localStorage.setItem('focChecks', JSON.stringify(focChecks));
                     localStorage.setItem('focToppings', JSON.stringify(focToppings));
                     localStorage.setItem('gofChecks', JSON.stringify(gofChecks));
                 } catch(e) {}
-            }, [panMold, panUnits, panLiquidStarter, panChecks, panBakeDay, focStarter, focTrays, focAmbient, focColdHours, focBakeTime, gofUnits, gofColdHours, gofReadyTime, pizzaToppingCounts, pizzaOven, focChecks, gofChecks, focToppings, pizzaFreeze, pizzaThawRoute, useMalt, maltPercent, pizzaFlour, pizzaHyd, pizzaStyle, mixerType, flourAtRoom, flourTemp, customFriction]);
+            }, [panMold, panUnits, panLiquidStarter, panChecks, panBakeDay, focStarter, focTrays, focAmbient, focColdHours, focBakeTime, gofUnits, gofColdHours, gofReadyTime, pizzaToppingCounts, pizzaOven, focChecks, gofChecks, focToppings, pizzaFreeze, pizzaThawRoute, pizzaFlour, pizzaHyd, pizzaStyle, mixerType, flourAtRoom, flourTemp, customFriction]);
 
             const togglePanCheck = (id) => {
                 setPanChecks(prev => ({ ...prev, [id]: !prev[id] }));
@@ -4621,8 +4609,12 @@
                 bake.setHours(bh, bm, 0, 0);
                 if (bake < new Date()) bake.setDate(bake.getDate() + 1);
 
+                const isPizza = doughType === 'pizza';
+                const effHyd = isPizza ? pizzaHyd : hydration;
+                const kp = kneadPlan({ mixer: mixerType, hyd: effHyd, style: isPizza ? pizzaStyle : null });
+
                 const events = [];
-                events.push({ time: new Date(bake), name: 'Hornear', desc: 'El pan entra al horno precalentado', icon: '🔥', kind: 'bake' });
+                events.push({ time: new Date(bake), name: 'Hornear', desc: isPizza ? 'Al horno, a la máxima temperatura que dé' : 'El pan entra al horno precalentado', icon: '🔥', kind: 'bake' });
 
                 let cursor = new Date(bake);
 
@@ -4644,16 +4636,33 @@
                     });
                 }
 
-                // Final proof
-                cursor = addHours(cursor, -calc.finalProofTime);
-                events.push({ time: new Date(cursor), name: frozen ? 'Levado final antes de congelar' : 'Levado final', desc: doughType === 'pizza' ? 'Bolea las pizzas y deja reposar' : 'En banneton o molde, hasta ~70% de aumento', icon: '🫓', kind: 'normal', dur: calc.finalProofTime });
-
+                // Al congelador: ocurre AL TERMINAR el appretto, no al empezarlo
                 if (frozen) {
                     events.push({
                         time: new Date(cursor), name: 'Al congelador',
                         desc: 'Bolas en tuppers individuales o bolsas untadas de aceite. Aguantan hasta 3 meses.',
                         icon: '🧊', kind: 'cold'
                     });
+                }
+
+                // Appretto (levado de las bolas) / levado final
+                cursor = addHours(cursor, -calc.finalProofTime);
+                events.push({ time: new Date(cursor),
+                    name: isPizza ? (frozen ? 'Appretto antes de congelar' : 'Appretto (levado de las bolas)') : 'Levado final',
+                    desc: isPizza
+                        ? `Bolas en caja tapada a ${temperature}°C. Listas cuando estén hinchadas, con la superficie lisa y cedan al dedo sin recuperar la forma de golpe.`
+                        : 'En banneton o molde, hasta ~70% de aumento',
+                    icon: '🫓', kind: 'normal', dur: calc.finalProofTime });
+
+                // Staglio: último punto donde se da tensión a la masa.
+                // De aquí sale la forma del cornicione; una bola mal cerrada
+                // se abre al estirar y pierde el aire por el borde.
+                if (isPizza) {
+                    const staglio = 0.3;
+                    cursor = addHours(cursor, -staglio);
+                    events.push({ time: new Date(cursor), name: 'Staglio (boleado)',
+                        desc: `Divide en piezas de ${DOUGHBALL_WEIGHT}g y ciérralas arrastrándolas sobre la mesa hasta notar la superficie tensa. Pliegue hacia abajo y la menor harina posible.`,
+                        icon: '🤲', kind: 'normal', dur: staglio });
                 }
 
                 // Bench rest before final proof (only for pan, not pizza)
@@ -4663,40 +4672,71 @@
                     events.push({ time: new Date(cursor), name: 'Boleado y reposo', desc: 'Preforma, deja relajar 20-30 min, luego forma definitiva', icon: '🤲', kind: 'normal', dur: benchRest });
                 }
 
+                // Puntata / bulk. Los pliegues son el trabajo de estructura
+                // que no se puede meter en la amasadora sin calentar la masa:
+                // cada uno reorienta el gluten y suma fuerza sin oxidar.
+                const pushBulk = (beforeCold) => {
+                    // 1er pliegue a los 20 min, luego cada 30
+                    const room = Math.max(0, Math.floor((calc.ambientH * 60 - 20) / 30) + 1);
+                    const want = isPizza ? ((pizzaStyle === 'contemporanea' || effHyd >= 68) ? 3 : 2) : (effHyd >= 80 ? 4 : 3);
+                    const minH = isPizza ? 0.75 : (beforeCold ? 1 : 2);
+                    const folds = (calc.ambientH >= minH && (isPizza || effHyd >= 70)) ? Math.min(want, room) : 0;
+                    cursor = addHours(cursor, -calc.ambientH);
+                    const name = isPizza
+                        ? (folds > 0 ? 'Puntata con pliegues' : 'Puntata (fermentación en masa)')
+                        : (folds > 0 ? 'Bulk con pliegues' : (beforeCold ? 'Bulk corto' : 'Bulk principal'));
+                    let desc;
+                    if (folds > 0 && isPizza) {
+                        desc = `Masa tapada a ${temperature}°C. ${folds} ${folds === 1 ? 'pliegue' : 'pliegues'}: el primero a los 20 min y luego cada 30. En el último la masa tiene que estar lisa, con cuerpo y sin pegarse.`;
+                    } else if (folds > 0) {
+                        desc = `${folds} pliegues cada 30 min durante la fermentación a ${temperature}°C`;
+                    } else if (isPizza) {
+                        desc = `Masa tapada a ${temperature}°C${beforeCold ? ' antes del frío' : ''}. Se relaja y arranca la fermentación.`;
+                    } else {
+                        desc = beforeCold ? `Fermentación a ${temperature}°C antes del frío` : `Fermentación en bloque a ${temperature}°C`;
+                    }
+                    events.push({ time: new Date(cursor), name, desc, icon: '🫱', kind: 'normal', dur: calc.ambientH });
+                };
+
                 if (useColdProof) {
                     if (calc.temperingTime > 0) {
                         cursor = addHours(cursor, -calc.temperingTime);
-                        events.push({ time: new Date(cursor), name: 'Atemperar', desc: 'Saca de la nevera, deja que pierda el frío', icon: '☀️', kind: 'normal', dur: calc.temperingTime });
+                        events.push({ time: new Date(cursor), name: 'Atemperar', desc: isPizza ? 'Saca la masa de la nevera y deja que pierda el frío antes del staglio. En frío la masa no se deja bolear.' : 'Saca de la nevera, deja que pierda el frío', icon: '☀️', kind: 'normal', dur: calc.temperingTime });
                     }
                     cursor = addHours(cursor, -calc.coldH);
                     events.push({ time: new Date(cursor), name: 'A la nevera', desc: `Retardo en frío a ${FRIDGE_TEMP}°C — desarrolla sabor`, icon: '❄️', kind: 'cold', dur: calc.coldH });
 
-                    // Folds during bulk if hydration is high
-                    if (hydration >= 70 && calc.ambientH >= 1) {
-                        const foldsCount = hydration >= 80 ? 4 : 3;
-                        cursor = addHours(cursor, -calc.ambientH);
-                        events.push({ time: new Date(cursor), name: 'Mezcla + bulk con pliegues', desc: `${foldsCount} pliegues cada 30 min durante la fermentación a ${temperature}°C`, icon: '🥣', kind: 'normal', dur: calc.ambientH });
-                    } else {
-                        cursor = addHours(cursor, -calc.ambientH);
-                        events.push({ time: new Date(cursor), name: 'Mezcla y bulk corto', desc: `Fermentación a ${temperature}°C antes del frío`, icon: '🥣', kind: 'normal', dur: calc.ambientH });
-                    }
+                    pushBulk(true);
                 } else {
-                    // Folds during bulk if hydration is high
-                    if (hydration >= 70 && calc.ambientH >= 2) {
-                        const foldsCount = hydration >= 80 ? 4 : 3;
-                        cursor = addHours(cursor, -calc.ambientH);
-                        events.push({ time: new Date(cursor), name: 'Bulk con pliegues', desc: `${foldsCount} pliegues cada ${Math.round(calc.ambientH * 60 / (foldsCount + 1))} min a ${temperature}°C`, icon: '🥣', kind: 'normal', dur: calc.ambientH });
-                    } else {
-                        cursor = addHours(cursor, -calc.ambientH);
-                        events.push({ time: new Date(cursor), name: 'Bulk principal', desc: `Fermentación en bloque a ${temperature}°C`, icon: '🥣', kind: 'normal', dur: calc.ambientH });
-                    }
+                    pushBulk(false);
                 }
 
-                // Autólisis: pan muy hidratado, o pizza por encima del 68%
-                if ((doughType === 'pan' && hydration >= 75) || (doughType === 'pizza' && pizzaHyd >= 68)) {
-                    const autolyse = 0.5;
-                    cursor = addHours(cursor, -autolyse);
-                    events.push({ time: new Date(cursor), name: 'Autólisis', desc: 'Mezcla harina + agua, deja reposar 30 min antes de añadir sal y levadura', icon: '💧', kind: 'normal', dur: autolyse });
+                // Amasado. Hasta ahora no estaba en el cronograma y es
+                // justo donde se decide la malla: tiempo según máquina e
+                // hidratación, sal retrasada y bassinage si hay mucha agua.
+                cursor = addHours(cursor, -kp.h);
+                events.push({ time: new Date(cursor), name: 'Amasado',
+                    desc: [
+                        `${kp.min} min en ${MIXER_TYPES[mixerType].label.toLowerCase()}`,
+                        'la sal cuando la masa ya esté formada, nunca con el agua',
+                        kp.bassinage ? 'el último 5% del agua en hilo fino al final, con la masa hecha (bassinage)' : null,
+                        kp.windowpane
+                            ? 'listo cuando un trozo estirado deja pasar la luz sin romperse'
+                            : 'corto y a velocidad baja: la malla se termina en la puntata, no busques el velo aquí',
+                    ].filter(Boolean).join(' · '),
+                    icon: '🥣', kind: 'normal', dur: kp.h });
+
+                // Autólisis: el gluten se hidrata y las proteasas relajan la
+                // masa sin trabajo mecánico ni calor. En pizza va siempre:
+                // es la mitad de la extensibilidad hecha de gratis.
+                const autolyseH = isPizza ? (effHyd >= 66 ? 0.75 : 0.5) : 0.5;
+                if (isPizza || effHyd >= 75) {
+                    cursor = addHours(cursor, -autolyseH);
+                    events.push({ time: new Date(cursor), name: 'Autólisis',
+                        desc: isPizza
+                            ? `Mezcla la harina con ${kp.bassinage ? 'el 95% del' : 'el'} agua hasta que no quede harina seca y tapa ${formatHours(autolyseH)}. Sal y levadura todavía no.`
+                            : 'Mezcla harina + agua, deja reposar 30 min antes de añadir sal y levadura',
+                        icon: '💧', kind: 'normal', dur: autolyseH });
                 }
 
                 const _friction = customFriction != null ? customFriction : MIXER_TYPES[mixerType].friction;
@@ -4707,8 +4747,8 @@
                 });
                 events.push({ time: new Date(cursor), name: 'Empezar aquí',
                     desc: (prefermentType !== 'none' ? 'Mezcla la masa final con el prefermento ya activo' : 'Pesa los ingredientes y comienza')
-                        + (_wplan.ice ? `. Agua helada + hielo para no pasar de ${doughTarget}°C de masa` : `. Agua a ${round(_wplan.water, 1)}°C para terminar a ${doughTarget}°C`)
-                        + (useMalt ? '. Malta en seco con la harina, nunca en el agua con la levadura' : ''),
+                        + (isPizza ? '. Harina tamizada y agua pesada aparte' : '')
+                        + (_wplan.ice ? `. Agua helada + hielo para no pasar de ${doughTarget}°C de masa` : `. Agua a ${round(_wplan.water, 1)}°C para terminar a ${doughTarget}°C`),
                     icon: '👐', kind: 'start' });
 
                 if (prefermentType !== 'none') {
@@ -4720,7 +4760,7 @@
                 }
 
                 return events.reverse();
-            }, [bakeTime, calc, useColdProof, temperature, prefermentType, prefermentTime, prefermentTemp, doughType, hydration, pizzaFreeze, pizzaThawRoute, useMalt, pizzaHyd, doughTarget, mixerType, customFriction, flourAtRoom, flourTemp]);
+            }, [bakeTime, calc, useColdProof, temperature, prefermentType, prefermentTime, prefermentTemp, doughType, hydration, pizzaFreeze, pizzaThawRoute, pizzaHyd, pizzaStyle, doughTarget, mixerType, customFriction, flourAtRoom, flourTemp]);
 
             // ─── RECIPE TEXT ─────────────────────────────────────────
             const recipeText = useMemo(() => {
@@ -4738,7 +4778,6 @@
                 lines.push(`  Harina: ${round(calc.finalFlour)}g`);
                 lines.push(`  Agua: ${round(calc.finalWater)}g`);
                 lines.push(`  Sal: ${round(calc.saltGrams, 1)}g`);
-                if (useMalt) lines.push(`  Malta diastásica: ${round(calc.currentFlour * maltPercent / 100, 1)}g (${maltPercent}%) — mezclar en seco con la harina`);
                 if (calc.yeastGrams > 0) lines.push(`  Levadura seca: ${round(calc.yeastGrams, 2)}g`);
                 lines.push(`\nTotales: ${round(calc.currentFlour)}g harina · ${calc.effHydration}% hidratación · ${calc.effSalt}% sal`);
                 if (doughType === 'pizza') {
@@ -4756,7 +4795,10 @@
                         prefTemp: prefermentType !== 'none' ? prefermentTemp : null });
                     lines.push(`\nAMASADO:`);
                     lines.push(`  Objetivo de masa: ${doughTarget}°C (rango ${DOUGH_TEMP_MIN}-${DOUGH_TEMP_MAX}°C)`);
-                    lines.push(`  Amasadora: ${MIXER_TYPES[mixerType].label} · fricción ${fr}°C`);
+                    const kpr = kneadPlan({ mixer: mixerType, hyd: doughType === 'pizza' ? pizzaHyd : hydration, style: doughType === 'pizza' ? pizzaStyle : null });
+                    lines.push(`  Amasadora: ${MIXER_TYPES[mixerType].label} · fricción ${fr}°C · ${kpr.min} min`);
+                    lines.push(`  Sal al final del amasado${kpr.bassinage ? ' · último 5% del agua en bassinage' : ''}`);
+                    if (kpr.windowpane) lines.push(`  Punto: velo de gluten (se estira sin romperse)`);
                     if (wp.ice) {
                         lines.push(`  Agua: ${round(calc.finalWater * wp.ice, 0)}g de hielo + ${round(calc.finalWater * (1 - wp.ice), 0)}g de agua a ${CHILLED_WATER}°C`);
                     } else {
@@ -4765,13 +4807,14 @@
                 }
                 lines.push(`\nFermentación:`);
                 if (useColdProof) {
-                    lines.push(`  • Bulk corto: ${formatHours(calc.ambientH)} a ${temperature}°C`);
+                    lines.push(`  • ${doughType === 'pizza' ? 'Puntata' : 'Bulk corto'}: ${formatHours(calc.ambientH)} a ${temperature}°C`);
                     lines.push(`  • Frío: ${formatHours(calc.coldH)} a ${FRIDGE_TEMP}°C`);
                     if (calc.temperingTime > 0) lines.push(`  • Atemperar: ${formatHours(calc.temperingTime)}`);
                 } else {
-                    lines.push(`  • Bulk: ${formatHours(calc.ambientH)} a ${temperature}°C`);
+                    lines.push(`  • ${doughType === 'pizza' ? 'Puntata' : 'Bulk'}: ${formatHours(calc.ambientH)} a ${temperature}°C`);
                 }
-                lines.push(`  • Levado final: ${formatHours(calc.finalProofTime)}`);
+                if (doughType === 'pizza') lines.push(`  • Staglio: bolas de ${DOUGHBALL_WEIGHT}g`);
+                lines.push(`  • ${doughType === 'pizza' ? 'Appretto' : 'Levado final'}: ${formatHours(calc.finalProofTime)}`);
                 if (doughType === 'pizza' && pizzaFreeze) {
                     const plan = thawPlan(pizzaThawRoute, temperature);
                     lines.push(`\nCONGELADO Y DESCONGELADO:`);
@@ -4781,7 +4824,7 @@
                     if (plan.warn) lines.push(`  ! ${plan.warn}`);
                 }
                 return lines.join('\n');
-            }, [calc, doughType, prefermentType, prefermentTime, prefermentTemp, hydration, saltPercent, useColdProof, temperature, pizzaFreeze, pizzaThawRoute, useMalt, maltPercent, pizzaFlour, pizzaHyd, pizzaStyle, mixerType, doughTarget, flourAtRoom, flourTemp, customFriction]);
+            }, [calc, doughType, prefermentType, prefermentTime, prefermentTemp, hydration, saltPercent, useColdProof, temperature, pizzaFreeze, pizzaThawRoute, pizzaFlour, pizzaHyd, pizzaStyle, mixerType, doughTarget, flourAtRoom, flourTemp, customFriction]);
 
             const copyRecipe = () => {
                 if (navigator.clipboard) {
@@ -5372,53 +5415,6 @@
                                             hint="Estándar: 1.8-2.2% · pizza napolitana: 2.5-3%"
                                             hidden={doughType === 'pizza'} />
 
-                                        {/* Malta diastásica */}
-                                        <div>
-                                            <div className="toggle-row">
-                                                <span className="toggle-label">🌾 Malta diastásica (enzimática)</span>
-                                                <label className="toggle-switch">
-                                                    <input type="checkbox" checked={useMalt}
-                                                        onChange={e => setUseMalt(e.target.checked)} />
-                                                    <span className="toggle-slider"></span>
-                                                </label>
-                                            </div>
-                                            {useMalt && (() => {
-                                                const fermH = (useColdProof ? calc.coldH + calc.ambientH : totalTime) + (prefermentType !== 'none' ? prefermentTime : 0);
-                                                const adv = maltAdvice(doughType, pizzaOven, fermH);
-                                                const grams = calc.currentFlour * maltPercent / 100;
-                                                const low = maltPercent < adv.lo;
-                                                const high = maltPercent > adv.hi;
-                                                return (
-                                                    <div className="stage-block stage-pref" style={{marginTop: '0.9rem'}}>
-                                                        <div className="stage-tag">Dosis</div>
-                                                        <Slider label="Malta sobre la harina" icon="🌾" value={maltPercent}
-                                                            onChange={setMaltPercent} min="0.1" max="1" step="0.05" unit="%"
-                                                            tip="Porcentaje sobre la harina total. Las amilasas rompen el almidón en azúcares: alimentan la levadura y dan color de corteza. Pasarse deja la masa pegajosa y la miga gomosa."
-                                                            hint={`${round(grams, 1)}g de malta · recomendado ${adv.lo}-${adv.hi}% para tu caso`} />
-                                                        <div style={{fontSize: '0.79rem', color: 'var(--text-soft)', lineHeight: 1.55}}>
-                                                            {adv.why}
-                                                        </div>
-                                                        {high && (
-                                                            <div className="warn-box">
-                                                                <Icon name="alert" />
-                                                                <span>Por encima de <strong>{adv.hi}%</strong> para tu combinación. El exceso de amilasas degrada demasiado el almidón: masa húmeda y pegajosa, y miga densa y gomosa.</span>
-                                                            </div>
-                                                        )}
-                                                        {!high && low && adv.lo > 0 && (
-                                                            <div style={{fontSize: '0.79rem', color: 'var(--text-muted)'}}>
-                                                                Por debajo del rango: notarás poco efecto en el color.
-                                                            </div>
-                                                        )}
-                                                        {fermH >= 48 && maltPercent > 0.3 && (
-                                                            <div className="warn-box">
-                                                                <Icon name="alert" />
-                                                                <span>Con {formatHours(fermH)} de fermentación las enzimas tienen mucho tiempo para trabajar. Baja la dosis o acorta el frío.</span>
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                );
-                                            })()}
-                                        </div>
                                         {doughType === 'pizza' && (() => {
                                             const st = PIZZA_STYLES[pizzaStyle];
                                             const f = PIZZA_FLOURS[pizzaFlour];
@@ -5862,17 +5858,7 @@
                                             <div className="ing-card"><div className="l">Harina</div><div className="v">{round(calc.finalFlour)}</div><div className="u">gramos</div></div>
                                             <div className="ing-card"><div className="l">Agua</div><div className="v">{round(calc.finalWater)}</div><div className="u">gramos</div></div>
                                             <div className="ing-card"><div className="l">Sal ({saltPercent}%)</div><div className="v">{round(calc.saltGrams, 1)}</div><div className="u">gramos</div></div>
-                                            {useMalt && (
-                                                <div className="ing-card"><div className="l">Malta diastásica ({maltPercent}%)</div><div className="v">{round(calc.currentFlour * maltPercent / 100, 1)}</div><div className="u">gramos</div></div>
-                                            )}
                                         </div>
-
-                                        {useMalt && (
-                                            <div className="info-note" style={{marginTop: '0.75rem'}}>
-                                                <strong>Cómo incorporarla:</strong> mézclala en seco con la harina antes de añadir el agua. Nunca la disuelvas en el agua junto a la levadura.
-                                                <br/><strong>Ojo al ritmo:</strong> al liberar azúcares, la fermentación se acelera. Guíate por el volumen de la masa más que por el reloj — puede ir entre un 10 y un 15% más rápido de lo que marca el cronograma.
-                                            </div>
-                                        )}
 
                                         {calc.yeastGrams > 0 && (
                                             <div className="yeast-card">
@@ -5896,15 +5882,27 @@
                                             </div>
                                             <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '0.5rem'}}>
                                                 <div style={{background: 'var(--surface-2)', padding: '0.7rem', borderRadius: 'var(--radius-sm)', fontSize: '0.78rem', lineHeight: 1.45}}>
-                                                    <strong style={{color: 'var(--accent)'}}>🥣 Bulk</strong>
+                                                    <strong style={{color: 'var(--accent)'}}>🕸️ Malla de gluten</strong>
                                                     <div style={{color: 'var(--text-soft)', marginTop: '0.2rem'}}>
-                                                        +60-75% volumen, jiggly al mover, burbujas en superficie y laterales del bote.
+                                                        {doughType === 'pizza' && pizzaStyle === 'classica'
+                                                            ? 'Al final del amasado basta con masa lisa que se despegue del bol. El velo llega durante la puntata: compruébalo antes del staglio, no en la amasadora.'
+                                                            : 'Velo: estira un trozo entre los dedos hasta ver la luz sin que se rompa. Si se desgarra antes, amasa 2-3 min más y vuelve a probar.'}
                                                     </div>
                                                 </div>
                                                 <div style={{background: 'var(--surface-2)', padding: '0.7rem', borderRadius: 'var(--radius-sm)', fontSize: '0.78rem', lineHeight: 1.45}}>
-                                                    <strong style={{color: 'var(--accent)'}}>🫓 Levado final</strong>
+                                                    <strong style={{color: 'var(--accent)'}}>{doughType === 'pizza' ? '🫱 Puntata' : '🥣 Bulk'}</strong>
                                                     <div style={{color: 'var(--text-soft)', marginTop: '0.2rem'}}>
-                                                        Poke test: presiona y la marca debe rebotar lentamente y dejar leve hueco.
+                                                        {doughType === 'pizza'
+                                                            ? '+30-50% de volumen y masa con cuerpo: al levantarla con la mano se estira sin desgarrarse.'
+                                                            : '+60-75% volumen, jiggly al mover, burbujas en superficie y laterales del bote.'}
+                                                    </div>
+                                                </div>
+                                                <div style={{background: 'var(--surface-2)', padding: '0.7rem', borderRadius: 'var(--radius-sm)', fontSize: '0.78rem', lineHeight: 1.45}}>
+                                                    <strong style={{color: 'var(--accent)'}}>{doughType === 'pizza' ? '🫓 Appretto' : '🫓 Levado final'}</strong>
+                                                    <div style={{color: 'var(--text-soft)', marginTop: '0.2rem'}}>
+                                                        {doughType === 'pizza'
+                                                            ? 'Bola hinchada y relajada, borde algo extendido en la caja. Poke test: la marca vuelve despacio y queda un leve hueco.'
+                                                            : 'Poke test: presiona y la marca debe rebotar lentamente y dejar leve hueco.'}
                                                     </div>
                                                 </div>
                                                 {doughType === 'pan' && (
