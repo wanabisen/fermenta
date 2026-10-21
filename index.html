@@ -1489,11 +1489,11 @@
         // y conviene calibrarlos midiendo la masa al terminar.
         // ============================================================
         const MIXER_TYPES = {
-            espiral:    { label: 'Espiral',     sub: '+9 °C',   friction: 9,   doc: true },
-            planetaria: { label: 'Planetaria',  sub: '+8 °C',   friction: 8,   doc: false },
-            forcella:   { label: 'Horquilla',   sub: '+6 °C',   friction: 6,   doc: true },
-            mano:       { label: 'A mano',      sub: '+5,5 °C', friction: 5.5, doc: true },
-            tuffante:   { label: 'Tuffante',    sub: '+3 °C',   friction: 3,   doc: true },
+            espiral:    { label: 'Espiral',     sub: '+9 °C',   friction: 9,   doc: true,  how: 'en espiral' },
+            planetaria: { label: 'Planetaria',  sub: '+8 °C',   friction: 8,   doc: false, how: 'en planetaria' },
+            forcella:   { label: 'Horquilla',   sub: '+6 °C',   friction: 6,   doc: true,  how: 'en amasadora de horquilla' },
+            mano:       { label: 'A mano',      sub: '+5,5 °C', friction: 5.5, doc: true,  how: 'a mano' },
+            tuffante:   { label: 'Tuffante',    sub: '+3 °C',   friction: 3,   doc: true,  how: 'en tuffante' },
         };
 
         // ============================================================
@@ -1518,6 +1518,17 @@
                 windowpane: style !== 'classica',
             };
         };
+
+        // Orden de incorporación. Una sola fuente para el cronograma, la
+        // receta copiada y la ficha de amasado: la duda de cuándo entra cada
+        // cosa (prefermento, levadura, sal) se contesta siempre igual.
+        const kneadOrderText = ({ autolyse, pref, yeast, bassinage }) => [
+            (autolyse ? 'autólisis' : 'harina + agua')
+                + (pref ? ` + prefermento${yeast ? '' : ' (lleva toda la levadura)'}` : '')
+                + (yeast ? ' + levadura' : ''),
+            'sal a mitad del amasado, con la masa ya formada',
+            bassinage ? 'último 5% del agua en hilo fino al final (bassinage)' : null,
+        ].filter(Boolean).join(' → ');
 
         const DOUGH_TEMP_MIN = 22, DOUGH_TEMP_MAX = 26;
         // Objetivo de temperatura final de masa. No es una preferencia:
@@ -4614,6 +4625,10 @@
                 const isPizza = doughType === 'pizza';
                 const effHyd = isPizza ? pizzaHyd : hydration;
                 const kp = kneadPlan({ mixer: mixerType, hyd: effHyd, style: isPizza ? pizzaStyle : null });
+                const hasPref = prefermentType !== 'none';
+                const hasYeast = calc.yeastGrams > 0;
+                // ¿Hay autólisis? Decide qué entra en la amasadora y cuándo.
+                const hasAutolyse = isPizza || effHyd >= 75;
 
                 const events = [];
                 events.push({ time: new Date(bake), name: 'Hornear', desc: isPizza ? 'Al horno, a la máxima temperatura que dé' : 'El pan entra al horno precalentado', icon: '🔥', kind: 'bake' });
@@ -4718,26 +4733,22 @@
                 // hidratación, sal retrasada y bassinage si hay mucha agua.
                 cursor = addHours(cursor, -kp.h);
                 events.push({ time: new Date(cursor), name: 'Amasado',
-                    desc: [
-                        `${kp.min} min en ${MIXER_TYPES[mixerType].label.toLowerCase()}`,
-                        'la sal cuando la masa ya esté formada, nunca con el agua',
-                        kp.bassinage ? 'el último 5% del agua en hilo fino al final, con la masa hecha (bassinage)' : null,
-                        kp.windowpane
-                            ? 'listo cuando un trozo estirado deja pasar la luz sin romperse'
-                            : 'corto y a velocidad baja: la malla se termina en la puntata, no busques el velo aquí',
-                    ].filter(Boolean).join(' · '),
+                    desc: `${kp.min} min ${MIXER_TYPES[mixerType].how}. Orden: `
+                        + kneadOrderText({ autolyse: hasAutolyse, pref: hasPref, yeast: hasYeast, bassinage: kp.bassinage }) + '. '
+                        + (kp.windowpane
+                            ? 'Listo cuando un trozo estirado deja pasar la luz sin romperse.'
+                            : 'Corto y a velocidad baja: la malla se termina en la puntata, no busques el velo aquí.'),
                     icon: '🥣', kind: 'normal', dur: kp.h });
 
                 // Autólisis: el gluten se hidrata y las proteasas relajan la
                 // masa sin trabajo mecánico ni calor. En pizza va siempre:
                 // es la mitad de la extensibilidad hecha de gratis.
                 const autolyseH = isPizza ? (effHyd >= 66 ? 0.75 : 0.5) : 0.5;
-                if (isPizza || effHyd >= 75) {
+                if (hasAutolyse) {
                     cursor = addHours(cursor, -autolyseH);
                     events.push({ time: new Date(cursor), name: 'Autólisis',
-                        desc: isPizza
-                            ? `Mezcla la harina con ${kp.bassinage ? 'el 95% del' : 'el'} agua hasta que no quede harina seca y tapa ${formatHours(autolyseH)}. Sal y levadura todavía no.`
-                            : 'Mezcla harina + agua, deja reposar 30 min antes de añadir sal y levadura',
+                        desc: `Solo harina de la masa final y ${kp.bassinage ? 'el 95% del' : 'el'} agua: mezcla hasta que no quede harina seca y tapa ${formatHours(autolyseH)}. `
+                            + `Sin sal${hasYeast ? ', sin levadura' : ''}${hasPref ? ' y sin el prefermento' : ''} — todo eso entra al empezar a amasar.`,
                         icon: '💧', kind: 'normal', dur: autolyseH });
                 }
 
@@ -4748,7 +4759,11 @@
                     prefTemp: prefermentType !== 'none' ? prefermentTemp : null,
                 });
                 events.push({ time: new Date(cursor), name: 'Empezar aquí',
-                    desc: (prefermentType !== 'none' ? 'Mezcla la masa final con el prefermento ya activo' : 'Pesa los ingredientes y comienza')
+                    desc: (hasPref
+                            ? (hasAutolyse
+                                ? 'El prefermento ya está activo; espera en la nevera o tapado hasta el amasado'
+                                : 'Mezcla la masa final con el prefermento ya activo')
+                            : 'Pesa los ingredientes y comienza')
                         + (isPizza ? '. Harina tamizada y agua pesada aparte' : '')
                         + (_wplan.ice ? `. Agua helada + hielo para no pasar de ${doughTarget}°C de masa` : `. Agua a ${round(_wplan.water, 1)}°C para terminar a ${doughTarget}°C`),
                     icon: '👐', kind: 'start' });
@@ -4799,8 +4814,15 @@
                     lines.push(`  Objetivo de masa: ${doughTarget}°C (rango ${DOUGH_TEMP_MIN}-${DOUGH_TEMP_MAX}°C)`);
                     const kpr = kneadPlan({ mixer: mixerType, hyd: doughType === 'pizza' ? pizzaHyd : hydration, style: doughType === 'pizza' ? pizzaStyle : null });
                     lines.push(`  Amasadora: ${MIXER_TYPES[mixerType].label} · fricción ${fr}°C · ${kpr.min} min`);
-                    lines.push(`  Sal al final del amasado${kpr.bassinage ? ' · último 5% del agua en bassinage' : ''}`);
+                    const _pref = prefermentType !== 'none', _yst = calc.yeastGrams > 0;
+                    const _auto = doughType === 'pizza' || (doughType === 'pan' && hydration >= 75);
+                    if (_auto) {
+                        const _ah = doughType === 'pizza' ? ((doughType === 'pizza' ? pizzaHyd : hydration) >= 66 ? 0.75 : 0.5) : 0.5;
+                        lines.push(`  Autólisis previa: ${formatHours(_ah)} · solo harina + ${kpr.bassinage ? '95% del ' : ''}agua`);
+                    }
+                    lines.push(`  Orden: ${kneadOrderText({ autolyse: _auto, pref: _pref, yeast: _yst, bassinage: kpr.bassinage })}`);
                     if (kpr.windowpane) lines.push(`  Punto: velo de gluten (se estira sin romperse)`);
+                    else lines.push(`  Punto: masa lisa, sin buscar velo — se termina en la puntata`);
                     if (wp.ice) {
                         lines.push(`  Agua: ${round(calc.finalWater * wp.ice, 0)}g de hielo + ${round(calc.finalWater * (1 - wp.ice), 0)}g de agua a ${CHILLED_WATER}°C`);
                     } else {
@@ -5646,8 +5668,21 @@
                                                     {wantsVelo
                                                         ? 'Estira un trozo entre los dedos: debe quedar translúcido sin romperse. Si la masa se calienta de más antes de llegar ahí, para y mete el bol 15 min en la nevera.'
                                                         : 'En la clásica napolitana se amasa poco y a baja velocidad; la red se termina de formar durante la fermentación. Saca la masa cuando esté cohesionada, aunque esté basta.'}
-                                                    {pizzaHyd >= 68 && doughType === 'pizza' && ' Con esta hidratación, un reposo de 20-30 min solo con harina y agua antes de meter sal y levadura te ahorra minutos de máquina.'}
                                                 </div>
+                                                {(() => {
+                                                    const _auto = doughType === 'pizza' || hydration >= 75;
+                                                    const _pref = prefermentType !== 'none';
+                                                    const _yst = calc.yeastGrams > 0;
+                                                    const _kp = kneadPlan({ mixer: mixerType, hyd: doughType === 'pizza' ? pizzaHyd : hydration, style: doughType === 'pizza' ? pizzaStyle : null });
+                                                    return (
+                                                        <div className="info-note" style={{marginTop: '0.75rem'}}>
+                                                            <strong>Orden de incorporación:</strong> {kneadOrderText({ autolyse: _auto, pref: _pref, yeast: _yst, bassinage: _kp.bassinage })}.
+                                                            {_auto && ` La autólisis es solo harina de la masa final y agua: ni sal${_yst ? ', ni levadura' : ''}${_pref ? ', ni el prefermento' : ''}.`}
+                                                            {_pref && ' El prefermento entra entero al empezar a amasar, no antes.'}
+                                                            {' '}<strong>{_kp.min} min</strong> de amasado {MIXER_TYPES[mixerType].how}.
+                                                        </div>
+                                                    );
+                                                })()}
                                             </>
                                         );
                                     })()}
