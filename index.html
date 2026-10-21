@@ -1639,6 +1639,9 @@
         // Rango de hidratación recomendado cruzando estilo y harina.
         // El estilo marca el objetivo en equivalente Pizzeria; se convierte
         // a la absorción de la harina elegida y se recorta a lo que aguanta.
+        // El valor final (def) es el punto medio entre lo que pide el estilo
+        // y el punto propio de la harina, recortado al rango común: el estilo
+        // dice cuánta agua quieres, la harina cuánta sostiene de verdad.
         const targetHydration = (styleKey, flourKey) => {
             const st = PIZZA_STYLES[styleKey];
             const fl = PIZZA_FLOURS[flourKey];
@@ -1656,9 +1659,10 @@
                     wantLo: Math.round(wantLo), wantHi: Math.round(wantHi),
                 };
             }
+            const blend = (wantDef + fl.hydDefault) / 2;
             return {
                 lo: Math.round(lo), hi: Math.round(hi),
-                def: Math.round(Math.min(Math.max(wantDef, lo), hi)),
+                def: Math.round(Math.min(Math.max(blend, lo), hi)),
                 mismatch: null,
             };
         };
@@ -4104,9 +4108,9 @@
             const [pizzaFlour, setPizzaFlour] = useState(() => {
                 try { return localStorage.getItem('pizzaFlour') || 'nuvola'; } catch(e) { return 'nuvola'; }
             });
-            const [pizzaHyd, setPizzaHyd] = useState(() => {
-                try { return parseFloat(localStorage.getItem('pizzaHyd')) || 68; } catch(e) { return 68; }
-            });
+            // La hidratación de pizza no es una preferencia: la fija el cruce
+            // de estilo y harina. Valor derivado, no estado editable.
+            const pizzaHyd = targetHydration(pizzaStyle, pizzaFlour).def;
 
 
             const [pizzaFreeze, setPizzaFreeze] = useState(() => {
@@ -4243,7 +4247,6 @@
                     else localStorage.removeItem('customFriction');
                     localStorage.setItem('pizzaStyle', pizzaStyle);
                     localStorage.setItem('pizzaFlour', pizzaFlour);
-                    localStorage.setItem('pizzaHyd', String(pizzaHyd));
                     localStorage.setItem('pizzaFreeze', String(pizzaFreeze));
                     localStorage.setItem('pizzaThawRoute', pizzaThawRoute);
                     localStorage.setItem('focChecks', JSON.stringify(focChecks));
@@ -4368,7 +4371,6 @@
                     const flKey = c.pizzaFlour !== undefined ? c.pizzaFlour : pizzaFlour;
                     if (c.pizzaStyle !== undefined) setPizzaStyle(stKey);
                     if (c.pizzaFlour !== undefined) setPizzaFlour(flKey);
-                    setPizzaHyd(targetHydration(stKey, flKey).def);
                 }
                 if (c.hydration !== undefined) setHydration(c.hydration);
                 if (c.saltPercent !== undefined) setSaltPercent(c.saltPercent);
@@ -5419,8 +5421,6 @@
                                             const st = PIZZA_STYLES[pizzaStyle];
                                             const f = PIZZA_FLOURS[pizzaFlour];
                                             const tgt = targetHydration(pizzaStyle, pizzaFlour);
-                                            const below = pizzaHyd < tgt.lo;
-                                            const above = pizzaHyd > tgt.hi;
                                             const equivPizzeria = equivalentHydration(pizzaFlour, 'pizzeria', pizzaHyd);
                                             const fermH = (useColdProof ? calc.coldH + calc.ambientH : totalTime) + (prefermentType !== 'none' ? prefermentTime : 0);
                                             return (
@@ -5432,7 +5432,7 @@
                                                         {Object.entries(PIZZA_STYLES).map(([k, stl]) => (
                                                             <button key={k}
                                                                 className={`pan-mold-btn ${pizzaStyle === k ? 'active' : ''}`}
-                                                                onClick={() => { setPizzaStyle(k); setPizzaHyd(targetHydration(k, pizzaFlour).def); }}>
+                                                                onClick={() => setPizzaStyle(k)}>
                                                                 <span style={{fontWeight: 600}}>{stl.emoji} {stl.label}</span>
                                                                 <span className="ms">{stl.sub}</span>
                                                             </button>
@@ -5449,7 +5449,7 @@
                                                         {Object.entries(PIZZA_FLOURS).map(([k, fl]) => (
                                                             <button key={k}
                                                                 className={`pan-mold-btn ${pizzaFlour === k ? 'active' : ''}`}
-                                                                onClick={() => { setPizzaFlour(k); setPizzaHyd(targetHydration(pizzaStyle, k).def); }}>
+                                                                onClick={() => setPizzaFlour(k)}>
                                                                 <span style={{fontWeight: 600}}>{fl.label}</span>
                                                                 <span className="ms">{fl.sub}</span>
                                                             </button>
@@ -5469,25 +5469,25 @@
 
                                                     <div className="stage-block stage-final" style={{marginTop: '0.9rem'}}>
                                                         <div className="stage-tag">Hidratación</div>
-                                                        <Slider label="Agua sobre la harina" icon="💧" value={pizzaHyd}
-                                                            onChange={setPizzaHyd} min="55" max="85" step="1" unit="%"
-                                                            tip="El estilo marca el objetivo y la harina lo traduce: cada una absorbe distinto, así que el mismo porcentaje da masas de consistencia diferente según la bolsa."
-                                                            hint={`${st.label}: ${tgt.lo}-${tgt.hi}% con ${f.label} · equivale a ${round(equivPizzeria, 1)}% con Pizzeria`} />
+
+                                                        <div style={{display: 'flex', alignItems: 'baseline', gap: '0.5rem', flexWrap: 'wrap'}}>
+                                                            <span style={{fontSize: '0.85rem', color: 'var(--text)'}}>💧 Agua sobre la harina</span>
+                                                            <span style={{fontFamily: 'var(--font-data)', fontSize: '1.05rem', fontWeight: 500, color: 'var(--text)', fontVariantNumeric: 'tabular-nums'}}>
+                                                                {pizzaHyd} %
+                                                            </span>
+                                                            <span style={{fontSize: '0.74rem', color: 'var(--text-muted)', fontFamily: 'var(--font-data)'}}>
+                                                                rango {tgt.lo}-{tgt.hi} %
+                                                            </span>
+                                                        </div>
+                                                        <div style={{fontSize: '0.78rem', color: 'var(--text-soft)', lineHeight: 1.5, marginTop: '-0.5rem'}}>
+                                                            La fija el cruce de <strong>{st.label.toLowerCase()}</strong> y <strong>{f.label}</strong>: el estilo marca el objetivo y la harina lo traduce a su absorción. Cámbialos arriba para mover el agua.
+                                                        </div>
+                                                        <div style={{fontSize: '0.78rem', color: 'var(--text-muted)', fontFamily: 'var(--font-data)', lineHeight: 1.5}}>
+                                                            {pizzaHyd}% con {f.label} ≡ {round(equivPizzeria, 1)}% con Pizzeria · absorción {f.absorption}%
+                                                        </div>
                                                         <div style={{fontSize: '0.79rem', color: 'var(--text-soft)', lineHeight: 1.55}}>
                                                             {f.note}
                                                         </div>
-                                                        {below && (
-                                                            <div className="warn-box">
-                                                                <Icon name="alert" />
-                                                                <span>Por debajo de {tgt.lo}% para {st.label.toLowerCase()} con esta harina: la masa queda tensa, el velo sale grueso y el disco se resiste al estirarlo. Sube de 2 en 2%.</span>
-                                                            </div>
-                                                        )}
-                                                        {above && (
-                                                            <div className="warn-box">
-                                                                <Icon name="alert" />
-                                                                <span>Por encima de {tgt.hi}%. {pizzaHyd > f.hydHi ? 'Esta harina no sostiene tanta agua: masa pegajosa y frágil.' : 'Más agua de la que pide este estilo.'} Sube poco a poco en vez de dar el salto de golpe.</span>
-                                                            </div>
-                                                        )}
                                                         {pizzaHyd >= 68 && (
                                                             <div className="info-note">
                                                                 <strong>Bassinage:</strong> reserva el último 3-5% del agua y añádelo en hilo fino al final del amasado, con la masa ya formada. Absorbe mucho mejor que metiéndola toda desde el principio, y es donde vas a ver aparecer el velo.
