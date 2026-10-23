@@ -11,7 +11,32 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Calculadora artesanal de fermentación: calcula levadura, hidratación, tiempos y plan de horneado para pan y pizza.">
-    <title>Calculadora de Fermentación · Panadería Artesanal</title>
+    <title>Fermenta · Calculadora de fermentación</title>
+
+    <!-- App instalable (PWA) -->
+    <link rel="manifest" href="manifest.webmanifest">
+    <meta name="theme-color" content="#14161a">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Fermenta">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+    <script>
+        // Chrome dispara beforeinstallprompt muy pronto, antes de que React
+        // exista. Lo guardamos aquí y avisamos a la app con un evento propio.
+        window.__deferredInstall = null;
+        window.addEventListener('beforeinstallprompt', function (e) {
+            e.preventDefault();
+            window.__deferredInstall = e;
+            window.dispatchEvent(new Event('fermenta:installable'));
+        });
+        window.addEventListener('appinstalled', function () {
+            window.__deferredInstall = null;
+            window.dispatchEvent(new Event('fermenta:installed'));
+        });
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -2201,6 +2226,7 @@
                 sun: (<><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></>),
                 moon: <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>,
                 printer: (<><path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8" rx="1"/></>),
+                install: (<><rect x="5" y="2" width="14" height="20" rx="2.5"/><path d="M12 8v7M9 12l3 3 3-3"/></>),
                 copy: (<><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></>),
                 download: (<><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></>),
                 refresh: (<><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></>),
@@ -4196,6 +4222,8 @@
             });
             useEffect(() => {
                 document.documentElement.setAttribute('data-theme', theme);
+                const mt = document.querySelector('meta[name="theme-color"]');
+                if (mt) mt.setAttribute('content', theme === 'dark' ? '#101216' : '#14161a');
                 if (typeof localStorage !== 'undefined') localStorage.setItem('theme', theme);
             }, [theme]);
 
@@ -4391,6 +4419,33 @@
 
             // Objetivo de temperatura de masa: fijo por tipo, no configurable
             const doughTarget = DOUGH_TEMP_TARGET[doughType] || 23;
+
+            // ─── INSTALAR COMO APP ───────────────────────────────────
+            const [canInstall, setCanInstall] = useState(() => {
+                try { return !!window.__deferredInstall; } catch (e) { return false; }
+            });
+            useEffect(() => {
+                const on = () => setCanInstall(true);
+                const off = () => setCanInstall(false);
+                window.addEventListener('fermenta:installable', on);
+                window.addEventListener('fermenta:installed', off);
+                return () => {
+                    window.removeEventListener('fermenta:installable', on);
+                    window.removeEventListener('fermenta:installed', off);
+                };
+            }, []);
+            const installApp = useCallback(() => {
+                const ev = window.__deferredInstall;
+                if (!ev) return;
+                window.__deferredInstall = null;
+                setCanInstall(false);
+                try {
+                    ev.prompt();
+                    Promise.resolve(ev.userChoice).then((r) => {
+                        showToast(r && r.outcome === 'accepted' ? 'Instalando Fermenta…' : 'Instalación cancelada');
+                    }).catch(() => {});
+                } catch (e) {}
+            }, []);
 
             // ─── IMPRIMIR TODO ───────────────────────────────────────
             // Las pestañas se montan por separado, así que al imprimir solo
@@ -5050,6 +5105,11 @@
                                         <Icon name="download" />
                                     </button>
                                 </>
+                            )}
+                            {canInstall && (
+                                <button className="icon-btn" onClick={installApp} title="Instalar Fermenta como app">
+                                    <Icon name="install" /> <span>Instalar</span>
+                                </button>
                             )}
                             <button className="icon-btn" onClick={() => setPrintAll(true)} title="Imprimir el proceso completo" disabled={printAll}>
                                 <Icon name="printer" /> <span>{printAll ? 'Preparando…' : 'Imprimir'}</span>
@@ -6305,6 +6365,17 @@
             localStorage.setItem('userConsent', 'rejected');
             document.getElementById('cookie-consent-banner').style.display = 'none';
         });
+    </script>
+
+    <script>
+        // Service worker: necesario para que Chrome ofrezca instalar la app,
+        // y es lo que hace que abra sin conexión. No existe en file://
+        if ('serviceWorker' in navigator &&
+            (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
+            window.addEventListener('load', function () {
+                navigator.serviceWorker.register('sw.js').catch(function () {});
+            });
+        }
     </script>
 </body>
 </html>
