@@ -1979,6 +1979,33 @@
             return Math.max(2, Math.min(6, 3.5 * Math.pow(22 / T, 1.3)));
         };
 
+        // ============================================================
+        // FOCACCIA · TRABAJO DE GLUTEN
+        // A 82% de hidratación la red no se construye amasando más: se
+        // construye con autólisis (el gluten se hidrata solo), un laminado
+        // (estirar fina y plegar, que alinea las láminas de golpe) y
+        // pliegues en espiral espaciados. El aceite va al final porque
+        // recubre las hebras e impide que se unan.
+        // ============================================================
+        const FOC_AUTOLYSE = 0.75;   // 45 min — harina + agua, sin fermento
+        const FOC_KNEAD    = 0.25;   // 15 min de amasado real
+
+        // Pliegues que caben DE VERDAD en la ventana del bulk. El primero
+        // es el laminado. Antes se prometían 3-4 cada 30-45 min en ventanas
+        // de 1h o menos, donde no caben.
+        const focacciaFolds = (bulkH, ambientT) => {
+            const gap = ambientT >= 26 ? 1 / 3 : 0.5;   // 20 min en calor, 30 normal
+            const at = [];
+            for (let t = gap; t < bulkH - 0.01 && at.length < 4; t += gap) at.push(t);
+            if (!at.length) at.push(Math.max(0.17, bulkH / 2));
+            return {
+                n: at.length,
+                gapMin: Math.round(gap * 60),
+                firstMin: Math.round(at[0] * 60),
+                at,
+            };
+        };
+
         const FOCACCIA_TRAY = {
             label: 'Bandeja Mercadona 2,7L',
             dimensions: '≈32×26×5cm',
@@ -1988,18 +2015,17 @@
 
         // Process steps (shared between both starter types)
         const FOCACCIA_PROCESS = [
-            { day: 'Día 1', time: '5 min', step: 1, name: 'Mezcla agua + fermento', desc: 'Disuelve la masa madre activa (o la levadura fresca) en el agua. Reserva un poco de agua si la masa te resulta difícil de manejar al principio.', icon: '💧' },
-            { day: 'Día 1', time: '8-15 min', step: 2, name: 'Amasa con la harina', desc: 'Añade la harina y amasa 8 min con máquina o 15 a mano. A esta hidratación la masa estará pegajosa: es lo normal, no añadas harina para corregirlo.', icon: '🌾' },
-            { day: 'Día 1', time: 'al final', step: 3, name: 'Añade sal + chorrito de aceite', desc: 'Incorpora la sal y un chorrito de aceite hacia el final del amasado, cuando la masa ya tenga algo de estructura.', icon: '🧂' },
-            { day: 'Día 1', time: 'levado bulk', step: 4, name: 'Bulk con pliegues cada 30-45 min', desc: '', icon: '🥣', dynamic: true },
-            { day: 'Día 1', time: '30 min', step: 5, name: 'Reposo final del bulk', desc: 'Tras la última tanda de pliegues, media hora tapada sin tocarla. La masa debe verse hinchada y con burbujas en superficie.', icon: '⏱️' },
-            { day: 'Día 1 → Día 2', time: 'variable', step: 6, name: 'Frío en nevera', desc: '', icon: '❄️', dynamicCold: true },
-            { day: 'Día 2', time: 'antes de volcar', step: 7, name: 'Prepara la bandeja', desc: 'Bandeja de aluminio de 2,7L (≈32×26×5cm) generosamente untada de aceite de oliva, fondo y paredes. El aceite del fondo fríe la base y la deja crujiente.', icon: '🛠️' },
-            { day: 'Día 2', time: '3-4 h', step: 8, name: 'Volcar y levar EN la bandeja', desc: '', icon: '☀️', dynamicProof: true },
-            { day: 'Día 2', time: 'al final del levado', step: 9, name: 'Hacer los hoyitos', desc: 'Solo cuando la masa esté completamente levada: agita la bandeja y debe ondular como gelatina. Dedos bien aceitados, presiona hasta tocar el fondo. Si los haces antes, desgasificas justo lo que querías conservar.', icon: '👇' },
-            { day: 'Día 2', time: 'justo antes del horno', step: 10, name: 'Salamoia y aliño', desc: '', icon: '🫗', dynamicBrine: true },
-            { day: 'Día 2', time: '25-30 min', step: 11, name: 'Hornear con calor de suelo', desc: 'A 230-240°C sobre piedra o acero precalentado en la base del horno. El golpe de calor inferior dispara el alveolado en los primeros minutos. Poco vapor los primeros 10 min, luego seco para que dore.', icon: '🔥' },
-            { day: 'Día 2', time: '30 min', step: 12, name: 'Espera antes de cortar', desc: 'Media hora sobre rejilla antes de cortar. La miga termina de asentarse y la base conserva el crujiente.', icon: '⏳' },
+            { day: 'Día 1', time: '45 min', step: 1, name: 'Autólisis', desc: 'Solo harina y agua: mezcla hasta que no quede harina seca, tapa y espera 45 minutos. Sin fermento, sin sal y sin aceite. El gluten se hidrata y se ordena él solo, sin amasadora y sin calentar la masa — a esta hidratación es el paso que más estructura regala.', icon: '💧' },
+            { day: 'Día 1', time: '12-15 min', step: 2, name: 'Amasa en este orden', desc: 'Orden: autólisis + fermento disuelto en un poco de agua → la sal a mitad del amasado → el aceite en hilo al final, con la masa ya formada. 12-15 min en amasadora o 15-18 a mano. El aceite recubre las hebras de gluten: si entra antes, la red no llega a cerrarse. Quedará pegajosa, es lo normal: no añadas harina.', icon: '🌾' },
+            { day: 'Día 1', time: 'ver cronograma', step: 3, name: 'Laminado y pliegues', desc: '', icon: '🫱', dynamic: true },
+            { day: 'Día 1', time: '30 min', step: 4, name: 'Reposo final del bulk', desc: 'Tras el último pliegue, media hora tapada sin tocarla. Antes del frío la masa tiene que aguantar la forma y volver al tocarla, con burbujas en superficie. Si todavía se derrama como una crema, le falta estructura: dale un pliegue más y 20 minutos.', icon: '⏱️' },
+            { day: 'Día 1 → Día 2', time: 'variable', step: 5, name: 'Frío en nevera', desc: '', icon: '❄️', dynamicCold: true },
+            { day: 'Día 2', time: 'antes de volcar', step: 6, name: 'Prepara la bandeja', desc: 'Bandeja de aluminio de 2,7L (≈32×26×5cm) generosamente untada de aceite de oliva, fondo y paredes. El aceite del fondo fríe la base y la deja crujiente.', icon: '🛠️' },
+            { day: 'Día 2', time: '3-4 h', step: 7, name: 'Volcar y levar EN la bandeja', desc: '', icon: '☀️', dynamicProof: true },
+            { day: 'Día 2', time: 'al final del levado', step: 8, name: 'Hacer los hoyitos', desc: 'Solo cuando la masa esté completamente levada: agita la bandeja y debe ondular como gelatina. Dedos bien aceitados, presiona hasta tocar el fondo. Si los haces antes, desgasificas justo lo que querías conservar.', icon: '👇' },
+            { day: 'Día 2', time: 'justo antes del horno', step: 9, name: 'Salamoia y aliño', desc: '', icon: '🫗', dynamicBrine: true },
+            { day: 'Día 2', time: '25-30 min', step: 10, name: 'Hornear con calor de suelo', desc: 'A 230-240°C sobre piedra o acero precalentado en la base del horno. El golpe de calor inferior dispara el alveolado en los primeros minutos. Poco vapor los primeros 10 min, luego seco para que dore.', icon: '🔥' },
+            { day: 'Día 2', time: '30 min', step: 11, name: 'Espera antes de cortar', desc: 'Media hora sobre rejilla antes de cortar. La miga termina de asentarse y la base conserva el crujiente.', icon: '⏳' },
         ];
 
         // Scale recipe to a target dough total weight
@@ -3345,12 +3371,13 @@
                 if (bake < new Date()) bake.setDate(bake.getDate() + 1);
 
                 // Offsets (in hours, working backwards from bake)
+                const fp            = focacciaFolds(levado1Hours, ambientTemp);
                 const t_temper      = trayProof + 0.1;                  // levado en bandeja + ~6 min de volcado
                 const t_cold_end    = t_temper + coldHours;             // fin del frío = inicio del levado en bandeja
                 const t_rest        = t_cold_end + 0.5;                 // 30 min covered rest after folds
-                const t_bulk_end    = t_rest;                            // bulk ends at rest start
-                const t_bulk_start  = t_bulk_end + levado1Hours;
-                const t_knead       = t_bulk_start + 0.1;                // ~6 min mixing
+                const t_bulk_start  = t_rest + levado1Hours;
+                const t_knead       = t_bulk_start + FOC_KNEAD;         // amasado real, no 6 min
+                const t_autolyse    = t_knead + FOC_AUTOLYSE;           // harina + agua, sin fermento
 
                 const events = [];
                 events.push({ time: new Date(bake.getTime() + 30 * 60000), name: 'Cortar y servir', desc: 'La miga ya ha asentado', icon: '🍽️', kind: 'normal' });
@@ -3358,11 +3385,17 @@
                 events.push({ time: addHours(bake, -0.08), name: 'Hoyitos y salamoia', desc: 'Dedos aceitados hasta el fondo · emulsión de agua, aceite y sal por encima', icon: '🫗', kind: 'normal' });
                 events.push({ time: addHours(bake, -t_temper), name: 'Volcar y levar en bandeja', desc: `${formatHours(trayProof)} a ${ambientTemp}°C · aquí se generan las burbujas`, icon: '☀️', kind: 'normal', dur: trayProof });
                 events.push({ time: addHours(bake, -t_cold_end), name: `A la nevera (${formatHours(coldHours)})`, desc: 'Tapado, fría a 4°C · desarrolla sabor', icon: '❄️', kind: 'cold', dur: coldHours });
-                events.push({ time: addHours(bake, -t_rest), name: 'Reposo tapado', desc: '30 min a temperatura ambiente', icon: '⏱️', kind: 'normal', dur: 0.5 });
-                events.push({ time: addHours(bake, -t_bulk_start), name: 'Bulk con pliegues', desc: `${formatHours(levado1Hours)} a ${ambientTemp}°C · 3-4 tandas de pliegues cada 30-45 min`, icon: '🥣', kind: 'normal', dur: levado1Hours });
-                events.push({ time: addHours(bake, -t_knead), name: 'Empezar amasado', desc: 'Mezcla agua+fermento, harina, sal y aceite al final', icon: '👐', kind: 'start' });
+                events.push({ time: addHours(bake, -t_rest), name: 'Reposo tapado', desc: '30 min a temperatura ambiente. Antes del frío la masa debe aguantar la forma y volver al tocarla; si se derrama como una crema, le falta estructura.', icon: '⏱️', kind: 'normal', dur: 0.5 });
+                events.push({ time: addHours(bake, -t_bulk_start), name: fp.n > 1 ? 'Bulk · laminado y pliegues' : 'Bulk · laminado', desc: `${formatHours(levado1Hours)} a ${ambientTemp}°C. A los ${fp.firstMin} min, laminado: estira la masa fina sobre la mesa aceitada y pliégala en tres. `
+                    + (fp.n > 1
+                        ? `Después ${fp.n - 1} ${fp.n === 2 ? 'pliegue en espiral' : 'pliegues en espiral'} cada ${fp.gapMin} min, con la mano mojada.`
+                        : `La ventana de ${formatHours(levado1Hours)} no da para más: el laminado hace todo el trabajo de estructura.`), icon: '🫱', kind: 'normal', dur: levado1Hours });
+                events.push({ time: addHours(bake, -t_knead), name: 'Amasado', desc: '12-15 min en amasadora (15-18 a mano). Orden: autólisis + fermento → sal a mitad del amasado → el aceite en hilo al final, con la masa ya formada.', icon: '🥣', kind: 'normal', dur: FOC_KNEAD });
+                events.push({ time: addHours(bake, -t_autolyse), name: 'Empezar · autólisis', desc: `Solo harina y agua: mezcla hasta que no quede harina seca y tapa ${formatHours(FOC_AUTOLYSE)}. Sin fermento, sin sal y sin aceite.`, icon: '👐', kind: 'start', dur: FOC_AUTOLYSE });
                 return events.reverse();
             }, [bakeTime, levado1Hours, ambientTemp, coldHours, trayProof]);
+
+            const foldPlan = useMemo(() => focacciaFolds(levado1Hours, ambientTemp), [levado1Hours, ambientTemp]);
 
             const buildText = () => {
                 const lines = [];
@@ -3378,7 +3411,7 @@
                 lines.push(`\nHidratación efectiva: ${round(effHydration, 1)}%`);
                 lines.push('\nPROCESO:');
                 FOCACCIA_PROCESS.forEach(p => {
-                    const desc = p.dynamic ? `${formatHours(levado1Hours)} a ${ambientTemp}°C`
+                    const desc = p.dynamic ? `${formatHours(levado1Hours)} a ${ambientTemp}°C · laminado a los ${foldPlan.firstMin} min${foldPlan.n > 1 ? ` + ${foldPlan.n - 1} ${foldPlan.n === 2 ? 'pliegue' : 'pliegues'} en espiral cada ${foldPlan.gapMin} min` : ''}`
                               : p.dynamicCold ? `${formatHours(coldHours)} en nevera tapado. La masa desarrolla sabor y estructura.`
                               : p.desc;
                     lines.push(`  ${p.step}. ${p.name}: ${desc}`);
@@ -3501,7 +3534,11 @@
                             <div style={{display: 'flex', flexDirection: 'column', gap: '0.5rem'}}>
                                 {FOCACCIA_PROCESS.map((p, i) => {
                                     const desc = p.dynamic
-                                        ? `Levado de ${formatHours(levado1Hours)} a ${ambientTemp}°C con 3-4 tandas de pliegues cada 30-45 min. Mano mojada, estilo coil-fold: levanta la masa por el centro y déjala caer sobre sí misma. Construye estructura sin desgasificar. ${thermalMode === 'calor' ? 'Modo calor: tiempo reducido.' : ''}`
+                                        ? `Levado de ${formatHours(levado1Hours)} a ${ambientTemp}°C. A los ${foldPlan.firstMin} min, laminado: con la mesa y las manos aceitadas, estira la masa hasta dejarla fina y casi transparente, y pliégala en tres. Es lo que alinea las láminas de gluten de golpe, sin amasadora. `
+                                        + (foldPlan.n > 1
+                                            ? `Después ${foldPlan.n - 1} ${foldPlan.n === 2 ? 'pliegue' : 'pliegues'} en espiral cada ${foldPlan.gapMin} min: mano mojada, levanta la masa por el centro y déjala caer sobre sí misma. Construye estructura sin desgasificar.`
+                                            : `La ventana de ${formatHours(levado1Hours)} solo da para el laminado, que es el que más estructura aporta. Si quieres además pliegues en espiral, la versión con masa madre tiene un bulk de 2h y da margen para dos.`)
+                                        + `${thermalMode === 'calor' ? ' Modo calor: ventana y pliegues reducidos.' : ''}`
                                         : p.dynamicCold
                                         ? `${formatHours(coldHours)} en nevera tapado. La masa desarrolla sabor y estructura. ${coldHours < 18 ? 'Tiempo justo, sabor más suave.' : coldHours <= 30 ? 'Sabor equilibrado.' : coldHours <= 48 ? 'Sabor complejo, bien desarrollado.' : 'Larga fermentación, vigila al sacar.'}`
                                         : p.dynamicProof
@@ -3630,10 +3667,13 @@
                     {activeTab === 'checklist' && (
                         <Checklist
                             items={[
-                                { id: 'foc_mezcla',   day: 'Día 1', text: 'Agua + fermento disueltos · harina amasada' },
-                                { id: 'foc_sal',      day: 'Día 1', text: 'Sal y chorrito de aceite incorporados al final' },
+                                { id: 'foc_autolisis', day: 'Día 1', text: `Autólisis de ${formatHours(FOC_AUTOLYSE)} · solo harina y agua` },
+                                { id: 'foc_mezcla',   day: 'Día 1', text: 'Amasado con el fermento · 12-15 min' },
+                                { id: 'foc_sal',      day: 'Día 1', text: 'Sal a mitad del amasado · aceite en hilo al final' },
+                                { id: 'foc_laminado', day: 'Día 1', text: `Laminado a los ${foldPlan.firstMin} min del bulk` },
                                 { id: 'foc_bulk',     day: 'Día 1', text: `Bulk de ${formatHours(levado1Hours)} a ${ambientTemp}°C completado` },
-                                { id: 'foc_pliegues', day: 'Día 1', text: '3-4 tandas de pliegues cada 30-45 min · 30 min de reposo final' },
+                                { id: 'foc_pliegues', day: 'Día 1', text: foldPlan.n > 1 ? `${foldPlan.n - 1} ${foldPlan.n === 2 ? 'pliegue' : 'pliegues'} en espiral cada ${foldPlan.gapMin} min · 30 min de reposo final` : '30 min de reposo final sin tocarla' },
+                                { id: 'foc_malla',    day: 'Día 1', text: 'Antes del frío: aguanta la forma y vuelve al tocarla' },
                                 { id: 'foc_nevera',   day: 'Día 1', text: `A la nevera tapada · ${formatHours(coldHours)}` },
                                 { id: 'foc_piedra',   day: 'Día 2', text: 'Piedra o acero precalentando en la base del horno' },
                                 { id: 'foc_bandeja',  day: 'Día 2', text: `${trays} ${trays === 1 ? 'bandeja engrasada' : 'bandejas engrasadas'} con aceite de oliva` },
