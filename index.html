@@ -194,7 +194,9 @@
             font-size: 1.7rem;
             font-weight: 500;
             line-height: 1.05;
-            color: var(--text);
+            /* hereda el color de .hero-strip; con var(--text) quedaba del
+               mismo tono que el fondo oscuro de la franja en tema claro */
+            color: inherit;
             font-variant-numeric: tabular-nums;
             letter-spacing: -0.02em;
         }
@@ -1256,12 +1258,57 @@
             border: 1px solid rgba(255,255,255,0.25);
         }
 
+        .print-h, .print-title { display: none; }
+
         @media print {
             .app-header, .header-actions, .presets-row,
-            .card:first-of-type, #cookie-consent-banner { display: none !important; }
+            .card:first-of-type, #cookie-consent-banner,
+            .tabs, .quality-bar, .toast, .wake-pill,
+            .schedule-input { display: none !important; }
             .two-col { grid-template-columns: 1fr !important; }
-            .card { break-inside: avoid; box-shadow: none; border: 1px solid #ddd; }
+            .card { box-shadow: none; border: 1px solid #ddd; }
             body { background: white; }
+
+            /* La franja de cabecera, en claro: no gastar tinta en un bloque negro */
+            .hero-strip { background: #fff !important; border: 1px solid #000; color: #000 !important; }
+            .hero-strip::before { display: none; }
+            .hero-stat .label { color: #444 !important; }
+            .hero-stat .value { color: #000 !important; }
+            .hero-stat .unit  { color: #444 !important; }
+
+            .print-title {
+                display: flex;
+                justify-content: space-between;
+                align-items: baseline;
+                gap: 1rem;
+                font-family: var(--font-label);
+                color: #000;
+                margin: 0 0 1rem;
+                padding-bottom: 0.45rem;
+                border-bottom: 3px solid #000;
+            }
+            .print-title .pt-name { font-size: 1.25rem; font-weight: 600; }
+            .print-title .pt-date { font-size: 0.85rem; font-weight: 400; }
+
+            /* Cada pestaña impresa lleva su propio encabezado */
+            .print-h {
+                display: block;
+                font-family: var(--font-label);
+                font-size: 1.05rem;
+                font-weight: 600;
+                color: #000;
+                margin: 1.4rem 0 0.7rem;
+                padding-bottom: 0.3rem;
+                border-bottom: 2px solid #000;
+                break-after: avoid;
+                page-break-after: avoid;
+            }
+            .animate-in { animation: none !important; }
+            /* Nada de controles ni botones en papel */
+            button, input[type="range"], input[type="time"], .icon-btn { display: none !important; }
+            .schedule-row, .ing-card, .phase-card, .stage-block,
+            .warn-box, .info-note, .yeast-card, .checklist li,
+            .pref-info, .hero-strip { break-inside: avoid; page-break-inside: avoid; }
         }
 
         @media (max-width: 600px) {
@@ -1529,6 +1576,11 @@
             'sal a mitad del amasado, con la masa ya formada',
             bassinage ? 'último 5% del agua en hilo fino al final (bassinage)' : null,
         ].filter(Boolean).join(' → ');
+
+        const PRINT_LABELS = {
+            pan: 'Pan', pizza: 'Pizza napolitana', focaccia: 'Focaccia',
+            panettone: 'Panettone de chocolate', gofres: 'Gofres de Lieja',
+        };
 
         const DOUGH_TEMP_MIN = 22, DOUGH_TEMP_MAX = 26;
         // Objetivo de temperatura final de masa. No es una preferencia:
@@ -3074,7 +3126,7 @@
         // ============================================================
         // GOFRES RESULTS COMPONENT
         // ============================================================
-        const GofresResults = ({ units, coldHours, readyTime, setReadyTime, checks, onToggleCheck, onResetChecks, showToast }) => {
+        const GofresResults = ({ units, coldHours, readyTime, setReadyTime, checks, onToggleCheck, onResetChecks, showToast, printAll }) => {
             const [activeTab, setActiveTab] = useState('recipe');
             const recipe = useMemo(() => scaleGofres(units), [units]);
 
@@ -3151,13 +3203,12 @@
                         <button className={`tab ${activeTab === 'process' ? 'active' : ''}`} onClick={() => setActiveTab('process')}>📜 Proceso</button>
                         <button className={`tab ${activeTab === 'schedule' ? 'active' : ''}`} onClick={() => setActiveTab('schedule')}>⏱ Cronograma</button>
                         <button className={`tab ${activeTab === 'tips' ? 'active' : ''}`} onClick={() => setActiveTab('tips')}>💡 Consejos</button>
-                        <button className={`tab ${activeTab === 'toppings' ? 'active' : ''}`} onClick={() => setActiveTab('toppings')}>🫒 Aliños</button>
-                        <button className={`tab ${activeTab === 'compra' ? 'active' : ''}`} onClick={() => setActiveTab('compra')}>🛒 Compra</button>
                         <button className={`tab ${activeTab === 'checklist' ? 'active' : ''}`} onClick={() => setActiveTab('checklist')}>✓ Checklist</button>
                     </div>
 
                     {/* RECIPE TAB */}
-                    {activeTab === 'recipe' && (
+                    {printAll && <h2 className="print-h">📋 Receta</h2>}
+                    {(printAll || activeTab === 'recipe') && (
                         <div className="animate-in">
                             <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.5rem'}}>
                                 <div style={{fontSize: '0.83rem', color: 'var(--text-soft)'}}>
@@ -3199,7 +3250,8 @@
                     )}
 
                     {/* PROCESS TAB */}
-                    {activeTab === 'process' && (
+                    {printAll && <h2 className="print-h">📜 Proceso</h2>}
+                    {(printAll || activeTab === 'process') && (
                         <div className="animate-in">
                             <div style={{display: 'flex', flexDirection: 'column', gap: '0.5rem'}}>
                                 {GOFRES_PROCESS.map((p, i) => {
@@ -3235,7 +3287,8 @@
                     )}
 
                     {/* SCHEDULE TAB */}
-                    {activeTab === 'schedule' && (
+                    {printAll && <h2 className="print-h">⏱ Cronograma</h2>}
+                    {(printAll || activeTab === 'schedule') && (
                         <div className="animate-in">
                             <div className="schedule-input">
                                 <label>🧇 ¿A qué hora quieres comerlos?</label>
@@ -3270,7 +3323,8 @@
                     )}
 
                     {/* TIPS TAB */}
-                    {activeTab === 'tips' && (
+                    {printAll && <h2 className="print-h">💡 Consejos</h2>}
+                    {(printAll || activeTab === 'tips') && (
                         <div className="animate-in">
                             <div style={{display: 'flex', flexDirection: 'column', gap: '0.6rem'}}>
                                 {GOFRES_TIPS.map((t, i) => (
@@ -3308,7 +3362,8 @@
                     )}
 
                     {/* CHECKLIST TAB */}
-                    {activeTab === 'checklist' && (
+                    {printAll && <h2 className="print-h">✓ Checklist</h2>}
+                    {(printAll || activeTab === 'checklist') && (
                         <Checklist
                             items={[
                                 { id: 'gof_levadura', text: 'Levadura activada en leche tibia · ha espumado' },
@@ -3335,7 +3390,7 @@
         // ============================================================
         // FOCACCIA RESULTS COMPONENT
         // ============================================================
-        const FocacciaResults = ({ starterType, trays, ambientTemp, coldHours, bakeTime, setBakeTime, checks, onToggleCheck, onResetChecks, toppings, setToppings, showToast }) => {
+        const FocacciaResults = ({ starterType, trays, ambientTemp, coldHours, bakeTime, setBakeTime, checks, onToggleCheck, onResetChecks, toppings, setToppings, showToast, printAll }) => {
             const [activeTab, setActiveTab] = useState('recipe');
 
             // Auto-select thermal mode based on temperature
@@ -3448,6 +3503,8 @@
                         <button className={`tab ${activeTab === 'process' ? 'active' : ''}`} onClick={() => setActiveTab('process')}>📜 Proceso</button>
                         <button className={`tab ${activeTab === 'schedule' ? 'active' : ''}`} onClick={() => setActiveTab('schedule')}>⏱ Cronograma</button>
                         <button className={`tab ${activeTab === 'baking' ? 'active' : ''}`} onClick={() => setActiveTab('baking')}>🔥 Horneado</button>
+                        <button className={`tab ${activeTab === 'toppings' ? 'active' : ''}`} onClick={() => setActiveTab('toppings')}>🫒 Aliños</button>
+                        <button className={`tab ${activeTab === 'compra' ? 'active' : ''}`} onClick={() => setActiveTab('compra')}>🛒 Compra</button>
                         <button className={`tab ${activeTab === 'checklist' ? 'active' : ''}`} onClick={() => setActiveTab('checklist')}>✓ Checklist</button>
                     </div>
 
@@ -3460,7 +3517,8 @@
                     )}
 
                     {/* RECIPE TAB */}
-                    {activeTab === 'recipe' && (
+                    {printAll && <h2 className="print-h">📋 Receta</h2>}
+                    {(printAll || activeTab === 'recipe') && (
                         <div className="animate-in">
                             <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.5rem'}}>
                                 <div style={{fontSize: '0.83rem', color: 'var(--text-soft)'}}>
@@ -3529,7 +3587,8 @@
                     )}
 
                     {/* PROCESS TAB */}
-                    {activeTab === 'process' && (
+                    {printAll && <h2 className="print-h">📜 Proceso</h2>}
+                    {(printAll || activeTab === 'process') && (
                         <div className="animate-in">
                             <div style={{display: 'flex', flexDirection: 'column', gap: '0.5rem'}}>
                                 {FOCACCIA_PROCESS.map((p, i) => {
@@ -3576,7 +3635,8 @@
                     )}
 
                     {/* SCHEDULE TAB */}
-                    {activeTab === 'schedule' && (
+                    {printAll && <h2 className="print-h">⏱ Cronograma</h2>}
+                    {(printAll || activeTab === 'schedule') && (
                         <div className="animate-in">
                             <div className="schedule-input">
                                 <label>🔥 ¿A qué hora quieres hornear?</label>
@@ -3611,7 +3671,8 @@
                     )}
 
                     {/* BAKING TAB */}
-                    {activeTab === 'baking' && (
+                    {printAll && <h2 className="print-h">🔥 Horneado</h2>}
+                    {(printAll || activeTab === 'baking') && (
                         <div className="animate-in">
                             <div className="bake-card">
                                 <div className="bake-header">🔥 Plan de horneado · Focaccia</div>
@@ -3643,7 +3704,8 @@
                     )}
 
                     {/* TOPPINGS TAB */}
-                    {activeTab === 'toppings' && (
+                    {printAll && <h2 className="print-h">🫒 Aliños</h2>}
+                    {(printAll || activeTab === 'toppings') && (
                         <FocacciaToppings
                             counts={toppings}
                             setCounts={setToppings}
@@ -3653,7 +3715,8 @@
                         />
                     )}
 
-                    {activeTab === 'compra' && (
+                    {printAll && <h2 className="print-h">🛒 Lista de la compra</h2>}
+                    {(printAll || activeTab === 'compra') && (
                         <FocacciaToppings
                             counts={toppings}
                             setCounts={setToppings}
@@ -3664,7 +3727,8 @@
                     )}
 
                     {/* CHECKLIST TAB */}
-                    {activeTab === 'checklist' && (
+                    {printAll && <h2 className="print-h">✓ Checklist</h2>}
+                    {(printAll || activeTab === 'checklist') && (
                         <Checklist
                             items={[
                                 { id: 'foc_autolisis', day: 'Día 1', text: `Autólisis de ${formatHours(FOC_AUTOLYSE)} · solo harina y agua` },
@@ -3697,7 +3761,7 @@
         // ============================================================
         // PANETTONE RESULTS COMPONENT
         // ============================================================
-        const PanettoneResults = ({ mold, units, liquidStarter, bakeDay, checks, onToggleCheck, onResetChecks, showToast }) => {
+        const PanettoneResults = ({ mold, units, liquidStarter, bakeDay, checks, onToggleCheck, onResetChecks, showToast, printAll }) => {
             const [activeTab, setActiveTab] = useState('process');
             const moldData = PANETTONE_MOLDS[mold];
             const totalLoad = moldData.loadCrudo * units;
@@ -3797,7 +3861,8 @@
                     </div>
 
                     {/* PROCESS TAB */}
-                    {activeTab === 'process' && (
+                    {printAll && <h2 className="print-h">📜 Proceso</h2>}
+                    {(printAll || activeTab === 'process') && (
                         <div className="animate-in">
                             {/* Phase 0 — Prep */}
                             <div className="phase-card">
@@ -3972,7 +4037,8 @@
                     )}
 
                     {/* RECIPE TAB */}
-                    {activeTab === 'recipe' && (
+                    {printAll && <h2 className="print-h">📋 Ingredientes</h2>}
+                    {(printAll || activeTab === 'recipe') && (
                         <div className="animate-in">
                             <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.5rem'}}>
                                 <div style={{fontSize: '0.83rem', color: 'var(--text-soft)'}}>
@@ -4042,7 +4108,8 @@
                     )}
 
                     {/* CHECKLIST TAB */}
-                    {activeTab === 'checklist' && (
+                    {printAll && <h2 className="print-h">✓ Checklist</h2>}
+                    {(printAll || activeTab === 'checklist') && (
                         <Checklist
                             items={allChecks}
                             checks={checks}
@@ -4053,7 +4120,8 @@
                     )}
 
                     {/* BAKING TAB */}
-                    {activeTab === 'baking' && (
+                    {printAll && <h2 className="print-h">🔥 Horneado</h2>}
+                    {(printAll || activeTab === 'baking') && (
                         <div className="animate-in">
                             <div className="bake-card">
                                 <div className="bake-header">🔥 Horneado · {moldData.label}</div>
@@ -4323,6 +4391,29 @@
 
             // Objetivo de temperatura de masa: fijo por tipo, no configurable
             const doughTarget = DOUGH_TEMP_TARGET[doughType] || 23;
+
+            // ─── IMPRIMIR TODO ───────────────────────────────────────
+            // Las pestañas se montan por separado, así que al imprimir solo
+            // salía la activa. printAll monta todas a la vez, imprime y las
+            // vuelve a plegar.
+            const [printAll, setPrintAll] = useState(false);
+            useEffect(() => {
+                if (!printAll) return;
+                let done = false;
+                const finish = () => {
+                    if (done) return;
+                    done = true;
+                    setPrintAll(false);
+                };
+                window.addEventListener('afterprint', finish);
+                // un tick para que el navegador pinte las pestañas recién montadas
+                const t = setTimeout(() => {
+                    try { window.print(); } catch (e) {}
+                    // Safari/iOS no siempre disparan afterprint
+                    setTimeout(finish, 1500);
+                }, 180);
+                return () => { window.removeEventListener('afterprint', finish); clearTimeout(t); };
+            }, [printAll]);
 
             // ── Wake Lock: mantener la pantalla encendida mientras cocinas ──
             // wakeWanted = intención del usuario (persiste aunque el sistema
@@ -4960,13 +5051,19 @@
                                     </button>
                                 </>
                             )}
-                            <button className="icon-btn" onClick={() => window.print()} title="Imprimir">
-                                <Icon name="printer" />
+                            <button className="icon-btn" onClick={() => setPrintAll(true)} title="Imprimir el proceso completo" disabled={printAll}>
+                                <Icon name="printer" /> <span>{printAll ? 'Preparando…' : 'Imprimir'}</span>
                             </button>
                         </div>
                     </header>
 
                     <div className="app-body">
+                        {printAll && (
+                            <div className="print-title">
+                                <span className="pt-name">Fermenta · {PRINT_LABELS[doughType] || doughType}</span>
+                                <span className="pt-date">{new Date().toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
+                            </div>
+                        )}
                         {doughType === 'panettone' ? (
                             <>
                                 {/* HERO STRIP — panettone */}
@@ -5842,6 +5939,7 @@
                                         onToggleCheck={togglePanCheck}
                                         onResetChecks={() => { setPanChecks({}); showToast('Checklist reiniciado'); }}
                                         showToast={showToast}
+                                        printAll={printAll}
                                     />
                                 ) : doughType === 'focaccia' ? (
                                     <FocacciaResults
@@ -5857,6 +5955,7 @@
                                         toppings={focToppings}
                                         setToppings={setFocToppings}
                                         showToast={showToast}
+                                        printAll={printAll}
                                     />
                                 ) : doughType === 'gofres' ? (
                                     <GofresResults
@@ -5868,6 +5967,7 @@
                                         onToggleCheck={toggleGofCheck}
                                         onResetChecks={() => { setGofChecks({}); showToast('Checklist reiniciado'); }}
                                         showToast={showToast}
+                                        printAll={printAll}
                                     />
                                 ) : (
                                 <>
@@ -5904,7 +6004,8 @@
                                 ))}
 
                                 {/* RECIPE TAB */}
-                                {activeTab === 'recipe' && (
+                                {printAll && <h2 className="print-h">📋 Receta</h2>}
+                                {(printAll || activeTab === 'recipe') && (
                                     <div className="animate-in">
                                         {prefermentType !== 'none' && (
                                             <div className="pref-box">
@@ -6002,7 +6103,8 @@
                                 )}
 
                                 {/* SCHEDULE TAB */}
-                                {activeTab === 'schedule' && (
+                                {printAll && <h2 className="print-h">⏱ Cronograma</h2>}
+                                {(printAll || activeTab === 'schedule') && (
                                     <div className="animate-in">
                                         <div className="schedule-input">
                                             <label>🔥 ¿A qué hora quieres hornear?</label>
@@ -6038,7 +6140,8 @@
                                 )}
 
                                 {/* BAKING TAB */}
-                                {activeTab === 'baking' && (
+                                {printAll && <h2 className="print-h">🔥 Horneado</h2>}
+                                {(printAll || activeTab === 'baking') && (
                                     <div className="animate-in">
                                         {doughType === 'pizza' && (() => {
                                             const st = PIZZA_STYLES[pizzaStyle];
@@ -6089,7 +6192,8 @@
                                 )}
 
                                 {/* TOPPINGS TAB (pizza only) */}
-                                {activeTab === 'toppings' && doughType === 'pizza' && (
+                                {printAll && <h2 className="print-h">🍕 Toppings por pizza</h2>}
+                                {(printAll || activeTab === 'toppings') && doughType === 'pizza' && (
                                     <PizzaToppings
                                         counts={pizzaToppingCounts}
                                         setCounts={setPizzaToppingCounts}
@@ -6099,7 +6203,8 @@
                                     />
                                 )}
 
-                                {activeTab === 'compra' && doughType === 'pizza' && (
+                                {printAll && <h2 className="print-h">🛒 Lista de la compra</h2>}
+                                {(printAll || activeTab === 'compra') && doughType === 'pizza' && (
                                     <PizzaToppings
                                         counts={pizzaToppingCounts}
                                         setCounts={setPizzaToppingCounts}
