@@ -57,6 +57,11 @@ self.addEventListener('fetch', (event) => {
   if (url.protocol !== 'http:' && url.protocol !== 'https:') return;
   if (isAnalytics(url)) return;                       // la analítica va siempre a la red
 
+  // Solo la app principal usa este shell; otras páginas del repo (p. ej. /panettone/) van directas a la red.
+  const scope = new URL(self.registration.scope);
+  const isShell = url.pathname === scope.pathname || url.pathname === scope.pathname + 'index.html';
+  if (req.mode === 'navigate' && !isShell) return;
+
   if (req.mode === 'navigate') {
     event.respondWith((async () => {
       try {

@@ -1,0 +1,687 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Receta de panettone V5.1: planificador por molde, versión doble chocolate, calendario, curva de pH y checklist.">
+<link rel="icon" href="../favicon-32.png">
+<style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Dossier Panettone V5.1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: cuaderno de obrador — barra fija de opciones, secciones en columna, datos en mono, fases codificadas por color */
+:root{
+  --bg:#F6F4F1; --surface:#FFFFFF; --sunk:#ECE7E1; --line:#DCD3CA;
+  --ink:#2A1D16; --muted:#6E5E53;
+  --orange:#C8580A; --orange-soft:#F8E1CF;
+  --cocoa:#5A3726; --cocoa-soft:#E9DDD5;
+  --almond:#A9823F; --almond-soft:#F1E6CF;
+  --cold:#2F6E8E; --cold-soft:#DCEAF1;
+  --ok:#2E7D4F; --ok-soft:#DDF0E3; --warn:#B7791F; --warn-soft:#F8EBCF; --bad:#B23A2B; --bad-soft:#F6DCD7;
+  --f-display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body:"Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono:"JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#16110E; --surface:#201915; --sunk:#2A211C; --line:#3B302A;
+  --ink:#F0E7DF; --muted:#B3A397;
+  --orange:#F08C42; --orange-soft:#3D2414;
+  --cocoa:#D6AE94; --cocoa-soft:#33241C;
+  --almond:#D8B672; --almond-soft:#352B19;
+  --cold:#7DB9D6; --cold-soft:#17303C;
+  --ok:#6CC891; --ok-soft:#173226; --warn:#E6B45A; --warn-soft:#3A2D14; --bad:#F08A7C; --bad-soft:#3E1C17;
+  color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#16110E; --surface:#201915; --sunk:#2A211C; --line:#3B302A;
+  --ink:#F0E7DF; --muted:#B3A397;
+  --orange:#F08C42; --orange-soft:#3D2414;
+  --cocoa:#D6AE94; --cocoa-soft:#33241C;
+  --almond:#D8B672; --almond-soft:#352B19;
+  --cold:#7DB9D6; --cold-soft:#17303C;
+  --ok:#6CC891; --ok-soft:#173226; --warn:#E6B45A; --warn-soft:#3A2D14; --bad:#F08A7C; --bad-soft:#3E1C17;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.55;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 64px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.wrap{max-width:1040px;margin:0 auto}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(30px,5vw,46px);font-weight:800;letter-spacing:-.02em}
+h2{font-size:clamp(22px,3vw,28px);font-weight:700;letter-spacing:-.01em}
+h3{font-size:17px;font-weight:700}
+p{margin:0}
+.mono,.num{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.eyebrow{font-size:11.5px;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);font-weight:600}
+a{color:var(--orange)}
+
+/* header */
+header.hero{padding-block:28px 18px;display:grid;gap:12px}
+.specs{display:flex;flex-wrap:wrap;gap:8px}
+.spec{font-size:13px;padding:4px 10px;border:1px solid var(--line);border-radius:999px;background:var(--surface)}
+.spec b{font-weight:600}
+
+/* toolbar */
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:1px solid var(--line);
+  padding-block:10px;display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center}
+.bar nav{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:13px}
+.bar nav a{color:var(--muted);text-decoration:none}
+.bar nav a:hover{color:var(--ink)}
+.toggles{display:flex;flex-wrap:wrap;gap:8px;margin-left:auto}
+.tog{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:500;cursor:pointer;
+  border:1px solid var(--line);border-radius:999px;padding:5px 12px 5px 6px;background:var(--surface);user-select:none}
+.tog input{appearance:none;width:30px;height:18px;border-radius:999px;background:var(--sunk);position:relative;margin:0;cursor:pointer;border:1px solid var(--line);transition:background .15s}
+.tog input::after{content:"";position:absolute;top:2px;left:2px;width:12px;height:12px;border-radius:50%;background:var(--muted);transition:transform .15s,background .15s}
+.tog input:checked{background:var(--cocoa)}
+.tog input:checked::after{transform:translateX(12px);background:var(--surface)}
+.tog input:focus-visible,button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid var(--orange);outline-offset:2px}
+
+section{padding-block:34px 4px;display:grid;gap:16px;scroll-margin-top:70px}
+.lead{color:var(--muted);max-width:68ch}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:14px}
+.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr));gap:14px}
+.grid2>*,.grid3>*{min-width:0}
+
+/* calculator */
+.calc{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:14px}
+.counts{display:grid;gap:10px}
+.count{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.step{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.step button{width:32px;height:32px;border:0;background:var(--sunk);color:var(--ink);font-size:17px;cursor:pointer}
+.step button:hover{background:var(--line)}
+.step output{width:38px;text-align:center;font-family:var(--f-mono)}
+.kv{display:grid;grid-template-columns:1fr auto;gap:6px 14px;font-size:14px}
+.kv dt{color:var(--muted)} .kv dd{margin:0;text-align:right;font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.kv .big{font-size:20px;font-weight:600;color:var(--ink)}
+.note{font-size:13px;color:var(--muted)}
+
+/* gantt */
+.scroll{overflow-x:auto}
+.gantt{min-width:720px;position:relative;padding-top:26px}
+.g-axis{position:relative;height:20px;margin-left:110px;border-bottom:1px solid var(--line)}
+.g-tick{position:absolute;top:0;font-size:11px;color:var(--muted);transform:translateX(-50%);font-family:var(--f-mono)}
+.g-day{position:absolute;top:-24px;font-size:11.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink)}
+.g-row{display:flex;align-items:center;height:44px;border-bottom:1px dashed var(--line)}
+.g-label{width:110px;flex:none;font-size:12.5px;color:var(--muted);padding-right:8px}
+.g-track{position:relative;flex:1;height:100%}
+.g-sep{position:absolute;top:0;bottom:0;width:0;border-left:1px solid var(--line)}
+.g-bar{position:absolute;top:8px;height:28px;border-radius:6px;font-size:11.5px;padding:0 7px;display:flex;flex-direction:column;justify-content:center;overflow:hidden;white-space:nowrap;line-height:1.15;border:1px solid transparent}
+.g-bar small{font-family:var(--f-mono);font-size:10.5px;opacity:.85}
+.c-madre{background:var(--almond-soft);color:var(--ink);border-color:var(--almond)}
+.c-masa{background:var(--orange-soft);color:var(--ink);border-color:var(--orange)}
+.c-cold{background:var(--cold-soft);color:var(--ink);border-color:var(--cold)}
+.c-horno{background:var(--cocoa);color:var(--surface)}
+.c-freno{background:repeating-linear-gradient(135deg,var(--cold-soft) 0 6px,var(--surface) 6px 12px);color:var(--ink);border-color:var(--cold)}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:12.5px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:14px;height:10px;border-radius:3px;display:inline-block;border:1px solid transparent}
+
+.days{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:12px}
+.day{border:1px solid var(--line);border-radius:var(--r);padding:14px;background:var(--surface);display:grid;gap:8px;align-content:start}
+.day ul{margin:0;padding-left:18px;font-size:14px;display:grid;gap:4px}
+.day .eyebrow{color:var(--orange)}
+
+/* pH chart */
+.ph svg{width:100%;height:auto;display:block}
+.ph text{font-family:var(--f-mono);font-size:11px;fill:var(--muted)}
+.ph .lbl{font-family:var(--f-body);font-size:12px;fill:var(--ink);font-weight:500}
+
+/* phases */
+.phase{display:grid;gap:14px;border-top:3px solid var(--ph,var(--line));padding-top:18px}
+.phase-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px}
+.when{font-family:var(--f-mono);font-size:13px;color:var(--ph);font-weight:600}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-family:var(--f-mono);font-size:12px;padding:3px 9px;border-radius:999px;background:var(--sunk);color:var(--ink);white-space:nowrap}
+.chip.t{background:var(--orange-soft)} .chip.ph{background:var(--almond-soft)} .chip.c{background:var(--cold-soft)}
+.steps{counter-reset:s;list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.steps li{counter-increment:s;display:block;position:relative;padding-left:38px;min-height:26px;font-size:14.5px}
+.steps li::before{content:counter(s);position:absolute;left:0;top:0;font-family:var(--f-mono);font-size:12px;font-weight:600;width:24px;height:24px;border-radius:50%;
+  display:grid;place-items:center;background:var(--sunk);color:var(--ink)}
+.steps li.cacao::before{background:var(--cocoa);color:var(--surface)}
+.steps li.ctrl::before{background:var(--cold);color:var(--surface)}
+.steps b{font-weight:600}
+
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{padding:7px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{font-size:11.5px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:600}
+td.n,th.n{text-align:right;font-family:var(--f-mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+tr.total td{font-weight:600;border-bottom:0;border-top:2px solid var(--ink)}
+tr.cacao td{background:var(--cocoa-soft)}
+tr.changed td:first-child::after{content:"corregido";margin-left:8px;font-family:var(--f-mono);font-size:10.5px;padding:1px 6px;border-radius:999px;background:var(--orange-soft);color:var(--orange);vertical-align:1px}
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r);background:var(--surface)}
+.tbl table{min-width:420px}
+
+.callout{border-radius:var(--r);padding:12px 14px;font-size:14px;display:grid;gap:4px;border:1px solid}
+.callout.warn{background:var(--warn-soft);border-color:var(--warn)}
+.callout.info{background:var(--cold-soft);border-color:var(--cold)}
+.callout.choc{background:var(--cocoa-soft);border-color:var(--cocoa)}
+.callout b{font-weight:600}
+
+/* decision flow */
+.flow{display:grid;gap:8px;font-size:14px}
+.q{background:var(--sunk);border-radius:8px;padding:10px 12px;font-weight:600}
+.branches{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.br{border-radius:8px;padding:10px 12px;border:1px solid var(--line);display:grid;gap:3px}
+.br .eyebrow{font-size:10.5px}
+.br.go{background:var(--ok-soft);border-color:var(--ok)} .br.go .eyebrow{color:var(--ok)}
+.br.stop{background:var(--bad-soft);border-color:var(--bad)} .br.stop .eyebrow{color:var(--bad)}
+.br.wait{background:var(--warn-soft);border-color:var(--warn)} .br.wait .eyebrow{color:var(--warn)}
+.arrow{text-align:center;color:var(--muted);font-size:13px;line-height:1}
+
+/* molds */
+.molds svg{width:100%;height:auto;display:block}
+.molds text{font-family:var(--f-mono);font-size:10px;fill:var(--muted)}
+.molds .mname{font-family:var(--f-body);font-size:12px;font-weight:600;fill:var(--ink)}
+.molds .fillpct{font-family:var(--f-mono);font-size:11px;font-weight:600}
+
+/* checklist */
+.check{display:grid;gap:14px}
+.check fieldset{border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;margin:0;background:var(--surface);display:grid;gap:8px}
+.check legend{font-family:var(--f-display);font-weight:700;padding:0 6px;font-size:15px}
+.check label{display:grid;grid-template-columns:20px 1fr;gap:10px;align-items:start;font-size:14.5px;cursor:pointer}
+.check input{width:18px;height:18px;margin-top:2px;accent-color:var(--orange)}
+.check input:checked+span{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--line)}
+.progress{height:6px;border-radius:999px;background:var(--sunk);overflow:hidden}
+.progress i{display:block;height:100%;background:var(--ok);width:0;transition:width .2s}
+.btn{font:inherit;font-size:13px;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:8px;padding:6px 12px;cursor:pointer}
+.btn:hover{background:var(--sunk)}
+
+.changes{display:grid;gap:8px;margin:0;padding:0;list-style:none}
+.changes li{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:baseline;font-size:14px;padding:9px 12px;border-radius:8px;background:var(--surface);border:1px solid var(--line)}
+.sev{font-family:var(--f-mono);font-size:11px;padding:2px 8px;border-radius:999px;white-space:nowrap}
+.sev.hi{background:var(--bad-soft);color:var(--bad)} .sev.lo{background:var(--sunk);color:var(--muted)}
+
+.only-cacao{display:none} body.cacao .only-cacao{display:revert} body.cacao .no-cacao{display:none}
+.only-liq{display:none} body.liq .only-liq{display:revert}
+tr.only-cacao{display:none} body.cacao tr.only-cacao{display:table-row}
+li.only-cacao{display:none} body.cacao li.only-cacao{display:block}
+@media (max-width:520px){ .branches{grid-template-columns:1fr} .bar nav{display:none} .toggles{margin-left:0} }
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+</head>
+<body>
+<div class="wrap">
+<header class="hero">
+  <span class="eyebrow">Dossier maestro · versión 5.1 revisada</span>
+  <h1>Panettone de alta hidratación</h1>
+  <p class="lead">Bassinage, pasta de cacao hidratada opcional y control térmico por fases. Las cantidades se recalculan con los interruptores de arriba. Las filas marcadas como <span class="chip" style="background:var(--orange-soft);color:var(--orange)">corregido</span> cambian respecto a la V5.0.</p>
+  <div class="specs">
+    <span class="spec"><b>Harina</b> Manitoba El Amasadero · W415</span>
+    <span class="spec"><b>Moldes</b> 300 · 500 · 900 g</span>
+    <span class="spec"><b>Madre</b> sólida al 45 %</span>
+    <span class="spec"><b>Horno</b> estático, sin vapor</span>
+  </div>
+</header>
+
+<div class="bar">
+  <nav aria-label="Secciones">
+    <a href="#hornada">Hornada</a><a href="#calendario">Calendario</a><a href="#ph">pH</a><a href="#fases">Fases</a><a href="#moldes">Moldes</a><a href="#checklist">Checklist</a><a href="#cambios">Cambios</a>
+  </nav>
+  <div class="toggles">
+    <label class="tog"><input type="checkbox" id="t-cacao"> Doble chocolate</label>
+    <label class="tog"><input type="checkbox" id="t-liq"> Parto de madre líquida</label>
+  </div>
+</div>
+
+<!-- HORNADA -->
+<section id="hornada">
+  <div><span class="eyebrow">Planificador</span><h2>Mi hornada</h2></div>
+  <div class="calc">
+    <div class="panel counts">
+      <h3>¿Cuántos panettones?</h3>
+      <div class="count"><span>Molde 300 g</span><span class="step"><button type="button" data-d="-1" data-i="0" aria-label="Quitar uno de 300 g">−</button><output id="c0">0</output><button type="button" data-d="1" data-i="0" aria-label="Añadir uno de 300 g">+</button></span></div>
+      <div class="count"><span>Molde 500 g</span><span class="step"><button type="button" data-d="-1" data-i="1" aria-label="Quitar uno de 500 g">−</button><output id="c1">1</output><button type="button" data-d="1" data-i="1" aria-label="Añadir uno de 500 g">+</button></span></div>
+      <div class="count"><span>Molde 900 g</span><span class="step"><button type="button" data-d="-1" data-i="2" aria-label="Quitar uno de 900 g">−</button><output id="c2">0</output><button type="button" data-d="1" data-i="2" aria-label="Añadir uno de 900 g">+</button></span></div>
+      <p class="note">Si haces varios de un tamaño, amasa cada lote por separado o multiplica la columna. La amasadora manda.</p>
+    </div>
+    <div class="panel">
+      <h3 style="margin-bottom:10px">Lo que necesitas</h3>
+      <dl class="kv" id="needs"></dl>
+    </div>
+    <div class="panel">
+      <h3 style="margin-bottom:10px">Tercer refresco del sábado</h3>
+      <dl class="kv" id="madre3"></dl>
+      <p class="note" style="margin-top:10px">Calculado para tener la madre necesaria más un 20 % de margen y una pieza para seguir manteniendo. Proporción 1 : 1 : 0,45.</p>
+    </div>
+  </div>
+</section>
+
+<!-- CALENDARIO -->
+<section id="calendario">
+  <div><span class="eyebrow">Línea de tiempo</span><h2>Calendario de la semana</h2></div>
+  <div class="days">
+    <div class="day only-liq"><span class="eyebrow">Miércoles</span><h3>Conversión líquida → sólida</h3><ul><li>20 g madre líquida + 40 g harina + 15 g agua tibia</li><li>Bola dura, 28 °C hasta doblar, nevera</li></ul></div>
+    <div class="day"><span class="eyebrow">Jueves</span><h3>Naranja y frío</h3><ul><li>Naranja confitada y pasta de naranja</li><li>Chocolate troceado al congelador</li><li class="only-liq">Refuerzo de la madre convertida</li></ul></div>
+    <div class="day"><span class="eyebrow">Viernes 20:00</span><h3>Despertar de la madre</h3><ul><li>Refresco 50 + 50 + 22 g</li><li>Hasta duro (1–1,5 h) y a nevera</li></ul></div>
+    <div class="day"><span class="eyebrow">Sábado</span><h3>Madre, crema y glassa</h3><ul><li>Baño, 3 refrescos y 1º impasto</li><li>Crema pastelera y glassa (movidas desde el jueves)</li><li class="only-cacao">Pasta de cacao, a enfriar en nevera</li></ul></div>
+  </div>
+  <div class="panel scroll" style="padding:14px 14px 10px">
+    <div class="gantt" id="gantt"></div>
+  </div>
+  <div class="legend">
+    <span><i class="c-madre"></i>Masa madre</span><span><i class="c-masa"></i>Masa / fermentación</span><span><i class="c-cold"></i>Frío</span><span><i class="c-horno"></i>Horno</span><span><i class="c-freno"></i>Freno nocturno (si aplica)</span>
+  </div>
+</section>
+
+<!-- PH -->
+<section id="ph">
+  <div><span class="eyebrow">Control</span><h2>Curva de pH y temperatura</h2></div>
+  <p class="lead">Las barras con borde continuo son los rangos objetivo de la receta. Las de borde discontinuo son valores orientativos: no los marca la receta y dependen de tu harina y tu madre. Mide siempre una muestra templada a 22–25 °C.</p>
+  <div class="panel ph scroll"><div style="min-width:560px" id="phchart"></div></div>
+  <div class="callout choc only-cacao"><b>Versión doble chocolate</b>El cacao desplaza el pH: el natural lo baja (pH propio ~5,5) y el alcalinizado lo sube (~7–8). Los objetivos del 1º impasto y de la madre no cambian. El pH del 2º impasto y del molde ya no se puede comparar con la versión base: guíate por el volumen.</div>
+</section>
+
+<!-- FASES -->
+<section id="fases" style="gap:30px">
+  <div><span class="eyebrow">Proceso</span><h2>Fases</h2></div>
+
+  <!-- 0-bis -->
+  <div class="phase only-liq" style="--ph:var(--almond)">
+    <div class="phase-head"><h3>0-bis · Conversión de madre líquida</h3><span class="when">Miércoles y jueves</span></div>
+    <p class="note">Solo si partes de madre líquida al 100 %.</p>
+    <div class="grid2">
+      <div class="panel"><span class="eyebrow">Miércoles</span><ol class="steps"><li>20 g madre líquida + 40 g harina + 15 g agua tibia (sale al ~50 %).</li><li>Amasa fuerte hasta una bola dura.</li><li>28 °C hasta doblar, luego nevera.</li></ol></div>
+      <div class="panel"><span class="eyebrow">Jueves</span><ol class="steps"><li>Coge el centro de la bola: 50 g.</li><li>Refresca 50 g madre + 50 g harina + 22 g agua.</li><li>Rulo apretado, temperatura ambiente hasta que esté duro.</li><li>Nevera hasta el viernes.</li></ol></div>
+    </div>
+  </div>
+
+  <!-- 0 -->
+  <div class="phase" style="--ph:var(--orange)">
+    <div class="phase-head"><h3>0 · Preparaciones</h3><span class="when">Jueves (naranja) · Sábado (crema y glassa)</span></div>
+    <div class="grid2">
+      <div class="panel" style="display:grid;gap:8px"><span class="eyebrow">Jueves</span><h3>Naranja confitada exprés</h3>
+        <ol class="steps"><li>Pela 2 naranjas en tiras, con parte blanca. Blanquea 3 veces en agua hirviendo.</li><li>Pesa la piel escurrida. Cuece a fuego lento con su mismo peso de azúcar y su mismo peso de agua, 40–50 min.</li><li><b>Pasta de naranja:</b> tritura 100 g de naranja + 20 g de su jarabe. Tupper y nevera.</li></ol>
+        <p class="note">Chocolate troceado (no pepitas) al congelador el mismo día.</p>
+      </div>
+      <div class="panel" style="display:grid;gap:8px"><span class="eyebrow">Sábado</span><h3>Crema pastelera, mini lote</h3>
+        <p class="mono" style="font-size:13px">125 g leche · 35 g yema (2) · 35 g azúcar · 10 g maicena · vainilla</p>
+        <ol class="steps"><li>Hierve la leche, mezcla con el resto y cuece hasta espesar.</li><li>Enfría con film a piel.</li></ol>
+        <p class="note">Usas 4–13 g. No guardes el sobrante más de 48 h.</p>
+      </div>
+      <div class="panel" style="display:grid;gap:8px"><span class="eyebrow">Sábado</span><h3>Glassa</h3>
+        <p class="mono" style="font-size:13px">75 g harina de almendra · 100 g azúcar · 10 g maicena · 35–40 g clara</p>
+        <ol class="steps"><li>Mezcla con tenedor sin montar. Debe quedar una pasta densa.</li><li>Nevera. Sácala 30 min antes de usar.</li></ol>
+        <p class="note" id="glassa-note"></p>
+      </div>
+      <div class="panel only-cacao" style="display:grid;gap:8px;background:var(--cocoa-soft);border-color:var(--cocoa)"><span class="eyebrow" style="color:var(--cocoa)">Sábado noche</span><h3>Pasta de cacao hidratada</h3>
+        <div class="tbl" style="background:transparent;border:0"><table><thead><tr><th>Por molde</th><th class="n">300</th><th class="n">500</th><th class="n">900</th></tr></thead><tbody id="cacao-tbl"></tbody></table></div>
+        <ol class="steps"><li>Mezcla el cacao con el agua hirviendo hasta tener una pasta densa y brillante.</li><li>Enfría por completo en nevera.</li></ol>
+        <p class="note">Pre-hidratar evita que el cacao robe agua a la red de gluten. Indica en tu hoja si usas cacao natural o alcalinizado.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 1 -->
+  <div class="phase" style="--ph:var(--almond)">
+    <div class="phase-head"><h3>1 · El despertar</h3><span class="when">Viernes 20:00</span></div>
+    <ol class="steps"><li>Refresco 50 g madre + 50 g harina + 22 g agua.</li><li>Rulo muy apretado envuelto en film, o atado en tela.</li><li>Fuera de nevera hasta que se hinche y esté duro al tacto (1–1,5 h).</li><li>Directo a la nevera hasta el sábado.</li></ol>
+  </div>
+
+  <!-- 2 -->
+  <div class="phase" style="--ph:var(--almond)">
+    <div class="phase-head"><h3>2 · Día de la masa madre</h3><span class="when">Sábado 08:00 – 20:30</span></div>
+    <div class="chips"><span class="chip t">28 °C</span><span class="chip">3,5–4 h por refresco</span><span class="chip ph">pH 4,0–4,2 · objetivo 4,1</span></div>
+    <ol class="steps">
+      <li><b>08:00 · Baño.</b> Rodajas de 1 cm en 1 L de agua tibia + 2 g de azúcar, 20 min. Escurre bien.</li>
+      <li><b>08:30 · Refresco 1.</b> 1 : 1 : 0,45 a 28 °C.</li>
+      <li><b>12:30 · Refresco 2.</b> Si la madre salió muy húmeda del baño, baja el agua al 38 % (100 : 100 : 38).</li>
+      <li><b>16:30 · Refresco 3.</b> Vuelve al 42–45 %. Usa la cantidad calculada en <a href="#hornada">Mi hornada</a>.</li>
+      <li class="ctrl"><b>~20:30 · Control.</b> Debe haber triplicado con pH 4,0–4,2. Un 4,3 también vale, pero disuelve muy bien la madre y no pases de 26 °C por la noche.</li>
+    </ol>
+  </div>
+
+  <!-- 3 -->
+  <div class="phase" style="--ph:var(--orange)">
+    <div class="phase-head"><h3>3 · Primer impasto</h3><span class="when">Sábado ~21:00</span></div>
+    <div class="chips"><span class="chip t">Masa final 26 °C</span><span class="chip t">Fermenta 26 °C (25,5–26,5)</span><span class="chip">12–14 h</span><span class="chip ph">Fin pH 5,2–5,4</span></div>
+    <div class="grid2">
+      <div class="tbl"><table><thead><tr><th>Ingrediente</th><th class="n">300</th><th class="n">500</th><th class="n">900</th></tr></thead><tbody id="imp1"></tbody></table></div>
+      <div style="display:grid;gap:12px;align-content:start">
+        <ol class="steps">
+          <li>Disuelve la madre en rodajas en el agua fría.</li>
+          <li>Añade la harina y amasa hasta tener una masa lisa.</li>
+          <li>Azúcar en 2–3 tandas.</li>
+          <li>Yemas frías en 2 tandas, recuperando el velo.</li>
+          <li>Mantequilla en pomada en 2–3 tandas. Agua de reserva solo si la masa la pide.</li>
+          <li class="ctrl">Mide: la masa debe estar a 26 °C. Bolea y pásala a un recipiente con una marca a ×3 de su volumen.</li>
+        </ol>
+      </div>
+    </div>
+    <div class="panel flow">
+      <span class="eyebrow">Regla de oro · el pH manda sobre el volumen</span>
+      <div class="q">Por la mañana, mide el pH de una muestra templada. ¿Ha bajado a 5,2?</div>
+      <div class="branches">
+        <div class="br stop"><span class="eyebrow">Sí, aunque solo haya doblado</span>Detén la fermentación ya. Pasa al enfriado.</div>
+        <div class="br wait"><span class="eyebrow">No, sigue en 5,3–5,4</span>Si ya triplicó, detén. Si no, deja más tiempo y vuelve a medir cada 30–45 min.</div>
+      </div>
+      <div class="br stop" style="border-style:dashed"><span class="eyebrow">Límite</span>No bajes nunca de pH 5,0: el ácido degrada el gluten justo antes de meter más mantequilla.</div>
+    </div>
+    <div class="callout info"><b>Enfriado antes del 2º impasto</b>30–45 min en nevera para bajar la masa de 26 °C a 18–20 °C. Si tu amasadora calienta mucho, puedes bajarla hasta 12 °C.</div>
+    <div class="callout warn"><b>Cómo medir el pH</b>Arranca una bolita de 20 g, témplala entre las manos hasta 22–25 °C y mide. Con la muestra templada, la lectura ya es real y no hay que restar nada. En frío (11–12 °C), el medidor puede marcar hasta +1 de pH por mal contacto con la grasa. Calibra con soluciones de pH 4 y 7 a la misma temperatura a la que mides.</div>
+  </div>
+
+  <!-- 4 -->
+  <div class="phase" style="--ph:var(--orange)">
+    <div class="phase-head"><h3>4 · Segundo impasto</h3><span class="when">Domingo ~10:45</span></div>
+    <div class="chips"><span class="chip c">1º impasto a 18–20 °C</span><span class="chip t">Masa final 24–26 °C · máx. 27</span><span class="chip c">Bassinage helado</span></div>
+    <div class="grid2">
+      <div class="tbl"><table><thead><tr><th>Ingrediente</th><th class="n">300</th><th class="n">500</th><th class="n">900</th></tr></thead><tbody id="imp2"></tbody></table></div>
+      <div style="display:grid;gap:12px;align-content:start">
+        <ol class="steps" id="steps2">
+          <li><b>Harina + leche en polvo + 1º impasto</b> enfriado. Amasa ~15 min hasta tener nervio.</li>
+          <li><b>Azúcar y yemas</b>, alternando en 3–4 tandas. Recupera el velo tras cada una.</li>
+          <li class="cacao only-cacao"><b>Pasta de cacao fría</b> en 2 tandas, antes de la grasa. Recupera el velo.</li>
+          <li><b>Aromas:</b> sal, miel, vainilla, pasta de naranja y crema pastelera.</li>
+          <li><b>Mantequilla en pomada</b>, en 3 tandas y a velocidad suave.</li>
+          <li><b>Bassinage:</b> agua helada en hilos finos, dejando que la masa la beba. <span class="only-cacao">En la versión cacao, el resto del agua solo si la pide.</span></li>
+          <li class="ctrl"><b>Mide la temperatura.</b> Si pasa de 27 °C, 10 min de nevera antes de seguir.</li>
+          <li><b>Chocolate congelado</b>, 1 min a velocidad mínima.</li>
+        </ol>
+        <div class="callout choc only-cacao"><b>Agua en la versión cacao</b>La pasta ya aporta 20 / 35 / 65 g de agua, así que la tabla baja el bassinage un 40 %. Ajusta según la masa.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5 -->
+  <div class="phase" style="--ph:var(--orange)">
+    <div class="phase-head"><h3>5 · Formado, carga y fermentación final</h3><span class="when">Domingo 12:15 →</span></div>
+    <div class="chips"><span class="chip t">Bloque 45 min a 28 °C</span><span class="chip t">Molde a 30 °C, húmedo</span><span class="chip ph">pH antes de hornear 5,1–5,2</span></div>
+    <div class="grid2">
+      <div style="display:grid;gap:12px;align-content:start">
+        <ol class="steps">
+          <li>Reposo en bloque 45 min a 28 °C, tapado.</li>
+          <li><b>Divide y pesa</b> según la tabla.</li>
+          <li>Bolea suave, deja 15 min y bolea fuerte (pirlado).</li>
+          <li>Al molde. Cámara a 30 °C con un vaso de agua hirviendo, moldes tapados.</li>
+          <li class="ctrl">Fermenta hasta que la masa esté a 1 dedo (~2 cm) del borde.</li>
+        </ol>
+      </div>
+      <div class="tbl"><table><thead><tr><th>Molde</th><th class="n">Masa total</th><th class="n">Cargar</th><th class="n">Sobrante</th></tr></thead><tbody id="carga"></tbody></table>
+        <p class="note" style="padding:8px 10px">Sobrante con un 3 % de pérdida en el amasado.<span class="only-cacao"> Con cacao sobra más masa, suficiente para un mini panettone.</span></p></div>
+    </div>
+    <div class="panel flow">
+      <span class="eyebrow">Freno nocturno · decisión a las 21:00</span>
+      <div class="q">¿Cuánto falta para que la masa llegue al borde?</div>
+      <div class="branches">
+        <div class="br go"><span class="eyebrow">2 dedos o menos</span>Sigue a 30 °C. Hornea esta noche.</div>
+        <div class="br wait"><span class="eyebrow">3 dedos o más</span>Saca los moldes a 18–19 °C, tapados, toda la noche.</div>
+      </div>
+      <div class="arrow">↓ por la mañana</div>
+      <div class="br wait">Reactiva la cámara a 30 °C con un vaso de agua hirviendo, 3–4 h, hasta 1 dedo del borde.</div>
+    </div>
+  </div>
+
+  <!-- 6 -->
+  <div class="phase" style="--ph:var(--cocoa)">
+    <div class="phase-head"><h3>6 · Decoración y horneado</h3><span class="when">Domingo ~20:00 o lunes ~10:30</span></div>
+    <div class="chips"><span class="chip">Calor estático</span><span class="chip">Sin vapor</span><span class="chip t">Sonda 92 °C en el centro</span></div>
+    <div class="grid2">
+      <ol class="steps">
+        <li>A 1 dedo del borde, saca los moldes y deja secar la piel 10–20 min.</li>
+        <li>Glassa según la tabla, azúcar perlado y almendras.</li>
+        <li>Sin corte: la glassa se rompe sola.</li>
+        <li>Al salir, atraviesa la base con 2 brochetas a 1–2 cm del fondo y cuélgalo boca abajo de inmediato.</li>
+        <li>Enfría boca abajo 8–12 h y luego guárdalo en bolsa.</li>
+      </ol>
+      <div class="tbl"><table><thead><tr><th>Molde</th><th class="n">Glassa</th><th class="n">Horno</th><th class="n">Tiempo</th></tr></thead><tbody id="horno"></tbody></table>
+      <p class="note" style="padding:8px 10px">900 g alto: tapa la cúpula con aluminio a los 35 min si se dora demasiado. Los tiempos de los moldes bajos son orientativos: fíate de la sonda.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- MOLDES -->
+<section id="moldes">
+  <div><span class="eyebrow">Anexo</span><h2>Moldes a escala</h2></div>
+  <p class="lead">Mide la base de tus moldes. Cada dibujo muestra hasta dónde llega la masa cruda recién cargada y la línea de 1 dedo del borde. Lo habitual es que la masa cruda ocupe un 30–40 % del molde.</p>
+  <div class="panel molds scroll"><div style="min-width:620px" id="molds"></div></div>
+  <div class="callout warn" id="mold-warn"></div>
+</section>
+
+<!-- CHECKLIST -->
+<section id="checklist">
+  <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:end;justify-content:space-between">
+    <div><span class="eyebrow">Control final</span><h2>Checklist V5.1</h2></div>
+    <button class="btn" type="button" id="reset">Desmarcar todo</button>
+  </div>
+  <div class="progress" aria-hidden="true"><i id="prog"></i></div>
+  <p class="note" id="progtxt"></p>
+  <div class="check grid2" id="check"></div>
+</section>
+
+<!-- CAMBIOS -->
+<section id="cambios">
+  <div><span class="eyebrow">Revisión</span><h2>Cambios respecto a la V5.0</h2></div>
+  <ul class="changes">
+    <li><span class="sev hi">receta</span><span>Sal bajada de ~2 % a ~1,1 % sobre la harina total: 1,3 / 2,2 / 4 g.</span></li>
+    <li><span class="sev hi">receta</span><span>Versión cacao: bassinage −40 % y pasta de cacao antes de la mantequilla.</span></li>
+    <li><span class="sev hi">proceso</span><span>pH: con la muestra templada no se compensa nada. Se quita el "Δ +1,0" del checklist para no restarlo dos veces.</span></li>
+    <li><span class="sev hi">proceso</span><span>Temperaturas finales de masa añadidas: 26 °C (1º impasto) y 24–26 °C (2º impasto).</span></li>
+    <li><span class="sev hi">molde</span><span>Aviso en el molde de 300 g: con 345 g queda ~58 % lleno en crudo. Verifica tu molde o baja la carga.</span></li>
+    <li><span class="sev lo">receta</span><span>Miel y vainilla separadas; la miel se escala 3 / 5 / 9 g.</span></li>
+    <li><span class="sev lo">proceso</span><span>Paso a paso del 1º impasto añadido. Leche en polvo incluida en los pasos del 2º.</span></li>
+    <li><span class="sev lo">proceso</span><span>Crema pastelera y glassa pasan del jueves al sábado; la pasta de cacao, al sábado noche.</span></li>
+    <li><span class="sev lo">proceso</span><span>Dividir y pesar antes del pirlado. Volteo con brochetas explicado.</span></li>
+    <li><span class="sev lo">horno</span><span>Tabla separada para moldes altos y bajos, y glassa pesada por molde.</span></li>
+    <li><span class="sev lo">texto</span><span>Rango único de pH de la madre (4,0–4,2), baño a las 08:00 y 1º impasto "enfriado", no "templado".</span></li>
+  </ul>
+</section>
+</div>
+
+<script>
+(function(){
+const S=['300 g','500 g','900 g'];
+const fmt=n=>{if(typeof n==='string')return n;const r=Math.round(n*10)/10;return (Number.isInteger(r)?String(r):r.toFixed(1).replace('.',','))+' g'};
+const fmtN=n=>{const r=Math.round(n);return r.toLocaleString('es-ES')};
+const IMP1=[
+ ['Lievito madre (listo)',[32,53,95]],['Harina El Amasadero',[66,110,198]],['Agua fría',[23,38,68]],
+ ['Azúcar',[26,44,79]],['Mantequilla en pomada',[27,45,81]],['Yemas frías',[19,32,58]],['Agua de reserva (opcional)',[3,5,10],'opt']];
+const IMP2=[
+ ['Harina El Amasadero',[32,54,97]],['Leche en polvo',[4,7,13]],['Pasta de naranja',[12,20,36]],['Crema pastelera',[4,7,13]],
+ ['Miel',[3,5,9],'chg'],['Vainilla',['al gusto','al gusto','al gusto'],'chg'],['Azúcar',[13,22,40]],['Sal',[1.3,2.2,4],'chg'],
+ ['Yemas',[19,32,58]],['Mantequilla',[28,47,85]],['Agua bassinage helada',[22,37,67],'bas'],['Chocolate congelado',[55,91,164]]];
+const CAC=[['Cacao puro en polvo',[9,15,27]],['Agua hirviendo',[20,35,65]],['Azúcar extra',[3,5,9]]];
+const LOAD=[345,575,1035], GLASSA=[40,65,115];
+const OVEN=[['300 g alto',0,'160 °C','28–35 min'],['500 g alto',1,'160 °C','35–42 min'],['500 g bajo',1,'160 °C','30–35 min'],['900 g alto',2,'155 °C','50–55 min'],['900 g bajo',2,'160 °C','40–45 min']];
+const MOLDS=[['300 g alto',0,9,8.5],['500 g alto',1,13,9.5],['500 g bajo',1,15.5,5.5],['900 g alto',2,17,12.5],['900 g bajo',2,21,7]];
+const counts=[0,1,0];
+const body=document.body, tC=document.getElementById('t-cacao'), tL=document.getElementById('t-liq');
+const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+const cacao=()=>tC.checked;
+const sum=(rows,i,skipOpt)=>rows.reduce((a,r)=>a+((typeof r[1][i]==='number'&&!(skipOpt&&r[2]==='opt'))?r[1][i]:0),0);
+const bas=i=>cacao()?Math.round(IMP2[10][1][i]*0.6):IMP2[10][1][i];
+function totals(i){
+  let t=sum(IMP1,i,true)+sum(IMP2,i)-IMP2[10][1][i]+bas(i);
+  if(cacao()) t+=sum(CAC,i);
+  return t;
+}
+function row(name,vals,cls){return `<tr class="${cls||''}"><td>${name}</td>${vals.map(v=>`<td class="n">${fmt(v)}</td>`).join('')}</tr>`}
+function render(){
+  body.classList.toggle('cacao',cacao()); body.classList.toggle('liq',tL.checked);
+  // imp1
+  document.getElementById('imp1').innerHTML=IMP1.map(r=>row(r[0],r[1],r[2]==='opt'?'':'' )).join('')+
+    `<tr class="total"><td>Total (sin reserva)</td>${[0,1,2].map(i=>`<td class="n">${fmt(sum(IMP1,i,true))}</td>`).join('')}</tr>`;
+  // imp2
+  let h='';
+  IMP2.forEach((r,k)=>{
+    if(r[2]==='bas'){ h+=row(cacao()?'Agua bassinage helada (−40 %)':r[0],[0,1,2].map(bas),cacao()?'changed':''); }
+    else h+=row(r[0],r[1],r[2]==='chg'?'changed':'');
+    if(k===9) CAC.forEach(c=>h+=`<tr class="cacao only-cacao"><td>${c[0]} (pasta)</td>${c[1].map(v=>`<td class="n">${fmt(v)}</td>`).join('')}</tr>`);
+  });
+  h+=`<tr class="total"><td>Total 2º impasto</td>${[0,1,2].map(i=>`<td class="n">${fmt(totals(i)-sum(IMP1,i,true))}</td>`).join('')}</tr>`;
+  document.getElementById('imp2').innerHTML=h;
+  document.getElementById('cacao-tbl').innerHTML=CAC.map(c=>row(c[0],c[1])).join('');
+  // carga
+  document.getElementById('carga').innerHTML=[0,1,2].map(i=>{const t=totals(i);const s=t*0.97-LOAD[i];
+    const tag=i===0?' <span class="chip" style="background:var(--warn-soft);font-size:10.5px">revisa molde</span>':'';
+    return `<tr><td>${S[i]}${tag}</td><td class="n">${fmtN(t)} g</td><td class="n"><b>${fmtN(LOAD[i])} g</b></td><td class="n">~${fmtN(s)} g</td></tr>`}).join('');
+  // horno
+  document.getElementById('horno').innerHTML=OVEN.map(o=>`<tr><td>${o[0]}</td><td class="n">${GLASSA[o[1]]} g</td><td class="n">${o[2]}</td><td class="n">${o[3]}</td></tr>`).join('');
+  document.getElementById('glassa-note').textContent=`Por molde: 300 g → ${GLASSA[0]} g · 500 g → ${GLASSA[1]} g · 900 g → ${GLASSA[2]} g. El lote da ~220 g.`;
+  // needs
+  const n=counts, any=n.some(x=>x>0);
+  const madre=n.reduce((a,c,i)=>a+c*IMP1[0][1][i],0);
+  const dough=n.reduce((a,c,i)=>a+c*totals(i),0);
+  const choc=n.reduce((a,c,i)=>a+c*IMP2[11][1][i],0);
+  const yemas=n.reduce((a,c,i)=>a+c*(IMP1[5][1][i]+IMP2[8][1][i]),0);
+  const mant=n.reduce((a,c,i)=>a+c*(IMP1[4][1][i]+IMP2[9][1][i]),0);
+  const har=n.reduce((a,c,i)=>a+c*(IMP1[1][1][i]+IMP2[0][1][i]),0);
+  const gl=n.reduce((a,c,i)=>a+c*GLASSA[i],0);
+  const nmolds=n.reduce((a,b)=>a+b,0);
+  document.getElementById('needs').innerHTML= any?
+   `<dt>Moldes</dt><dd>${n.map((c,i)=>c?c+'×'+S[i].replace(' g',''):'').filter(Boolean).join(' + ')}</dd>
+    <dt>Masa total</dt><dd class="big">${fmtN(dough)} g</dd>
+    <dt>Madre lista</dt><dd>${fmtN(madre)} g</dd>
+    <dt>Harina (impastos)</dt><dd>${fmtN(har)} g</dd>
+    <dt>Yemas</dt><dd>${fmtN(yemas)} g · ~${Math.ceil(yemas/17)} uds</dd>
+    <dt>Mantequilla</dt><dd>${fmtN(mant)} g</dd>
+    <dt>Chocolate</dt><dd>${fmtN(choc)} g</dd>
+    <dt>Glassa</dt><dd>${fmtN(gl)} g${gl>220?' · ×'+Math.ceil(gl/220)+' lotes':''}</dd>`
+   : `<dt>Sin moldes</dt><dd>—</dd>`;
+  const need=madre*1.2+50, inp=Math.max(50,Math.ceil(need/2.45/5)*5);
+  document.getElementById('madre3').innerHTML= any?
+   `<dt>Madre</dt><dd class="big">${inp} g</dd><dt>Harina</dt><dd>${inp} g</dd><dt>Agua</dt><dd>${fmtN(inp*0.45)} g</dd>
+    <dt>Resultado</dt><dd>${fmtN(inp*2.45)} g</dd><dt>Para los impastos</dt><dd>${fmtN(madre)} g</dd>`
+   : `<dt>Sin moldes</dt><dd>—</dd>`;
+  store.set('pan-cacao',cacao()?'1':'0'); store.set('pan-liq',tL.checked?'1':'0'); store.set('pan-counts',counts.join(','));
+  renderCheck();
+}
+document.querySelectorAll('.step button').forEach(b=>b.addEventListener('click',()=>{
+  const i=+b.dataset.i; counts[i]=Math.max(0,Math.min(9,counts[i]+ +b.dataset.d)); document.getElementById('c'+i).textContent=counts[i]; render();}));
+tC.addEventListener('change',render); tL.addEventListener('change',render);
+
+/* gantt: Sábado 08:00 = h0; eje hasta lunes 12:00 = 52 */
+function gantt(){
+  const H=52, P=h=>(h/H*100)+'%', W=(a,b)=>((b-a)/H*100)+'%';
+  const lanes=[
+   ['Masa madre',[[0,.4,'c-madre','Baño',''],[.5,12.5,'c-madre','3 refrescos','28 °C']]],
+   ['Impastos',[[13,26,'c-masa','1º impasto','26 °C · 12–14 h'],[26,26.75,'c-cold','',''],[26.75,28.25,'c-masa','2º imp.','24–26 °C']]],
+   ['Molde y horno',[[28.25,29.5,'c-masa','Bloque',''],[29.5,36,'c-masa','Fermentación final','30 °C'],[36,37.3,'c-horno','Horno',''],[37.3,49.3,'c-cold','Boca abajo','8–12 h']]],
+   ['Con freno',[[29.5,37,'c-masa','Fermentación','30 °C'],[37,47,'c-freno','Freno nocturno','18–19 °C'],[47,50.5,'c-masa','Reactivar','30 °C'],[50.5,51.8,'c-horno','',''] ]]
+  ];
+  const ticks=[];for(let h=0;h<=H;h+=4){const clock=(8+h)%24;ticks.push(`<span class="g-tick" style="left:${P(h)}">${String(clock).padStart(2,'0')}h</span>`)}
+  const days=[[0,'Sábado'],[16,'Domingo'],[40,'Lunes']].map(d=>`<span class="g-day" style="left:${P(d[0])}">${d[1]}</span>`).join('');
+  const seps=[16,40].map(h=>`<span class="g-sep" style="left:${P(h)}"></span>`).join('');
+  let html=`<div class="g-axis">${days}${ticks.join('')}</div>`;
+  lanes.forEach(l=>{html+=`<div class="g-row"><div class="g-label">${l[0]}</div><div class="g-track">${seps}${l[1].map(b=>
+    `<div class="g-bar ${b[2]}" style="left:${P(b[0])};width:${W(b[0],b[1])}" title="${b[3]} ${b[4]}">${b[3]}${b[4]?`<small>${b[4]}</small>`:''}</div>`).join('')}</div></div>`});
+  document.getElementById('gantt').innerHTML=html;
+}
+
+/* pH chart */
+function phChart(){
+  const st=[
+   ['Madre lista','28 °C',4.0,4.2,4.1,true],
+   ['1º impasto al mezclar','26 °C',5.8,6.0,null,false],
+   ['1º impasto, final','26 °C',5.2,5.4,null,true],
+   ['2º impasto amasado','24–26 °C',5.4,5.6,null,false],
+   ['Antes de hornear','30 °C',5.1,5.2,null,true]];
+  const w=760,h=300,L=46,R=16,T=18,B=64, y0=3.8,y1=6.3;
+  const Y=v=>T+(y1-v)/(y1-y0)*(h-T-B), cw=(w-L-R)/st.length;
+  let s=`<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="pH objetivo por etapa">`;
+  for(let v=4;v<=6.01;v+=.5){s+=`<line x1="${L}" x2="${w-R}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line)" stroke-width="1"/><text x="${L-8}" y="${Y(v)+4}" text-anchor="end">${v.toFixed(1).replace('.',',')}</text>`}
+  // danger zone under 5.0 for 1st impasto column
+  const dx=L+cw*2+8;
+  s+=`<rect x="${dx}" y="${Y(5.0)}" width="${cw-16}" height="${Y(y0)-Y(5.0)}" fill="var(--bad-soft)"/>`;
+  s+=`<line x1="${dx}" x2="${dx+cw-16}" y1="${Y(5.0)}" y2="${Y(5.0)}" stroke="var(--bad)" stroke-dasharray="4 3" stroke-width="1.5"/>`;
+  s+=`<text x="${dx+(cw-16)/2}" y="${Y(5.0)+16}" text-anchor="middle" style="fill:var(--bad)">nunca &lt; 5,0</text>`;
+  // path between midpoints
+  const pts=st.map((d,i)=>[L+cw*i+cw/2,Y((d[2]+d[3])/2)]);
+  s+=`<polyline points="${pts.map(p=>p.join(',')).join(' ')}" fill="none" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="2 4"/>`;
+  st.forEach((d,i)=>{
+    const x=L+cw*i+cw/2, bw=Math.min(64,cw-30), y=Y(d[3]), hh=Math.max(6,Y(d[2])-Y(d[3]));
+    s+=`<rect x="${x-bw/2}" y="${y}" width="${bw}" height="${hh}" rx="4" fill="${d[5]?'var(--almond-soft)':'var(--surface)'}" stroke="${d[5]?'var(--almond)':'var(--muted)'}" stroke-width="1.5" ${d[5]?'':'stroke-dasharray="4 3"'}/>`;
+    const lab=d[4]!=null?d[4].toFixed(1).replace('.',','):(d[2].toFixed(1)+'–'+d[3].toFixed(1)).replace(/\./g,',');
+    s+=`<text x="${x}" y="${y-7}" text-anchor="middle" style="fill:var(--ink);font-weight:600">${lab}</text>`;
+    s+=`<text class="lbl" x="${x}" y="${h-B+22}" text-anchor="middle">${d[0]}</text>`;
+    s+=`<text x="${x}" y="${h-B+40}" text-anchor="middle" style="fill:var(--orange)">${d[1]}</text>`;
+  });
+  s+=`<text x="${L-8}" y="${T-4}" text-anchor="end">pH</text></svg>`;
+  document.getElementById('phchart').innerHTML=s;
+}
+
+/* molds */
+function molds(){
+  const sc=13, gap=26, base=210, top=20;
+  let x=20, s='', warn=[];
+  MOLDS.forEach(m=>{
+    const [name,i,d,hgt]=m, wpx=d*sc, hpx=hgt*sc, r=d/2;
+    const fillcm=(LOAD[i]/1.1)/(Math.PI*r*r), pct=fillcm/hgt;
+    const fy=base-fillcm*sc, ly=base-(hgt-2)*sc;
+    const col=pct>0.45?'var(--warn)':'var(--ok)';
+    if(pct>0.45) warn.push(`${name} (${Math.round(pct*100)} %)`);
+    s+=`<g>
+      <rect x="${x}" y="${base-hpx}" width="${wpx}" height="${hpx}" fill="var(--surface)" stroke="var(--almond)" stroke-width="2" rx="2"/>
+      <rect x="${x+2}" y="${fy}" width="${wpx-4}" height="${base-fy-1}" fill="var(--orange-soft)"/>
+      <line x1="${x+2}" x2="${x+wpx-2}" y1="${fy}" y2="${fy}" stroke="var(--orange)" stroke-width="1.5"/>
+      <line x1="${x-4}" x2="${x+wpx+4}" y1="${ly}" y2="${ly}" stroke="var(--cold)" stroke-width="1.2" stroke-dasharray="4 3"/>
+      <text class="mname" x="${x+wpx/2}" y="${base+18}" text-anchor="middle">${name}</text>
+      <text x="${x+wpx/2}" y="${base+32}" text-anchor="middle">Ø${String(d).replace('.',',')} × ${String(hgt).replace('.',',')} cm</text>
+      <text class="fillpct" x="${x+wpx/2}" y="${base+47}" text-anchor="middle" style="fill:${col}">crudo ${Math.round(pct*100)} %</text>
+    </g>`;
+    x+=wpx+gap;
+  });
+  const W=x, Hh=base+58;
+  s=`<svg viewBox="0 0 ${W} ${Hh}" role="img" aria-label="Moldes dibujados a escala con nivel de masa cruda">
+    <line x1="10" x2="${W-10}" y1="${base}" y2="${base}" stroke="var(--line)"/>${s}
+    <g transform="translate(${W-190},${top-6})"><line x1="0" x2="18" y1="0" y2="0" stroke="var(--orange)" stroke-width="2"/><text x="24" y="4">masa cruda recién cargada</text>
+    <line x1="0" x2="18" y1="16" y2="16" stroke="var(--cold)" stroke-dasharray="4 3"/><text x="24" y="20">1 dedo del borde (meta)</text></g></svg>`;
+  document.getElementById('molds').innerHTML=s;
+  document.getElementById('mold-warn').innerHTML=`<b>Moldes muy llenos en crudo</b>${warn.join(' y ')}. Si tus medidas reales coinciden con estas, carga un 10–15 % menos en esos moldes o usa un molde más ancho. Cálculo aproximado: molde cilíndrico y masa cruda de densidad ~1,1 g/cm³.`;
+}
+
+/* checklist */
+const CHECK=[
+ ['Antes del sábado',[
+   ['liq','Conversión de madre líquida a sólida completada'],
+   ['','Naranja confitada y pasta de naranja en nevera'],
+   ['','Chocolate troceado en el congelador'],
+   ['','Medidor de pH calibrado con soluciones de pH 4 y 7']]],
+ ['Sábado',[
+   ['','Madre a pH 4,0–4,2 tras 3 refrescos (al 38 % si salió húmeda del baño)'],
+   ['','Crema pastelera y glassa hechas, frías'],
+   ['cacao','Pasta de cacao hecha y fría (cacao natural o alcalinizado anotado)'],
+   ['','1º impasto con la masa a 26 °C y recipiente marcado a ×3']]],
+ ['Domingo mañana',[
+   ['','1º impasto detenido a pH 5,2–5,4 y nunca por debajo de 5,0'],
+   ['','pH medido en una muestra templada a 22–25 °C, sin restar nada'],
+   ['','1º impasto enfriado a 18–20 °C antes de amasar'],
+   ['','2º impasto con la masa a 24–26 °C (máximo 27 °C)']]],
+ ['Molde y horno',[
+   ['','Masa dividida y pesada antes del pirlado'],
+   ['','A las 21:00, freno a 18 °C si faltaban 3 dedos o más'],
+   ['','Glassa pesada por molde; sin vapor; sonda a 92 °C'],
+   ['','Volteo inmediato con brochetas, 8–12 h boca abajo']]]];
+let done={}; try{done=JSON.parse(store.get('pan-check')||'{}')||{}}catch(e){done={}}
+function renderCheck(){
+  let html='', tot=0, ok=0;
+  CHECK.forEach((g,gi)=>{
+    html+=`<fieldset><legend>${g[0]}</legend>`;
+    g[1].forEach((it,ii)=>{
+      const id=`ck-${gi}-${ii}`, show=!it[0]||(it[0]==='cacao'&&cacao())||(it[0]==='liq'&&tL.checked);
+      if(!show) return; tot++; if(done[id]) ok++;
+      html+=`<label for="${id}"><input type="checkbox" id="${id}" ${done[id]?'checked':''}><span>${it[1]}</span></label>`;
+    });
+    html+='</fieldset>';
+  });
+  const el=document.getElementById('check'); el.innerHTML=html;
+  el.querySelectorAll('input').forEach(c=>c.addEventListener('change',()=>{done[c.id]=c.checked;store.set('pan-check',JSON.stringify(done));renderCheck()}));
+  document.getElementById('prog').style.width=(tot?ok/tot*100:0)+'%';
+  document.getElementById('progtxt').textContent=`${ok} de ${tot} puntos completados. Se guarda solo en este navegador.`;
+}
+document.getElementById('reset').addEventListener('click',()=>{done={};store.set('pan-check','{}');renderCheck()});
+
+// restore
+if(store.get('pan-cacao')==='1') tC.checked=true;
+if(store.get('pan-liq')==='1') tL.checked=true;
+const sc=store.get('pan-counts'); if(sc){sc.split(',').forEach((v,i)=>{const n=parseInt(v,10); if(!isNaN(n)&&i<3){counts[i]=n;document.getElementById('c'+i).textContent=n}})}
+gantt(); phChart(); molds(); render();
+})();
+</script>
+</body>
+</html>
