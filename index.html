@@ -4016,6 +4016,16 @@
 
             return (
                 <div>
+                    {!printAll && (
+                        <a href="./panettone/" target="_blank" rel="noopener"
+                            style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.75rem', marginBottom: '1rem', padding: '0.8rem 1rem', background: 'var(--surface)', border: '1px solid var(--primary-soft)', borderRadius: 'var(--radius-sm)', color: 'var(--text)', textDecoration: 'none'}}>
+                            <span style={{display: 'flex', flexDirection: 'column', gap: '0.15rem', minWidth: 0}}>
+                                <span style={{fontWeight: 600, fontSize: '0.9rem'}}>📖 Dossier completo V5.1</span>
+                                <span style={{fontSize: '0.78rem', color: 'var(--text-soft)'}}>Calendario, curva de pH, versión doble chocolate, moldes a escala y checklist</span>
+                            </span>
+                            <span style={{fontWeight: 600, fontSize: '0.85rem', whiteSpace: 'nowrap'}}>Abrir ↗</span>
+                        </a>
+                    )}
                     <div className="tabs">
                         <button className={`tab ${activeTab === 'process' ? 'active' : ''}`} onClick={() => setActiveTab('process')}>📜 Proceso</button>
                         <button className={`tab ${activeTab === 'recipe' ? 'active' : ''}`} onClick={() => setActiveTab('recipe')}>📋 Ingredientes</button>
