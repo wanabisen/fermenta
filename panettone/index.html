@@ -200,6 +200,56 @@ tr.changed td:first-child::after{content:"corregido";margin-left:8px;font-family
 .only-liq{display:none} body.liq .only-liq{display:revert}
 tr.only-cacao{display:none} body.cacao tr.only-cacao{display:table-row}
 li.only-cacao{display:none} body.cacao li.only-cacao{display:block}
+/* Móvil: pestañas por día */
+.tabbar,.next{display:none}
+.next{width:100%;align-items:center;justify-content:space-between;gap:12px;text-align:left;font:inherit;cursor:pointer;
+  background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px}
+.next span{display:grid;gap:2px;min-width:0}
+.next small{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600}
+.next b{font-family:var(--f-display);font-size:16px;font-weight:700}
+.next i{font-style:normal;font-size:20px;color:var(--orange)}
+@media screen and (max-width:700px){
+  body{padding-bottom:calc(86px + env(safe-area-inset-bottom,0px))}
+  [data-tab]{display:none!important}
+  body[data-view="plan"] [data-tab~="plan"],body[data-view="antes"] [data-tab~="antes"],body[data-view="sabado"] [data-tab~="sabado"],
+  body[data-view="domingo"] [data-tab~="domingo"],body[data-view="control"] [data-tab~="control"]{display:grid!important}
+  body:not(.liq) .phase.only-liq{display:none!important}
+  #fases>div:first-child{display:none}
+  #fases{padding-top:18px}
+  .bar{position:static;border-bottom:0;padding-block:4px 0}
+  body:not([data-view="plan"]) .bar{display:none}
+  .phase{scroll-margin-top:12px!important}
+  .tbl table{min-width:0}
+  .tbl th,.tbl td{padding:7px 6px}
+  .tbl th:first-child,.tbl td:first-child{padding-left:10px}
+  .next{display:flex}
+  .tabbar{display:grid;grid-template-columns:repeat(5,1fr);position:fixed;left:0;right:0;bottom:0;z-index:20;
+    background:var(--surface);border-top:1px solid var(--line);
+    padding:0 max(4px,env(safe-area-inset-right,0px)) env(safe-area-inset-bottom,0px) max(4px,env(safe-area-inset-left,0px))}
+  .tabbar button{font:inherit;background:none;border:0;color:var(--muted);cursor:pointer;min-height:58px;padding:8px 2px 7px;
+    display:grid;gap:1px;align-content:center;justify-items:center;position:relative}
+  .tabbar button b{font-size:13px;font-weight:600}
+  .tabbar button small{font-size:10px;font-family:var(--f-mono);white-space:nowrap}
+  .tabbar button::before{content:"";position:absolute;top:0;left:22%;right:22%;height:3px;border-radius:0 0 3px 3px;background:transparent}
+  .tabbar button[aria-selected="true"]{color:var(--ink)}
+  .tabbar button[aria-selected="true"]::before{background:var(--orange)}
+}
+body.printall .only-cacao{display:revert} body.printall tr.only-cacao{display:table-row} body.printall li.only-cacao{display:block}
+.print-only{display:none}
+@media print{
+  .bar,#hornada,#reset,.progress,#progtxt{display:none!important}
+  .print-only{display:block}
+  body{font-size:12.5px;padding-block:0}
+  header.hero{padding-block:0 6px}
+  section{padding-block:16px 0;gap:10px}
+  #fases{gap:18px!important}
+  .panel,.callout,.day,fieldset,.br,.q,.steps li,tr,.changes li,.molds,.ph{break-inside:avoid}
+  h2,h3,.phase-head,.chips,.eyebrow{break-after:avoid}
+  .phase{break-inside:auto}
+  .scroll,.tbl{overflow:visible}
+  a{color:inherit;text-decoration:none}
+  .tog,.step{display:none}
+}
 @media (max-width:520px){ .branches{grid-template-columns:1fr} .bar nav{display:none} .toggles{margin-left:0} }
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
@@ -210,7 +260,8 @@ li.only-cacao{display:none} body.cacao li.only-cacao{display:block}
 <header class="hero">
   <span class="eyebrow">Dossier maestro · versión 5.1 revisada</span>
   <h1>Panettone de alta hidratación</h1>
-  <p class="lead">Bassinage, pasta de cacao hidratada opcional y control térmico por fases. Las cantidades se recalculan con los interruptores de arriba. Las filas marcadas como <span class="chip" style="background:var(--orange-soft);color:var(--orange)">corregido</span> cambian respecto a la V5.0.</p>
+  <p class="lead">Bassinage, pasta de cacao hidratada opcional y control térmico por fases. Los interruptores de doble chocolate y madre líquida recalculan las cantidades. Las filas marcadas como <span class="chip" style="background:var(--orange-soft);color:var(--orange)">corregido</span> cambian respecto a la V5.0.</p>
+  <p class="print-only note">Versión impresa: incluye las partes opcionales de doble chocolate y de madre líquida. Las cantidades de bassinage son las de la versión base.</p>
   <div class="specs">
     <span class="spec"><b>Harina</b> Manitoba El Amasadero · W415</span>
     <span class="spec"><b>Moldes</b> 300 · 500 · 900 g</span>
@@ -483,7 +534,7 @@ const IMP1=[
  ['Azúcar',[26,44,79]],['Mantequilla en pomada',[27,45,81]],['Yemas frías',[19,32,58]],['Agua de reserva (opcional)',[3,5,10],'opt']];
 const IMP2=[
  ['Harina El Amasadero',[32,54,97]],['Leche en polvo',[4,7,13]],['Pasta de naranja',[12,20,36]],['Crema pastelera',[4,7,13]],
- ['Miel',[3,5,9],'chg'],['Vainilla',['al gusto','al gusto','al gusto'],'chg'],['Azúcar',[13,22,40]],['Sal',[1.3,2.2,4],'chg'],
+ ['Miel',[3,5,9],'chg'],['Vainilla (al gusto)',['—','—','—'],'chg'],['Azúcar',[13,22,40]],['Sal',[1.3,2.2,4],'chg'],
  ['Yemas',[19,32,58]],['Mantequilla',[28,47,85]],['Agua bassinage helada',[22,37,67],'bas'],['Chocolate congelado',[55,91,164]]];
 const CAC=[['Cacao puro en polvo',[9,15,27]],['Agua hirviendo',[20,35,65]],['Azúcar extra',[3,5,9]]];
 const LOAD=[345,575,1035], GLASSA=[40,65,115];
@@ -663,7 +714,8 @@ function renderCheck(){
   CHECK.forEach((g,gi)=>{
     html+=`<fieldset><legend>${g[0]}</legend>`;
     g[1].forEach((it,ii)=>{
-      const id=`ck-${gi}-${ii}`, show=!it[0]||(it[0]==='cacao'&&cacao())||(it[0]==='liq'&&tL.checked);
+      const all=body.classList.contains('printall');
+      const id=`ck-${gi}-${ii}`, show=!it[0]||all||(it[0]==='cacao'&&cacao())||(it[0]==='liq'&&tL.checked);
       if(!show) return; tot++; if(done[id]) ok++;
       html+=`<label for="${id}"><input type="checkbox" id="${id}" ${done[id]?'checked':''}><span>${it[1]}</span></label>`;
     });
@@ -675,6 +727,41 @@ function renderCheck(){
   document.getElementById('progtxt').textContent=`${ok} de ${tot} puntos completados. Se guarda solo en este navegador.`;
 }
 document.getElementById('reset').addEventListener('click',()=>{done={};store.set('pan-check','{}');renderCheck()});
+
+/* pestañas de móvil */
+const TABS=[['plan','Plan','hornada'],['antes','Antes','mié–vie'],['sabado','Sábado','madre·1º'],['domingo','Domingo','2º·horno'],['control','Control','pH·lista']];
+document.querySelector('header.hero').dataset.tab='plan';
+Object.entries({hornada:'plan',calendario:'plan',ph:'control',fases:'antes sabado domingo',moldes:'control',checklist:'control',cambios:'control'})
+  .forEach(([id,t])=>{document.getElementById(id).dataset.tab=t});
+const phases=[...document.querySelectorAll('.phase')], PT=['antes','antes','antes','sabado','sabado','domingo','domingo','domingo'];
+phases.forEach((p,i)=>{p.dataset.tab=PT[i];p.id='fase-'+i;p.style.scrollMarginTop=window.matchMedia('(max-width:700px)').matches?'12px':'64px'});
+const mobile=()=>window.matchMedia('(max-width:700px)').matches;
+const tabbar=document.createElement('nav');tabbar.className='tabbar';tabbar.setAttribute('aria-label','Días del proceso');
+tabbar.innerHTML=TABS.map(t=>`<button type="button" data-t="${t[0]}" aria-selected="false"><b>${t[1]}</b><small>${t[2]}</small></button>`).join('');
+document.body.appendChild(tabbar);
+function setTab(t,el){
+  body.dataset.view=t; store.set('pan-tab',t);
+  tabbar.querySelectorAll('button').forEach(b=>b.setAttribute('aria-selected',b.dataset.t===t?'true':'false'));
+  if(!mobile()) return;
+  if(el) el.scrollIntoView({block:'start'}); else window.scrollTo(0,0);
+}
+tabbar.addEventListener('click',e=>{const b=e.target.closest('button');if(b)setTab(b.dataset.t)});
+function nextBtn(label,title,go){const b=document.createElement('button');b.type='button';b.className='next';
+  b.innerHTML=`<span><small>${label}</small><b>${title}</b></span><i aria-hidden="true">→</i>`;b.addEventListener('click',go);return b}
+const firstPhase=()=>phases.find(p=>!p.classList.contains('only-liq')||body.classList.contains('liq'));
+document.getElementById('calendario').appendChild(nextBtn('Empezar','Preparaciones previas',()=>{const p=firstPhase();setTab('antes',p)}));
+phases.forEach((p,i)=>{
+  const n=phases[i+1], title=n?n.querySelector('h3').textContent:'pH, moldes y checklist';
+  p.appendChild(nextBtn(n?'Siguiente':'Para terminar',title,()=>n?setTab(n.dataset.tab,n):setTab('control')));
+});
+document.addEventListener('click',e=>{
+  const a=e.target.closest('a[href^="#"]'); if(!a||!mobile()) return;
+  const el=document.getElementById(a.getAttribute('href').slice(1)); if(!el) return;
+  const host=el.closest('[data-tab]'); if(!host) return;
+  e.preventDefault(); setTab(host.dataset.tab.split(' ')[0],el);
+});
+const savedTab=store.get('pan-tab');
+setTab(TABS.some(t=>t[0]===savedTab)?savedTab:'plan');
 
 // restore
 if(store.get('pan-cacao')==='1') tC.checked=true;
