@@ -166,6 +166,16 @@ tr.changed td:first-child::after{content:"corregido";margin-left:8px;font-family
 .callout.info{background:var(--cold-soft);border-color:var(--cold)}
 .callout.choc{background:var(--cocoa-soft);border-color:var(--cocoa)}
 .callout b{font-weight:600}
+.tandas{display:grid;gap:10px}
+.tandas-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px 16px}
+.capl{display:inline-flex;align-items:center;gap:8px;font-size:13.5px;color:var(--muted)}
+#cap{width:84px;font:inherit;font-family:var(--f-mono);font-size:15px;padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink)}
+.tandas-body{display:grid;gap:12px}
+.tandas-body:empty{display:none}
+.tandas-body .tbl table{min-width:0}
+.tsum{font-size:14px}
+.tsum b{font-weight:600}
+.tag-over{font-family:var(--f-mono);font-size:11px;padding:1px 7px;border-radius:999px;background:var(--bad-soft);color:var(--bad);margin-left:6px}
 .callout.mix{background:var(--almond-soft);border-color:var(--almond)}
 .callout ul{margin:2px 0 0;padding-left:18px;display:grid;gap:3px}
 
@@ -313,7 +323,7 @@ body.printall .only-cacao{display:revert} body.printall tr.only-cacao{display:ta
       <div class="count"><span>Molde 300 g</span><span class="step"><button type="button" data-d="-1" data-i="0" aria-label="Quitar uno de 300 g">−</button><output id="c0">0</output><button type="button" data-d="1" data-i="0" aria-label="Añadir uno de 300 g">+</button></span></div>
       <div class="count"><span>Molde 500 g</span><span class="step"><button type="button" data-d="-1" data-i="1" aria-label="Quitar uno de 500 g">−</button><output id="c1">1</output><button type="button" data-d="1" data-i="1" aria-label="Añadir uno de 500 g">+</button></span></div>
       <div class="count"><span>Molde 900 g</span><span class="step"><button type="button" data-d="-1" data-i="2" aria-label="Quitar uno de 900 g">−</button><output id="c2">0</output><button type="button" data-d="1" data-i="2" aria-label="Añadir uno de 900 g">+</button></span></div>
-      <p class="note">Si haces varios de un tamaño, amasa cada lote por separado o multiplica la columna. La amasadora manda.</p>
+      <p class="note">Las tandas de amasado se calculan más abajo según la capacidad de tu amasadora.</p>
     </div>
     <div class="panel">
       <h3 style="margin-bottom:10px">Lo que necesitas</h3>
@@ -324,6 +334,12 @@ body.printall .only-cacao{display:revert} body.printall tr.only-cacao{display:ta
       <dl class="kv" id="madre3"></dl>
       <p class="note" style="margin-top:10px">Calculado para tener la madre necesaria más un 20 % de margen y una pieza para seguir manteniendo. Proporción 1 : 1 : 0,45.</p>
     </div>
+  </div>
+  <div class="panel tandas" id="tandas-panel">
+    <div class="tandas-head"><h3>Tandas de amasado</h3>
+      <label class="capl" for="cap">Capacidad de tu amasadora <input type="number" id="cap" min="0.3" max="5" step="0.05" value="1.35" inputmode="decimal"> kg</label></div>
+    <p class="note">kMix KMX750: 1,35 kg según la ficha de Kenwood. Cuenta el peso total de masa en el bol, chocolate incluido.</p>
+    <div id="tandas" class="tandas-body"></div>
   </div>
 </section>
 
@@ -453,6 +469,7 @@ body.printall .only-cacao{display:revert} body.printall tr.only-cacao{display:ta
   <div class="phase" style="--ph:var(--orange)">
     <div class="phase-head"><h3>4 · Segundo impasto</h3><span class="when"><span class="dn" data-o="0" data-cap="1" data-fmt="wd">·</span> · ~10:45</span></div>
     <div class="chips"><span class="chip c">1º impasto a 18–20 °C</span><span class="chip t">Masa final 24–26 °C · máx. 27</span><span class="chip c">Bassinage helado</span></div>
+    <div id="tandas-f4" class="tandas-body"></div>
     <div class="grid2">
       <div class="tbl"><table><thead><tr><th>Ingrediente</th><th class="n">300</th><th class="n">500</th><th class="n">900</th></tr></thead><tbody id="imp2"></tbody></table></div>
       <div style="display:grid;gap:12px;align-content:start">
@@ -642,6 +659,7 @@ function render(){
    `<dt>Madre</dt><dd class="big">${inp} g</dd><dt>Harina</dt><dd>${inp} g</dd><dt>Agua</dt><dd>${fmtN(inp*0.45)} g</dd>
     <dt>Resultado</dt><dd>${fmtN(inp*2.45)} g</dd><dt>Para los impastos</dt><dd>${fmtN(madre)} g</dd>`
    : `<dt>Sin moldes</dt><dd>—</dd>`;
+  renderTandas();
   store.set('pan-cacao',cacao()?'1':'0'); store.set('pan-liq',tL.checked?'1':'0'); store.set('pan-counts',counts.join(','));
   renderCheck();
 }
@@ -679,15 +697,74 @@ document.getElementById('print-btn').addEventListener('click',()=>window.print()
 bakeIn.min=iso(today()); bakeIn.value=iso(BAKE);
 bakeIn.addEventListener('change',()=>{if(!bakeIn.value)return;const [y,m,d]=bakeIn.value.split('-').map(Number);BAKE=new Date(y,m-1,d);store.set('pan-bake',bakeIn.value);render()});
 
+/* tandas de amasado según la capacidad de la amasadora */
+const capIn=document.getElementById('cap');
+{const v=store.get('pan-cap'); if(v) capIn.value=v;}
+const capKg=()=>{const v=parseFloat(String(capIn.value).replace(',','.'));return isFinite(v)&&v>=0.3?v:1.35};
+const imp1T=i=>sum(IMP1,i,true);
+const LET='ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+function pack(mass){
+  const items=[];counts.forEach((c,i)=>{for(let k=0;k<c;k++)items.push(i)});
+  items.sort((a,b)=>mass(b)-mass(a));
+  const capG=capKg()*1000, B=[];
+  items.forEach(i=>{const m=mass(i);let b=B.find(x=>x.m+m<=capG);if(!b){b={items:[],m:0};B.push(b)}b.items.push(i);b.m+=m});
+  return B;
+}
+const bdesc=b=>[2,1,0].map(i=>{const c=b.items.filter(x=>x===i).length;return c?`${c}×${S[i].replace(' g','')}`:''}).filter(Boolean).join(' + ');
+const bsum=(b,f)=>b.items.reduce((a,i)=>a+f(i),0);
+const T2=26.75, STEP=1.5+1/6;  /* 2º impasto de la tanda A: día D 10:45; cada tanda, 1 h 30 de amasado + 10 min para lavar el bol */
+const tl=k=>{const s=T2+k*STEP;return {s,mix:s+1.5,mold:s+2.75,oven:s+9.25,out:s+10.55}};
+function hhmm(h){const t=8+h, day=Math.floor(t/24)-1;let H=Math.floor(t)%24,M=Math.round((t-Math.floor(t))*60);if(M===60){M=0;H=(H+1)%24}
+  const c=`${String(H).padStart(2,'0')}:${String(M).padStart(2,'0')}`;return day===0?c:`${DS[dayAt(day).getDay()]} ${c}`}
+function wtable(B,rows,first){
+  const head=`<tr><th>Ingrediente</th>${B.map((b,k)=>`<th class="n">${B.length>1?'Tanda '+LET[k]:'Todo'}<br><span style="text-transform:none;letter-spacing:0">${bdesc(b)}</span></th>`).join('')}</tr>`;
+  let body='';
+  if(first) body+=`<tr><td><b>${first[0]}</b></td>${B.map(b=>`<td class="n"><b>${fmt(bsum(b,first[1]))}</b></td>`).join('')}</tr>`;
+  rows.forEach(r=>{body+=`<tr class="${r[2]||''}"><td>${r[0]}</td>${B.map(b=>`<td class="n">${r[1]?fmt(bsum(b,r[1])):'—'}</td>`).join('')}</tr>`});
+  body+=`<tr class="total"><td>Total en el bol</td>${B.map(b=>`<td class="n">${fmtN(b.m)} g</td>`).join('')}</tr>`;
+  return `<div class="tbl"><table><thead>${head}</thead><tbody>${body}</tbody></table></div>`;
+}
+function renderTandas(){
+  const box=document.getElementById('tandas'), f4=document.getElementById('tandas-f4');
+  const B2=pack(totals);
+  if(!B2.length){box.innerHTML='<p class="note">Añade panettones arriba para calcular las tandas.</p>';f4.innerHTML='';return}
+  const capG=capKg()*1000, many=B2.length>1;
+  const tot1=counts.reduce((a,c,i)=>a+c*imp1T(i),0), B1=tot1>capG?pack(imp1T):null;
+  B1&&B1.forEach(b=>b.m=bsum(b,imp1T));
+  const over=B2.some(b=>b.m>capG);
+  const sumTxt=many
+    ?`El 2º impasto no cabe de una vez: <b>${B2.length} tandas</b> de como mucho ${fmtN(capG)} g. `
+    :`Todo el 2º impasto cabe en una tanda: <b>${fmtN(B2[0].m)} g</b> de ${fmtN(capG)} g. `;
+  const t1=B1?`El 1º impasto (${fmtN(tot1)} g) tampoco cabe: amásalo en <b>${B1.length} tandas</b> seguidas; las 12–14 h de fermentación absorben la diferencia.`
+             :`El 1º impasto se amasa de una vez: <b>${fmtN(tot1)} g</b>.`;
+  const sched=`<div class="tbl"><table><thead><tr><th>Tanda</th><th class="n">Masa</th><th class="n">Amasar</th><th class="n">Molde</th><th class="n">Horno</th></tr></thead><tbody>${
+    B2.map((b,k)=>{const t=tl(k);return `<tr><td><b>${many?LET[k]:'Única'}</b><br><span class="note">${bdesc(b)}</span></td><td class="n">${fmtN(b.m)} g${b.m>capG?'<br><span class="tag-over">excede</span>':''}</td><td class="n">${hhmm(t.s)}</td><td class="n">${hhmm(t.mold)}</td><td class="n">~${hhmm(t.oven)}</td></tr>`}).join('')
+  }</tbody></table></div>`;
+  const lastWait=(B2.length-1)*STEP+0.75;
+  const waitTxt=lastWait>2?` La tanda ${LET[B2.length-1]} espera unas ${String(Math.round(lastWait*2)/2).replace('.',',')} h en la nevera: en frío aguanta bien, pero si sale por debajo de 12 °C déjala 20–30 min a temperatura ambiente antes de amasar.`:'';
+  const split=many?`<div class="callout info"><b>Al sacar el 1º impasto de la nevera</b><span>Pésalo y divídelo: ${B2.map((b,k)=>`tanda ${LET[k]} <b>${fmtN(bsum(b,imp1T))} g</b>`).join(' · ')}. La parte que espera vuelve a la nevera. Lava el bol con agua fría entre tandas y comprueba que cada masa acaba a 24–26 °C.${waitTxt}</span></div>`:'';
+  const rows2=IMP2.map(r=>r[2]==='bas'?[cacao()?'Agua bassinage helada (−40 %)':r[0],bas]:[r[0],typeof r[1][0]==='number'?(i=>r[1][i]):null]);
+  if(cacao()) rows2.splice(10,0,...CAC.map(c=>[c[0]+' (pasta)',i=>c[1][i],'cacao']));
+  const w2=wtable(B2,rows2,['1º impasto fermentado',imp1T]);
+  const w1=B1?`<h3 style="font-size:15px">1º impasto por tandas</h3>${wtable(B1,IMP1.filter(r=>r[2]!=='opt').map(r=>[r[0],i=>r[1][i]]))}`:'';
+  const overTxt=over?'<div class="callout warn"><b>Un solo panettone supera la capacidad</b><span>Esa tanda se pasa del límite que has puesto. Amásala con pausas frecuentes o reduce el tamaño.</span></div>':'';
+  box.innerHTML=`<p class="tsum">${sumTxt}${t1}</p>${overTxt}${sched}<p class="note">Horas orientativas: 1 h 30 de amasado por tanda y 10 min para lavar el bol. El horno depende de que cada molde llegue a 1 dedo del borde; a las 21:00 decide el freno molde a molde.</p>${split}<h3 style="font-size:15px">Pesos del 2º impasto por tanda</h3>${w2}${w1}`;
+  f4.innerHTML=(many?`<h3 style="font-size:15px">Tus tandas (${B2.length})</h3>${split}`:`<h3 style="font-size:15px">Tu amasado</h3>`)+w2;
+}
+capIn.addEventListener('input',()=>{store.set('pan-cap',capIn.value);render()});
+
 /* gantt: Sábado 08:00 = h0; eje hasta lunes 12:00 = 52 */
 function gantt(){
   const H=52, P=h=>(h/H*100)+'%', W=(a,b)=>((b-a)/H*100)+'%';
+  const B2=pack(totals), nb=Math.max(1,B2.length), capG=capKg()*1000;
+  const tot1=counts.reduce((a,c,i)=>a+c*imp1T(i),0), n1=tot1>capG?pack(imp1T).length:1;
   const lanes=[
    ['Masa madre',[[0,.4,'c-madre','Baño',''],[.5,12.5,'c-madre','3 refrescos','28 °C']]],
-   ['Impastos',[[13,26,'c-masa','1º impasto','26 °C · 12–14 h'],[26,26.75,'c-cold','',''],[26.75,28.25,'c-masa','2º imp.','24–26 °C']]],
-   ['Molde y horno',[[28.25,29.5,'c-masa','Bloque',''],[29.5,36,'c-masa','Fermentación final','30 °C'],[36,37.3,'c-horno','Horno',''],[37.3,49.3,'c-cold','Boca abajo','8–12 h']]],
-   ['Con freno',[[29.5,37,'c-masa','Fermentación','30 °C'],[37,47,'c-freno','Freno nocturno','18–19 °C'],[47,50.5,'c-masa','Reactivar','30 °C'],[50.5,51.8,'c-horno','',''] ]]
+   ['1º impasto',[[13,26,'c-masa',n1>1?`1º impasto · ${n1} tandas`:'1º impasto','26 °C · 12–14 h'],[26,26.75,'c-cold','','']]]
   ];
+  for(let k=0;k<nb;k++){const t=tl(k);
+    lanes.push([nb>1?`Tanda ${LET[k]}${B2[k]?' · '+bdesc(B2[k]):''}`:'2º y horno',[[t.s,t.mix,'c-masa','2º imp.','24–26 °C'],[t.mix,t.mold,'c-masa','Bloque',''],[t.mold,t.oven,'c-masa','Fermentación final','30 °C'],[t.oven,t.out,'c-horno','Horno',''],[t.out,Math.min(H,t.out+12),'c-cold','Boca abajo','8–12 h']]]);}
+  lanes.push(['Con freno',[[29.5,37,'c-masa','Fermentación','30 °C'],[37,47,'c-freno','Freno nocturno','18–19 °C'],[47,50.5,'c-masa','Reactivar','30 °C'],[50.5,51.8,'c-horno','',''] ]]);
   const ticks=[];for(let h=0;h<=H;h+=4){const clock=(8+h)%24;ticks.push(`<span class="g-tick" style="left:${P(h)}">${String(clock).padStart(2,'0')}h</span>`)}
   const days=[[0,dayW(-1,1)],[16,dayW(0,1)],[40,dayW(1,1)]].map(d=>`<span class="g-day" style="left:${P(d[0])}">${d[1]}</span>`).join('');
   const seps=[16,40].map(h=>`<span class="g-sep" style="left:${P(h)}"></span>`).join('');
