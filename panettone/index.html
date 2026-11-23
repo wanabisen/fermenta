@@ -99,6 +99,11 @@ section{padding-block:34px 4px;display:grid;gap:16px;scroll-margin-top:70px}
 .kv dt{color:var(--muted)} .kv dd{margin:0;text-align:right;font-family:var(--f-mono);font-variant-numeric:tabular-nums}
 .kv .big{font-size:20px;font-weight:600;color:var(--ink)}
 .note{font-size:13px;color:var(--muted)}
+.when-panel{display:grid;gap:10px;align-content:start;border-color:var(--orange)}
+.when-row{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center}
+.when-row .note{flex:1 1 260px;min-width:0}
+.date-in{font:inherit;font-family:var(--f-mono);font-size:16px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);width:100%;max-width:240px}
+#bake-sum b{color:var(--ink);font-weight:600}
 
 /* gantt */
 .scroll{overflow-x:auto}
@@ -268,6 +273,10 @@ body.printall .only-cacao{display:revert} body.printall tr.only-cacao{display:ta
     <span class="spec"><b>Madre</b> sólida al 45 %</span>
     <span class="spec"><b>Horno</b> estático, sin vapor</span>
   </div>
+  <div class="panel when-panel">
+    <label for="bake-date"><h3>¿Cuándo horneas?</h3></label>
+    <div class="when-row"><input type="date" id="bake-date" class="date-in" aria-describedby="bake-sum"><p class="note" id="bake-sum"></p></div>
+  </div>
 </header>
 
 <div class="bar">
@@ -296,7 +305,7 @@ body.printall .only-cacao{display:revert} body.printall tr.only-cacao{display:ta
       <dl class="kv" id="needs"></dl>
     </div>
     <div class="panel">
-      <h3 style="margin-bottom:10px">Tercer refresco del sábado</h3>
+      <h3 style="margin-bottom:10px">Tercer refresco del <span class="dn" data-o="-1" data-cap="0" data-fmt="w">·</span></h3>
       <dl class="kv" id="madre3"></dl>
       <p class="note" style="margin-top:10px">Calculado para tener la madre necesaria más un 20 % de margen y una pieza para seguir manteniendo. Proporción 1 : 1 : 0,45.</p>
     </div>
@@ -307,10 +316,10 @@ body.printall .only-cacao{display:revert} body.printall tr.only-cacao{display:ta
 <section id="calendario">
   <div><span class="eyebrow">Línea de tiempo</span><h2>Calendario de la semana</h2></div>
   <div class="days">
-    <div class="day only-liq"><span class="eyebrow">Miércoles</span><h3>Conversión líquida → sólida</h3><ul><li>20 g madre líquida + 40 g harina + 15 g agua tibia</li><li>Bola dura, 28 °C hasta doblar, nevera</li></ul></div>
-    <div class="day"><span class="eyebrow">Jueves</span><h3>Naranja y frío</h3><ul><li>Naranja confitada y pasta de naranja</li><li>Chocolate troceado al congelador</li><li class="only-liq">Refuerzo de la madre convertida</li></ul></div>
-    <div class="day"><span class="eyebrow">Viernes 20:00</span><h3>Despertar de la madre</h3><ul><li>Refresco 50 + 50 + 22 g</li><li>Hasta duro (1–1,5 h) y a nevera</li></ul></div>
-    <div class="day"><span class="eyebrow">Sábado</span><h3>Madre, crema y glassa</h3><ul><li>Baño, 3 refrescos y 1º impasto</li><li>Crema pastelera y glassa (movidas desde el jueves)</li><li class="only-cacao">Pasta de cacao, a enfriar en nevera</li></ul></div>
+    <div class="day only-liq"><span class="eyebrow"><span class="dn" data-o="-4" data-cap="1" data-fmt="wd">·</span></span><h3>Conversión líquida → sólida</h3><ul><li>20 g madre líquida + 40 g harina + 15 g agua tibia</li><li>Bola dura, 28 °C hasta doblar, nevera</li></ul></div>
+    <div class="day"><span class="eyebrow"><span class="dn" data-o="-3" data-cap="1" data-fmt="wd">·</span></span><h3>Naranja y frío</h3><ul><li>Naranja confitada y pasta de naranja</li><li>Chocolate troceado al congelador</li><li class="only-liq">Refuerzo de la madre convertida</li></ul></div>
+    <div class="day"><span class="eyebrow"><span class="dn" data-o="-2" data-cap="1" data-fmt="wd">·</span> · 20:00</span><h3>Despertar de la madre</h3><ul><li>Refresco 50 + 50 + 22 g</li><li>Hasta duro (1–1,5 h) y a nevera</li></ul></div>
+    <div class="day"><span class="eyebrow"><span class="dn" data-o="-1" data-cap="1" data-fmt="wd">·</span></span><h3>Madre, crema y glassa</h3><ul><li>Baño, 3 refrescos y 1º impasto</li><li>Crema pastelera y glassa (movidas desde el <span class="dn" data-o="-3" data-cap="0" data-fmt="w">·</span>)</li><li class="only-cacao">Pasta de cacao, a enfriar en nevera</li></ul></div>
   </div>
   <div class="panel scroll" style="padding:14px 14px 10px">
     <div class="gantt" id="gantt"></div>
@@ -334,33 +343,33 @@ body.printall .only-cacao{display:revert} body.printall tr.only-cacao{display:ta
 
   <!-- 0-bis -->
   <div class="phase only-liq" style="--ph:var(--almond)">
-    <div class="phase-head"><h3>0-bis · Conversión de madre líquida</h3><span class="when">Miércoles y jueves</span></div>
+    <div class="phase-head"><h3>0-bis · Conversión de madre líquida</h3><span class="when"><span class="dn" data-o="-4" data-cap="1" data-fmt="wd">·</span> y <span class="dn" data-o="-3" data-cap="0" data-fmt="wd">·</span></span></div>
     <p class="note">Solo si partes de madre líquida al 100 %.</p>
     <div class="grid2">
-      <div class="panel"><span class="eyebrow">Miércoles</span><ol class="steps"><li>20 g madre líquida + 40 g harina + 15 g agua tibia (sale al ~50 %).</li><li>Amasa fuerte hasta una bola dura.</li><li>28 °C hasta doblar, luego nevera.</li></ol></div>
-      <div class="panel"><span class="eyebrow">Jueves</span><ol class="steps"><li>Coge el centro de la bola: 50 g.</li><li>Refresca 50 g madre + 50 g harina + 22 g agua.</li><li>Rulo apretado, temperatura ambiente hasta que esté duro.</li><li>Nevera hasta el viernes.</li></ol></div>
+      <div class="panel"><span class="eyebrow"><span class="dn" data-o="-4" data-cap="1" data-fmt="w">·</span></span><ol class="steps"><li>20 g madre líquida + 40 g harina + 15 g agua tibia (sale al ~50 %).</li><li>Amasa fuerte hasta una bola dura.</li><li>28 °C hasta doblar, luego nevera.</li></ol></div>
+      <div class="panel"><span class="eyebrow"><span class="dn" data-o="-3" data-cap="1" data-fmt="w">·</span></span><ol class="steps"><li>Coge el centro de la bola: 50 g.</li><li>Refresca 50 g madre + 50 g harina + 22 g agua.</li><li>Rulo apretado, temperatura ambiente hasta que esté duro.</li><li>Nevera hasta el <span class="dn" data-o="-2" data-cap="0" data-fmt="w">·</span>.</li></ol></div>
     </div>
   </div>
 
   <!-- 0 -->
   <div class="phase" style="--ph:var(--orange)">
-    <div class="phase-head"><h3>0 · Preparaciones</h3><span class="when">Jueves (naranja) · Sábado (crema y glassa)</span></div>
+    <div class="phase-head"><h3>0 · Preparaciones</h3><span class="when"><span class="dn" data-o="-3" data-cap="1" data-fmt="wd">·</span> (naranja) · <span class="dn" data-o="-1" data-cap="1" data-fmt="wd">·</span> (crema y glassa)</span></div>
     <div class="grid2">
-      <div class="panel" style="display:grid;gap:8px"><span class="eyebrow">Jueves</span><h3>Naranja confitada exprés</h3>
+      <div class="panel" style="display:grid;gap:8px"><span class="eyebrow"><span class="dn" data-o="-3" data-cap="1" data-fmt="w">·</span></span><h3>Naranja confitada exprés</h3>
         <ol class="steps"><li>Pela 2 naranjas en tiras, con parte blanca. Blanquea 3 veces en agua hirviendo.</li><li>Pesa la piel escurrida. Cuece a fuego lento con su mismo peso de azúcar y su mismo peso de agua, 40–50 min.</li><li><b>Pasta de naranja:</b> tritura 100 g de naranja + 20 g de su jarabe. Tupper y nevera.</li></ol>
         <p class="note">Chocolate troceado (no pepitas) al congelador el mismo día.</p>
       </div>
-      <div class="panel" style="display:grid;gap:8px"><span class="eyebrow">Sábado</span><h3>Crema pastelera, mini lote</h3>
+      <div class="panel" style="display:grid;gap:8px"><span class="eyebrow"><span class="dn" data-o="-1" data-cap="1" data-fmt="w">·</span></span><h3>Crema pastelera, mini lote</h3>
         <p class="mono" style="font-size:13px">125 g leche · 35 g yema (2) · 35 g azúcar · 10 g maicena · vainilla</p>
         <ol class="steps"><li>Hierve la leche, mezcla con el resto y cuece hasta espesar.</li><li>Enfría con film a piel.</li></ol>
         <p class="note">Usas 4–13 g. No guardes el sobrante más de 48 h.</p>
       </div>
-      <div class="panel" style="display:grid;gap:8px"><span class="eyebrow">Sábado</span><h3>Glassa</h3>
+      <div class="panel" style="display:grid;gap:8px"><span class="eyebrow"><span class="dn" data-o="-1" data-cap="1" data-fmt="w">·</span></span><h3>Glassa</h3>
         <p class="mono" style="font-size:13px">75 g harina de almendra · 100 g azúcar · 10 g maicena · 35–40 g clara</p>
         <ol class="steps"><li>Mezcla con tenedor sin montar. Debe quedar una pasta densa.</li><li>Nevera. Sácala 30 min antes de usar.</li></ol>
         <p class="note" id="glassa-note"></p>
       </div>
-      <div class="panel only-cacao" style="display:grid;gap:8px;background:var(--cocoa-soft);border-color:var(--cocoa)"><span class="eyebrow" style="color:var(--cocoa)">Sábado noche</span><h3>Pasta de cacao hidratada</h3>
+      <div class="panel only-cacao" style="display:grid;gap:8px;background:var(--cocoa-soft);border-color:var(--cocoa)"><span class="eyebrow" style="color:var(--cocoa)"><span class="dn" data-o="-1" data-cap="1" data-fmt="w">·</span> noche</span><h3>Pasta de cacao hidratada</h3>
         <div class="tbl" style="background:transparent;border:0"><table><thead><tr><th>Por molde</th><th class="n">300</th><th class="n">500</th><th class="n">900</th></tr></thead><tbody id="cacao-tbl"></tbody></table></div>
         <ol class="steps"><li>Mezcla el cacao con el agua hirviendo hasta tener una pasta densa y brillante.</li><li>Enfría por completo en nevera.</li></ol>
         <p class="note">Pre-hidratar evita que el cacao robe agua a la red de gluten. Indica en tu hoja si usas cacao natural o alcalinizado.</p>
@@ -370,13 +379,13 @@ body.printall .only-cacao{display:revert} body.printall tr.only-cacao{display:ta
 
   <!-- 1 -->
   <div class="phase" style="--ph:var(--almond)">
-    <div class="phase-head"><h3>1 · El despertar</h3><span class="when">Viernes 20:00</span></div>
-    <ol class="steps"><li>Refresco 50 g madre + 50 g harina + 22 g agua.</li><li>Rulo muy apretado envuelto en film, o atado en tela.</li><li>Fuera de nevera hasta que se hinche y esté duro al tacto (1–1,5 h).</li><li>Directo a la nevera hasta el sábado.</li></ol>
+    <div class="phase-head"><h3>1 · El despertar</h3><span class="when"><span class="dn" data-o="-2" data-cap="1" data-fmt="wd">·</span> · 20:00</span></div>
+    <ol class="steps"><li>Refresco 50 g madre + 50 g harina + 22 g agua.</li><li>Rulo muy apretado envuelto en film, o atado en tela.</li><li>Fuera de nevera hasta que se hinche y esté duro al tacto (1–1,5 h).</li><li>Directo a la nevera hasta el <span class="dn" data-o="-1" data-cap="0" data-fmt="w">·</span>.</li></ol>
   </div>
 
   <!-- 2 -->
   <div class="phase" style="--ph:var(--almond)">
-    <div class="phase-head"><h3>2 · Día de la masa madre</h3><span class="when">Sábado 08:00 – 20:30</span></div>
+    <div class="phase-head"><h3>2 · Día de la masa madre</h3><span class="when"><span class="dn" data-o="-1" data-cap="1" data-fmt="wd">·</span> · 08:00 – 20:30</span></div>
     <div class="chips"><span class="chip t">28 °C</span><span class="chip">3,5–4 h por refresco</span><span class="chip ph">pH 4,0–4,2 · objetivo 4,1</span></div>
     <ol class="steps">
       <li><b>08:00 · Baño.</b> Rodajas de 1 cm en 1 L de agua tibia + 2 g de azúcar, 20 min. Escurre bien.</li>
@@ -389,7 +398,7 @@ body.printall .only-cacao{display:revert} body.printall tr.only-cacao{display:ta
 
   <!-- 3 -->
   <div class="phase" style="--ph:var(--orange)">
-    <div class="phase-head"><h3>3 · Primer impasto</h3><span class="when">Sábado ~21:00</span></div>
+    <div class="phase-head"><h3>3 · Primer impasto</h3><span class="when"><span class="dn" data-o="-1" data-cap="1" data-fmt="wd">·</span> · ~21:00</span></div>
     <div class="chips"><span class="chip t">Masa final 26 °C</span><span class="chip t">Fermenta 26 °C (25,5–26,5)</span><span class="chip">12–14 h</span><span class="chip ph">Fin pH 5,2–5,4</span></div>
     <div class="grid2">
       <div class="tbl"><table><thead><tr><th>Ingrediente</th><th class="n">300</th><th class="n">500</th><th class="n">900</th></tr></thead><tbody id="imp1"></tbody></table></div>
@@ -419,7 +428,7 @@ body.printall .only-cacao{display:revert} body.printall tr.only-cacao{display:ta
 
   <!-- 4 -->
   <div class="phase" style="--ph:var(--orange)">
-    <div class="phase-head"><h3>4 · Segundo impasto</h3><span class="when">Domingo ~10:45</span></div>
+    <div class="phase-head"><h3>4 · Segundo impasto</h3><span class="when"><span class="dn" data-o="0" data-cap="1" data-fmt="wd">·</span> · ~10:45</span></div>
     <div class="chips"><span class="chip c">1º impasto a 18–20 °C</span><span class="chip t">Masa final 24–26 °C · máx. 27</span><span class="chip c">Bassinage helado</span></div>
     <div class="grid2">
       <div class="tbl"><table><thead><tr><th>Ingrediente</th><th class="n">300</th><th class="n">500</th><th class="n">900</th></tr></thead><tbody id="imp2"></tbody></table></div>
@@ -441,7 +450,7 @@ body.printall .only-cacao{display:revert} body.printall tr.only-cacao{display:ta
 
   <!-- 5 -->
   <div class="phase" style="--ph:var(--orange)">
-    <div class="phase-head"><h3>5 · Formado, carga y fermentación final</h3><span class="when">Domingo 12:15 →</span></div>
+    <div class="phase-head"><h3>5 · Formado, carga y fermentación final</h3><span class="when"><span class="dn" data-o="0" data-cap="1" data-fmt="wd">·</span> · 12:15 →</span></div>
     <div class="chips"><span class="chip t">Bloque 45 min a 28 °C</span><span class="chip t">Molde a 30 °C, húmedo</span><span class="chip ph">pH antes de hornear 5,1–5,2</span></div>
     <div class="grid2">
       <div style="display:grid;gap:12px;align-content:start">
@@ -470,7 +479,7 @@ body.printall .only-cacao{display:revert} body.printall tr.only-cacao{display:ta
 
   <!-- 6 -->
   <div class="phase" style="--ph:var(--cocoa)">
-    <div class="phase-head"><h3>6 · Decoración y horneado</h3><span class="when">Domingo ~20:00 o lunes ~10:30</span></div>
+    <div class="phase-head"><h3>6 · Decoración y horneado</h3><span class="when"><span class="dn" data-o="0" data-cap="1" data-fmt="wd">·</span> ~20:00 o <span class="dn" data-o="1" data-cap="0" data-fmt="wd">·</span> ~10:30</span></div>
     <div class="chips"><span class="chip">Calor estático</span><span class="chip">Sin vapor</span><span class="chip t">Sonda 92 °C en el centro</span></div>
     <div class="grid2">
       <ol class="steps">
@@ -554,6 +563,7 @@ function totals(i){
 function row(name,vals,cls){return `<tr class="${cls||''}"><td>${name}</td>${vals.map(v=>`<td class="n">${fmt(v)}</td>`).join('')}</tr>`}
 function render(){
   body.classList.toggle('cacao',cacao()); body.classList.toggle('liq',tL.checked);
+  updateDays();
   // imp1
   document.getElementById('imp1').innerHTML=IMP1.map(r=>row(r[0],r[1],r[2]==='opt'?'':'' )).join('')+
     `<tr class="total"><td>Total (sin reserva)</td>${[0,1,2].map(i=>`<td class="n">${fmt(sum(IMP1,i,true))}</td>`).join('')}</tr>`;
@@ -606,6 +616,32 @@ document.querySelectorAll('.step button').forEach(b=>b.addEventListener('click',
   const i=+b.dataset.i; counts[i]=Math.max(0,Math.min(9,counts[i]+ +b.dataset.d)); document.getElementById('c'+i).textContent=counts[i]; render();}));
 tC.addEventListener('change',render); tL.addEventListener('change',render);
 
+/* fecha de horneado: D = día del 2º impasto y del horno */
+const DN=['domingo','lunes','martes','miércoles','jueves','viernes','sábado'], DS=['dom','lun','mar','mié','jue','vie','sáb'];
+const MN=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+const bakeIn=document.getElementById('bake-date');
+const iso=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+const today=()=>{const t=new Date();t.setHours(0,0,0,0);return t};
+function defaultBake(){
+  const pref={friday:5,saturday:6,sunday:0}[store.get('panBakeDay')]; const wd=pref==null?0:pref;
+  const d=today(); d.setDate(d.getDate()+4); while(d.getDay()!==wd) d.setDate(d.getDate()+1); return d;
+}
+let BAKE=(()=>{const v=store.get('pan-bake'); if(v&&/^\d{4}-\d{2}-\d{2}$/.test(v)){const [y,m,d]=v.split('-').map(Number);const dt=new Date(y,m-1,d);if(dt>=today())return dt}return defaultBake()})();
+const dayAt=o=>{const d=new Date(BAKE);d.setDate(d.getDate()+o);return d};
+const cap=t=>t.charAt(0).toUpperCase()+t.slice(1);
+function dayW(o,c){const t=DN[dayAt(o).getDay()];return c?cap(t):t}
+function dayWD(o,c){const d=dayAt(o);return `${dayW(o,c)} ${d.getDate()} ${MN[d.getMonth()]}`}
+function updateDays(){
+  document.querySelectorAll('.dn').forEach(el=>{const o=+el.dataset.o,c=el.dataset.cap==='1';el.textContent=el.dataset.fmt==='wd'?dayWD(o,c):dayW(o,c)});
+  const liq=tL.checked;
+  document.getElementById('bake-sum').innerHTML=`Empiezas el <b>${dayWD(liq?-4:-3)}</b>${liq?' con la conversión de la madre':' con la naranja confitada'}. Horneas el <b>${dayWD(0)}</b> por la noche, o el <b>${dayWD(1)}</b> por la mañana si aplicas el freno.`;
+  const tb=document.querySelector('.tabbar'); if(tb){const lab={sabado:[dayW(-1,1),'madre·1º'],domingo:[dayW(0,1),'2º·horno'],antes:['Antes',DS[dayAt(liq?-4:-3).getDay()]+'–'+DS[dayAt(-2).getDay()]]};
+    Object.entries(lab).forEach(([k,v])=>{const b=tb.querySelector(`[data-t="${k}"]`);if(b)b.innerHTML=`<b>${v[0]}</b><small>${v[1]}</small>`})}
+  gantt();
+}
+bakeIn.min=iso(today()); bakeIn.value=iso(BAKE);
+bakeIn.addEventListener('change',()=>{if(!bakeIn.value)return;const [y,m,d]=bakeIn.value.split('-').map(Number);BAKE=new Date(y,m-1,d);store.set('pan-bake',bakeIn.value);render()});
+
 /* gantt: Sábado 08:00 = h0; eje hasta lunes 12:00 = 52 */
 function gantt(){
   const H=52, P=h=>(h/H*100)+'%', W=(a,b)=>((b-a)/H*100)+'%';
@@ -616,7 +652,7 @@ function gantt(){
    ['Con freno',[[29.5,37,'c-masa','Fermentación','30 °C'],[37,47,'c-freno','Freno nocturno','18–19 °C'],[47,50.5,'c-masa','Reactivar','30 °C'],[50.5,51.8,'c-horno','',''] ]]
   ];
   const ticks=[];for(let h=0;h<=H;h+=4){const clock=(8+h)%24;ticks.push(`<span class="g-tick" style="left:${P(h)}">${String(clock).padStart(2,'0')}h</span>`)}
-  const days=[[0,'Sábado'],[16,'Domingo'],[40,'Lunes']].map(d=>`<span class="g-day" style="left:${P(d[0])}">${d[1]}</span>`).join('');
+  const days=[[0,dayW(-1,1)],[16,dayW(0,1)],[40,dayW(1,1)]].map(d=>`<span class="g-day" style="left:${P(d[0])}">${d[1]}</span>`).join('');
   const seps=[16,40].map(h=>`<span class="g-sep" style="left:${P(h)}"></span>`).join('');
   let html=`<div class="g-axis">${days}${ticks.join('')}</div>`;
   lanes.forEach(l=>{html+=`<div class="g-row"><div class="g-label">${l[0]}</div><div class="g-track">${seps}${l[1].map(b=>
@@ -688,17 +724,17 @@ function molds(){
 
 /* checklist */
 const CHECK=[
- ['Antes del sábado',[
+ [()=>'Antes del '+dayW(-1),[
    ['liq','Conversión de madre líquida a sólida completada'],
    ['','Naranja confitada y pasta de naranja en nevera'],
    ['','Chocolate troceado en el congelador'],
    ['','Medidor de pH calibrado con soluciones de pH 4 y 7']]],
- ['Sábado',[
+ [()=>dayW(-1,1),[
    ['','Madre a pH 4,0–4,2 tras 3 refrescos (al 38 % si salió húmeda del baño)'],
    ['','Crema pastelera y glassa hechas, frías'],
    ['cacao','Pasta de cacao hecha y fría (cacao natural o alcalinizado anotado)'],
    ['','1º impasto con la masa a 26 °C y recipiente marcado a ×3']]],
- ['Domingo mañana',[
+ [()=>dayW(0,1)+' mañana',[
    ['','1º impasto detenido a pH 5,2–5,4 y nunca por debajo de 5,0'],
    ['','pH medido en una muestra templada a 22–25 °C, sin restar nada'],
    ['','1º impasto enfriado a 18–20 °C antes de amasar'],
@@ -712,7 +748,7 @@ let done={}; try{done=JSON.parse(store.get('pan-check')||'{}')||{}}catch(e){done
 function renderCheck(){
   let html='', tot=0, ok=0;
   CHECK.forEach((g,gi)=>{
-    html+=`<fieldset><legend>${g[0]}</legend>`;
+    html+=`<fieldset><legend>${typeof g[0]==='function'?g[0]():g[0]}</legend>`;
     g[1].forEach((it,ii)=>{
       const all=body.classList.contains('printall');
       const id=`ck-${gi}-${ii}`, show=!it[0]||all||(it[0]==='cacao'&&cacao())||(it[0]==='liq'&&tL.checked);
