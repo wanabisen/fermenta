@@ -254,7 +254,19 @@ body.printall .only-cacao{display:revert} body.printall tr.only-cacao{display:ta
   .scroll,.tbl{overflow:visible}
   a{color:inherit;text-decoration:none}
   .tog,.step{display:none}
+  .date-in,.print-row{display:none!important}
+  .when-panel{border-color:var(--line)}
+  .scroll>div,.gantt{min-width:0!important}
+  .g-label{width:84px}
+  body{font-size:11.5px}
+  .tbl table{min-width:0;font-size:11px}
+  .tbl th,.tbl td{padding:4px 5px}
+  .tbl th:first-child,.tbl td:first-child{padding-left:7px}
+  tr.changed td:first-child::after{font-size:9px;padding:0 4px;margin-left:4px}
+  .steps li{font-size:12px}
+  .g-axis{margin-left:84px}
 }
+@page{size:A4;margin:12mm 11mm 14mm}
 @media (max-width:520px){ .branches{grid-template-columns:1fr} .bar nav{display:none} .toggles{margin-left:0} }
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
@@ -266,7 +278,7 @@ body.printall .only-cacao{display:revert} body.printall tr.only-cacao{display:ta
   <span class="eyebrow">Dossier maestro · versión 5.1 revisada</span>
   <h1>Panettone de alta hidratación</h1>
   <p class="lead">Bassinage, pasta de cacao hidratada opcional y control térmico por fases. Los interruptores de doble chocolate y madre líquida recalculan las cantidades. Las filas marcadas como <span class="chip" style="background:var(--orange-soft);color:var(--orange)">corregido</span> cambian respecto a la V5.0.</p>
-  <p class="print-only note">Versión impresa: incluye las partes opcionales de doble chocolate y de madre líquida. Las cantidades de bassinage son las de la versión base.</p>
+  <p class="print-only note" id="print-note"></p>
   <div class="specs">
     <span class="spec"><b>Harina</b> Manitoba El Amasadero · W415</span>
     <span class="spec"><b>Moldes</b> 300 · 500 · 900 g</span>
@@ -276,6 +288,7 @@ body.printall .only-cacao{display:revert} body.printall tr.only-cacao{display:ta
   <div class="panel when-panel">
     <label for="bake-date"><h3>¿Cuándo horneas?</h3></label>
     <div class="when-row"><input type="date" id="bake-date" class="date-in" aria-describedby="bake-sum"><p class="note" id="bake-sum"></p></div>
+    <div class="when-row print-row"><button class="btn" type="button" id="print-btn">Imprimir o guardar en PDF</button><span class="note">Sale con estas fechas y tu versión. Para el PDF, elige "Guardar como PDF" como impresora.</span></div>
   </div>
 </header>
 
@@ -634,11 +647,15 @@ function dayWD(o,c){const d=dayAt(o);return `${dayW(o,c)} ${d.getDate()} ${MN[d.
 function updateDays(){
   document.querySelectorAll('.dn').forEach(el=>{const o=+el.dataset.o,c=el.dataset.cap==='1';el.textContent=el.dataset.fmt==='wd'?dayWD(o,c):dayW(o,c)});
   const liq=tL.checked;
+  document.getElementById('print-note').textContent=body.classList.contains('printall')
+    ?'Versión impresa: incluye las partes opcionales de doble chocolate y de madre líquida.'
+    :`Hoja para hornear el ${dayWD(0)} · versión ${cacao()?'doble chocolate':'base'} · ${liq?'partiendo de madre líquida':'madre sólida'}.`;
   document.getElementById('bake-sum').innerHTML=`Empiezas el <b>${dayWD(liq?-4:-3)}</b>${liq?' con la conversión de la madre':' con la naranja confitada'}. Horneas el <b>${dayWD(0)}</b> por la noche, o el <b>${dayWD(1)}</b> por la mañana si aplicas el freno.`;
   const tb=document.querySelector('.tabbar'); if(tb){const lab={sabado:[dayW(-1,1),'madre·1º'],domingo:[dayW(0,1),'2º·horno'],antes:['Antes',DS[dayAt(liq?-4:-3).getDay()]+'–'+DS[dayAt(-2).getDay()]]};
     Object.entries(lab).forEach(([k,v])=>{const b=tb.querySelector(`[data-t="${k}"]`);if(b)b.innerHTML=`<b>${v[0]}</b><small>${v[1]}</small>`})}
   gantt();
 }
+document.getElementById('print-btn').addEventListener('click',()=>window.print());
 bakeIn.min=iso(today()); bakeIn.value=iso(BAKE);
 bakeIn.addEventListener('change',()=>{if(!bakeIn.value)return;const [y,m,d]=bakeIn.value.split('-').map(Number);BAKE=new Date(y,m-1,d);store.set('pan-bake',bakeIn.value);render()});
 
