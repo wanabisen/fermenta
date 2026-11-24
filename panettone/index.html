@@ -278,7 +278,10 @@ body.printall .only-cacao{display:revert} body.printall tr.only-cacao{display:ta
   .steps li{font-size:12px}
   .g-axis{margin-left:84px}
 }
-@page{size:A4;margin:12mm 11mm 14mm}
+@page{size:A4;margin:12mm 11mm 16mm;
+  @bottom-left{content:"Dossier Panettone V5.1";font:9px "Inter",system-ui,sans-serif;color:#6E5E53}
+  @bottom-right{content:"Página " counter(page) " de " counter(pages);font:9px "Inter",system-ui,sans-serif;color:#6E5E53}
+}
 @media (max-width:520px){ .branches{grid-template-columns:1fr} .bar nav{display:none} .toggles{margin-left:0} }
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
@@ -337,8 +340,8 @@ body.printall .only-cacao{display:revert} body.printall tr.only-cacao{display:ta
   </div>
   <div class="panel tandas" id="tandas-panel">
     <div class="tandas-head"><h3>Tandas de amasado</h3>
-      <label class="capl" for="cap">Capacidad de tu amasadora <input type="number" id="cap" min="0.3" max="5" step="0.05" value="1.35" inputmode="decimal"> kg</label></div>
-    <p class="note">kMix KMX750: 1,35 kg según la ficha de Kenwood. Cuenta el peso total de masa en el bol, chocolate incluido.</p>
+      <label class="capl" for="cap">Capacidad de tu amasadora <input type="number" id="cap" min="0.3" max="5" step="0.05" value="1.4" inputmode="decimal"> kg</label></div>
+    <p class="note">Por defecto 1,4 kg para la kMix KMX750 (Kenwood declara 1,35 kg). Cuenta el peso total de masa en el bol, chocolate incluido.</p>
     <div id="tandas" class="tandas-body"></div>
   </div>
 </section>
@@ -700,7 +703,7 @@ bakeIn.addEventListener('change',()=>{if(!bakeIn.value)return;const [y,m,d]=bake
 /* tandas de amasado según la capacidad de la amasadora */
 const capIn=document.getElementById('cap');
 {const v=store.get('pan-cap'); if(v) capIn.value=v;}
-const capKg=()=>{const v=parseFloat(String(capIn.value).replace(',','.'));return isFinite(v)&&v>=0.3?v:1.35};
+const capKg=()=>{const v=parseFloat(String(capIn.value).replace(',','.'));return isFinite(v)&&v>=0.3?v:1.4};
 const imp1T=i=>sum(IMP1,i,true);
 const LET='ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 function pack(mass){
