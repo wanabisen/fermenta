@@ -659,7 +659,9 @@ function render(){
     <dt>Harina (impastos)</dt><dd>${fmtN(har)} g</dd>
     <dt>Yemas</dt><dd>${fmtN(yemas)} g · ~${Math.ceil(yemas/17)} uds</dd>
     <dt>Mantequilla</dt><dd>${fmtN(mant)} g</dd>
-    <dt>Chocolate</dt><dd>${fmtN(choc)} g</dd>
+    <dt>Chocolate en trozos</dt><dd>${fmtN(choc)} g</dd>${cacao()?`
+    <dt>Cacao puro en polvo</dt><dd>${fmt(n.reduce((a,c,i)=>a+c*CAC[0][1][i],0))}</dd>
+    <dt>Azúcar extra (pasta)</dt><dd>${fmt(n.reduce((a,c,i)=>a+c*CAC[2][1][i],0))}</dd>`:''}
     <dt>Glassa</dt><dd>${fmtN(gl)} g${gl>220?' · ×'+Math.ceil(gl/220)+' lotes':''}</dd>`
    : `<dt>Sin moldes</dt><dd>—</dd>`;
   const need=madre*1.2+50, inp=Math.max(50,Math.ceil(need/2.45/5)*5);
