@@ -438,6 +438,7 @@ body.printall .only-cacao{display:revert} body.printall tr.only-cacao{display:ta
   <div class="phase" style="--ph:var(--orange)">
     <div class="phase-head"><h3>3 · Primer impasto</h3><span class="when"><span class="dn" data-o="-1" data-cap="1" data-fmt="wd">·</span> · ~21:00</span></div>
     <div class="chips"><span class="chip t">Masa final 26 °C</span><span class="chip t">Fermenta 26 °C (25,5–26,5)</span><span class="chip">12–14 h</span><span class="chip ph">Fin pH 5,2–5,4</span></div>
+    <div id="tandas-f3" class="tandas-body"></div>
     <div class="grid2">
       <div class="tbl"><table><thead><tr><th>Ingrediente</th><th class="n">300</th><th class="n">500</th><th class="n">750</th><th class="n">900</th></tr></thead><tbody id="imp1"></tbody></table></div>
       <div style="display:grid;gap:12px;align-content:start">
@@ -726,18 +727,18 @@ const MIX=1+50/60, T2=26.75, STEP=MIX+1/6;  /* 2º impasto de la tanda A: día D
 const tl=k=>{const s=T2+k*STEP, mix=s+MIX;return {s,mix,mold:mix+1.25,oven:mix+7.75,out:mix+9.05}};
 function hhmm(h){const t=8+h, day=Math.floor(t/24)-1;let H=Math.floor(t)%24,M=Math.round((t-Math.floor(t))*60);if(M===60){M=0;H=(H+1)%24}
   const c=`${String(H).padStart(2,'0')}:${String(M).padStart(2,'0')}`;return day===0?c:`${DS[dayAt(day).getDay()]} ${c}`}
-function wtable(B,rows,first){
+function wtable(B,rows,first,totLabel){
   const head=`<tr><th>Ingrediente</th>${B.map((b,k)=>`<th class="n">${B.length>1?'Tanda '+LET[k]:'Todo'}<br><span style="text-transform:none;letter-spacing:0">${bdesc(b)}</span></th>`).join('')}</tr>`;
   let body='';
   if(first) body+=`<tr><td><b>${first[0]}</b></td>${B.map(b=>`<td class="n"><b>${fmt(bsum(b,first[1]))}</b></td>`).join('')}</tr>`;
   rows.forEach(r=>{body+=`<tr class="${r[2]||''}"><td>${r[0]}</td>${B.map(b=>`<td class="n">${r[1]?fmt(bsum(b,r[1])):'—'}</td>`).join('')}</tr>`});
-  body+=`<tr class="total"><td>Total en el bol</td>${B.map(b=>`<td class="n">${fmtN(b.m)} g</td>`).join('')}</tr>`;
+  body+=`<tr class="total"><td>${totLabel||'Total en el bol'}</td>${B.map(b=>`<td class="n">${fmtN(b.m)} g</td>`).join('')}</tr>`;
   return `<div class="tbl"><table><thead>${head}</thead><tbody>${body}</tbody></table></div>`;
 }
 function renderTandas(){
   const box=document.getElementById('tandas'), f4=document.getElementById('tandas-f4');
   const B2=pack(totals);
-  if(!B2.length){box.innerHTML='<p class="note">Añade panettones arriba para calcular las tandas.</p>';f4.innerHTML='';return}
+  if(!B2.length){box.innerHTML='<p class="note">Añade panettones arriba para calcular las tandas.</p>';f4.innerHTML='';document.getElementById('tandas-f3').innerHTML='';return}
   const capG=capKg()*1000, many=B2.length>1;
   const tot1=counts.reduce((a,c,i)=>a+c*imp1T(i),0), B1=tot1>capG?pack(imp1T):null;
   B1&&B1.forEach(b=>b.m=bsum(b,imp1T));
@@ -759,6 +760,11 @@ function renderTandas(){
   const w1=B1?`<h3 style="font-size:15px">1º impasto por tandas</h3>${wtable(B1,IMP1.filter(r=>r[2]!=='opt').map(r=>[r[0],i=>r[1][i]]))}`:'';
   const overTxt=over?'<div class="callout warn"><b>Un solo panettone supera la capacidad</b><span>Esa tanda se pasa del límite que has puesto. Amásala con pausas frecuentes o reduce el tamaño.</span></div>':'';
   box.innerHTML=`<p class="tsum">${sumTxt}${t1}</p>${overTxt}${sched}<p class="note">Horas orientativas: 1 h 50 de amasado por tanda con la espiral y 10 min para lavar el bol. El horno depende de que cada molde llegue a 1 dedo del borde; a las 21:00 decide el freno molde a molde.</p>${split}<h3 style="font-size:15px">Pesos del 2º impasto por tanda</h3>${w2}${w1}`;
+  const all1=[{items:B2.flatMap(b=>b.items),m:tot1}];
+  const rows1=IMP1.map(r=>[r[2]==='opt'?r[0]+' · no suma al total':r[0],i=>r[1][i],r[2]==='opt'?'':'']);
+  document.getElementById('tandas-f3').innerHTML=B1
+    ?`<h3 style="font-size:15px">Tu 1º impasto · ${B1.length} tandas</h3><p class="note">${fmtN(tot1)} g en total: no cabe de una vez en tu amasadora. Amasa las tandas seguidas y júntalas en el mismo recipiente para fermentar.</p>${wtable(B1,rows1,null,'Total (sin reserva)')}`
+    :`<h3 style="font-size:15px">Tu 1º impasto · ${bdesc(all1[0])}</h3>${wtable(all1,rows1,null,'Total (sin reserva)')}<p class="note">Debajo, las cantidades por molde como referencia.</p>`;
   f4.innerHTML=(many?`<h3 style="font-size:15px">Tus tandas (${B2.length})</h3>${split}`:`<h3 style="font-size:15px">Tu amasado</h3>`)+w2;
 }
 capIn.addEventListener('input',()=>{store.set('pan-cap',capIn.value);render()});
